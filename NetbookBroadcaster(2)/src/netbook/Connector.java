@@ -20,10 +20,10 @@ public class Connector implements Observer {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-	    if (args.length < 2)
+	    if (args.length < 1)
 	        throw new RuntimeException("Need to provide last part of ip");
 	    
-		new Connector().connect(args[1]);
+		new Connector().connect(args[0]);
 	}
 	
 	
