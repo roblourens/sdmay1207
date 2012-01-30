@@ -2,11 +2,14 @@ package sdmay1207.ais;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import sdmay1207.ais.network.NetworkController;
-import sdmay1207.ais.network.NetworkController.Heartbeat;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
+import sdmay1207.ais.network.NetworkInterface;
 import sdmay1207.ais.network.Node;
+import sdmay1207.ais.network.model.Heartbeat;
 import sdmay1207.ais.sensors.SensorInterface;
 
 /**
@@ -25,6 +28,7 @@ public class NodeController implements Observer
 {
     NetworkController networkController = new NetworkController();
     SensorInterface sensorInterface = new SensorInterface();
+    NetworkInterface networkInterface = new NetworkInterface();
     Node me;
 
     public NodeController(int nodeNumber)
@@ -33,10 +37,16 @@ public class NodeController implements Observer
         networkController.addObserver(this);
     }
 
+    public void start()
+    {
+        Timer t = new Timer();
+        t.schedule(new HeartbeatTask(), HEARTBEAT_FREQ);
+    }
+
     // ms
     private static final int HEARTBEAT_FREQ = 5000;
 
-    // maybe here?
+    // probably won't usually be used - GUI should call the constructor instead
     public static void main(String[] args)
     {
         if (args.length < 1)
@@ -54,9 +64,10 @@ public class NodeController implements Observer
             throw new RuntimeException("Go to hell");
         }
 
-        new NodeController(nodeNumber);
+        new NodeController(nodeNumber).start();
     }
 
+    // event received from the NetworkController
     @Override
     public void update(Observable observable, Object obj)
     {
@@ -68,6 +79,15 @@ public class NodeController implements Observer
             Heartbeat hb = (Heartbeat) netEvent.data;
             // do something useful with it- pass to GUI or something
             break;
+        }
+    }
+
+    public class HeartbeatTask extends TimerTask
+    {
+        @Override
+        public void run()
+        {
+            networkInterface.broadcastData(me.getHeartbeat());
         }
     }
 }

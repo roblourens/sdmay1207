@@ -13,7 +13,7 @@ public class NetworkController extends Observable
 {
     private NetworkInterface networkInterface;
 
-    public enum Event
+    public static enum Event
     {
         NodeJoined, NodeLeft, RecvdHeartbeat, RecvdData, RecvdCommand
     }
@@ -29,20 +29,10 @@ public class NetworkController extends Observable
     /**
      * A message object returned to observers on each network event.
      */
-    public class NetworkEvent
+    public static class NetworkEvent
     {
         public Event event;
 
         public Object data;
-    }
-
-    public class Heartbeat
-    {
-        public Node from;
-
-        // Could be json here
-        public String sensorOutput;
-
-        public GPSReading location;
     }
 }

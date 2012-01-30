@@ -1,5 +1,9 @@
 package sdmay1207.ais.network;
 
+import sdmay1207.ais.network.routing.AODV;
+import sdmay1207.ais.network.routing.BATMAN;
+import sdmay1207.ais.network.routing.RoutingImpl;
+
 /**
  * The network interface component allows the system to connect to a network and
  * send and receive data.
@@ -12,6 +16,9 @@ public class NetworkInterface
     {
         AODV, BATMAN
     }
+    
+    private RoutingImpl routingImpl = null;
+    private int nodeNumber;
 
     /**
      * Starts the adhoc network
@@ -20,8 +27,9 @@ public class NetworkInterface
      *            The last part of the IP address
      * @return True if successful
      */
-    public boolean startNetwork(String nodeNumber)
+    public boolean startNetwork(int nodeNumber)
     {
+        this.nodeNumber = nodeNumber;
         return false;
     }
 
@@ -34,6 +42,15 @@ public class NetworkInterface
      */
     public boolean startRouting(RoutingAlg routingAlg)
     {
+        switch (routingAlg)
+        {
+        case AODV:
+            routingImpl = new AODV(SUBNET+nodeNumber);
+            break;
+        case BATMAN:
+            routingImpl = new BATMAN(SUBNET+nodeNumber);
+            break;
+        }
         return false;
     }
 
@@ -66,5 +83,16 @@ public class NetworkInterface
     public int getLinkQuality()
     {
         return 0;
+    }
+    
+    public boolean broadcastData(Object data)
+    {
+        return transmitData(255, data);
+    }
+    
+    public boolean transmitData(int nodeNum, Object data)
+    {
+        // transmit it
+        return routingImpl.transmitData(SUBNET+nodeNum, data.toString());
     }
 }
