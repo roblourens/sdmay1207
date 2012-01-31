@@ -39,8 +39,7 @@ public class NodeController implements Observer
 
     public void start()
     {
-        Timer t = new Timer();
-        t.schedule(new HeartbeatTask(), HEARTBEAT_FREQ);
+        new Timer().schedule(new HeartbeatTask(), HEARTBEAT_FREQ);
     }
 
     // ms
@@ -88,6 +87,8 @@ public class NodeController implements Observer
         public void run()
         {
             networkInterface.broadcastData(me.getHeartbeat());
+            
+            new Timer().schedule(this, HEARTBEAT_FREQ);
         }
     }
 }

@@ -1,24 +1,51 @@
 package sdmay1207.ais.network.model;
 
-import sdmay1207.ais.network.Node;
-import sdmay1207.ais.sensors.GPS.GPSReading;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
-public class Heartbeat
+import sdmay1207.ais.sensors.SensorInterface.SensorType;
+
+public class Heartbeat extends NetworkMessage
 {
-    public Node from;
+    public Map<SensorType, String> sensorOutput = new HashMap<SensorType, String>();
 
-    // Could be json here
-    public String sensorOutput;
+    public Heartbeat(String strHeartbeat)
+    {
+        super(strHeartbeat);
 
-    public GPSReading location;
+        for (String s : data)
+        {
+            SensorType st = SensorType.values()[s.charAt(0) - '0'];
+            String sensorReading = s.substring(1);
 
-    // ms
-    public long timestamp;
-    
-    // for sending over the network
-    // could use JSON or something simpler
+            sensorOutput.put(st, sensorReading);
+        }
+    }
+
+    public Heartbeat()
+    {
+
+    }
+
+    // format like <1 digit sensortype><sensor output><;>
     public String toString()
     {
-        return "";
+        StringBuilder sensorOutputStr = new StringBuilder();
+
+        Iterator<Entry<SensorType, String>> it = sensorOutput.entrySet()
+                .iterator();
+        while (it.hasNext())
+        {
+            Entry<SensorType, String> entry = it.next();
+            sensorOutputStr.append(entry.getKey().ordinal());
+            sensorOutputStr.append(entry.getValue());
+
+            if (it.hasNext())
+                sensorOutputStr.append(";");
+        }
+
+        return super.toString() + ";" + sensorOutputStr;
     }
 }

@@ -1,7 +1,7 @@
 package sdmay1207.ais.sensors;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The sensor interface component encapsulates all behavior related to issuing
@@ -9,19 +9,16 @@ import java.util.List;
  */
 public class SensorInterface
 {
-    public enum HeartbeatSensorType
+    // If there are more than 10, fix the Heartbeat serializing code
+    public enum SensorType
     {
-        location, thermometer
+        Location, Thermometer, StillCamera, Video
     }
 
-    public enum OnDemandSensorType
+    public Map<SensorType, Sensor> sensors = new HashMap<SensorType, Sensor>();
+
+    public SensorInterface()
     {
-        stillCamera, video
+        // Detect available sensors, populate 'sensors' Map, initialize devices
     }
-
-    /** GPS, battery, basic stuff */
-    private List<Sensor> heartbeatSensors = new ArrayList<Sensor>();
-
-    /** Camera, etc. */
-    private List<Sensor> onDemandSensors = new ArrayList<Sensor>();
 }
