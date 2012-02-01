@@ -15,8 +15,20 @@ public class BATMAN implements RoutingImpl
     @Override
     public boolean start(String ip, String interfaceName)
     {
-        Device.sysCommand("su -C batmand " + interfaceName);
-        return true;
+        String result = Device.sysCommand("sudo batmand " + interfaceName);
+        if (result.startsWith("Not using"))
+        {
+            System.out.println("batmand failed to start: " + result);
+            return false;
+        } else if (result.startsWith("Using "))
+        {
+            System.out.println("batmand started successfully");
+            return true;
+        } else
+        {
+            System.out.println("Something weird happened: " + result);
+            return false;
+        }
     }
 
     @Override

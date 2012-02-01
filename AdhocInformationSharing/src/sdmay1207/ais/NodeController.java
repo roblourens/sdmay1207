@@ -39,7 +39,7 @@ public class NodeController implements Observer
 
     public void start()
     {
-        new Timer().schedule(new HeartbeatTask(), HEARTBEAT_FREQ);
+        //new Timer().schedule(new HeartbeatTask(), HEARTBEAT_FREQ);
     }
 
     // ms

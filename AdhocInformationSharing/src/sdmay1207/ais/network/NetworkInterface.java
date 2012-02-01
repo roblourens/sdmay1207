@@ -12,7 +12,7 @@ import sdmay1207.ais.network.routing.RoutingImpl;
 public class NetworkInterface
 {
     public static final String SUBNET = "192.168.2.";
-    public static final String ESSID = "192.168.2.";
+    public static final String ESSID = "sdmay1207";
 
     public enum RoutingAlg
     {
@@ -36,7 +36,10 @@ public class NetworkInterface
 
         if (!Device.isAndroidSystem())
         {
-            Device.sysCommand("stop network-manager");
+            String result = Device.sysCommand("stop network-manager");
+            if (result.startsWith("stop: Rejected"))
+                throw new RuntimeException("Superuser privileges required");
+            
             Device.sysCommand("ifconfig " + Device.wlanInterfaceName()
                     + " down");
             Device.sysCommand("iwconfig " + Device.wlanInterfaceName()
