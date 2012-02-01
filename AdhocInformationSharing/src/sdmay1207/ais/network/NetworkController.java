@@ -2,7 +2,8 @@ package sdmay1207.ais.network;
 
 import java.util.Observable;
 
-import sdmay1207.ais.sensors.GPS.GPSReading;
+import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
+import sdmay1207.ais.network.model.Heartbeat;
 
 /**
  * The network controller component encapsulates all behavior related to
@@ -11,9 +12,9 @@ import sdmay1207.ais.sensors.GPS.GPSReading;
  */
 public class NetworkController extends Observable
 {
-    private NetworkInterface networkInterface;
+    private NetworkInterface networkInterface = new NetworkInterface();
 
-    public static enum Event
+    public enum Event
     {
         NodeJoined, NodeLeft, RecvdHeartbeat, RecvdData, RecvdCommand
     }
@@ -21,9 +22,15 @@ public class NetworkController extends Observable
     /**
      * Do setup
      */
-    public NetworkController()
+    public NetworkController(int nodeNumber, RoutingAlg routingAlg)
     {
-        networkInterface = new NetworkInterface();
+        networkInterface.startNetwork(nodeNumber);
+        networkInterface.startRouting(routingAlg);
+    }
+    
+    public boolean sendHeartbeat(Heartbeat hb)
+    {
+        return networkInterface.broadcastData(hb);
     }
 
     /**

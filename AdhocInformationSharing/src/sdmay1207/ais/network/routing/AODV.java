@@ -6,13 +6,20 @@ import sdmay1207.ais.network.routing.RoutingImpl;
 // just calls methods in Node, etc. to send data
 public class AODV implements RoutingImpl
 {
-    public AODV(String ip)
+    @Override
+    public boolean transmitData(String ip, String data)
     {
-        // setup
+        return false;
     }
 
     @Override
-    public boolean transmitData(String ip, String data)
+    public boolean start(String ip, String interfaceName)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean stop()
     {
         return false;
     }

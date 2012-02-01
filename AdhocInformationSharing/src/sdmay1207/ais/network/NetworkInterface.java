@@ -1,5 +1,6 @@
 package sdmay1207.ais.network;
 
+import sdmay1207.ais.Device;
 import sdmay1207.ais.network.routing.AODV;
 import sdmay1207.ais.network.routing.BATMAN;
 import sdmay1207.ais.network.routing.RoutingImpl;
@@ -11,15 +12,17 @@ import sdmay1207.ais.network.routing.RoutingImpl;
 public class NetworkInterface
 {
     public static final String SUBNET = "192.168.2.";
+    public static final String ESSID = "192.168.2.";
 
     public enum RoutingAlg
     {
         AODV, BATMAN
     }
-    
+
     private RoutingImpl routingImpl = null;
     private int nodeNumber;
 
+    // Need a way to detect whether this was started w/o sudo
     /**
      * Starts the adhoc network
      * 
@@ -30,6 +33,32 @@ public class NetworkInterface
     public boolean startNetwork(int nodeNumber)
     {
         this.nodeNumber = nodeNumber;
+
+        if (!Device.isAndroidSystem())
+        {
+            Device.sysCommand("stop network-manager");
+            Device.sysCommand("ifconfig " + Device.wlanInterfaceName()
+                    + " down");
+            Device.sysCommand("iwconfig " + Device.wlanInterfaceName()
+                    + " mode ad-hoc essid " + ESSID);
+            Device.sysCommand("ifconfig " + Device.wlanInterfaceName() + " up");
+
+            // Let it start up...
+            try
+            {
+                Thread.sleep(1);
+            } catch (InterruptedException e)
+            {
+            }
+
+            System.out
+                    .println("Starting the adhoc network with IP: " + getIP());
+            Device.sysCommand("ifconfig " + Device.wlanInterfaceName() + " "
+                    + getIP());
+            Device.sysCommand("ifconfig " + Device.wlanInterfaceName()
+                    + " subnet 255.255.255.0");
+        }
+
         return false;
     }
 
@@ -45,15 +74,18 @@ public class NetworkInterface
         switch (routingAlg)
         {
         case AODV:
-            routingImpl = new AODV(SUBNET+nodeNumber);
+            routingImpl = new AODV();
             break;
         case BATMAN:
-            routingImpl = new BATMAN(SUBNET+nodeNumber);
+            routingImpl = new BATMAN();
             break;
         }
-        return false;
+
+        return routingImpl.start(getIP(), Device.wlanInterfaceName());
     }
 
+    // any reason to implement these two? It was in the design doc but I'm not
+    // sure why we would need it
     /**
      * Power the networking hardware off
      * 
@@ -84,15 +116,21 @@ public class NetworkInterface
     {
         return 0;
     }
-    
+
+    private String getIP()
+    {
+        return SUBNET + nodeNumber;
+    }
+
     public boolean broadcastData(Object data)
     {
         return transmitData(255, data);
     }
-    
+
     public boolean transmitData(int nodeNum, Object data)
     {
         // transmit it
-        return routingImpl.transmitData(SUBNET+nodeNum, data.toString());
+        return routingImpl.transmitData(getIP(), data.toString());
     }
+
 }

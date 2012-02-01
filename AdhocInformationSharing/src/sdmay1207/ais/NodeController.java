@@ -7,9 +7,9 @@ import java.util.TimerTask;
 
 import sdmay1207.ais.network.NetworkController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
-import sdmay1207.ais.network.NetworkInterface;
-import sdmay1207.ais.network.Node;
+import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Heartbeat;
+import sdmay1207.ais.network.model.Node;
 import sdmay1207.ais.sensors.SensorInterface;
 
 /**
@@ -26,14 +26,14 @@ import sdmay1207.ais.sensors.SensorInterface;
  */
 public class NodeController implements Observer
 {
-    NetworkController networkController = new NetworkController();
+    NetworkController networkController;
     SensorInterface sensorInterface = new SensorInterface();
-    NetworkInterface networkInterface = new NetworkInterface();
     Node me;
 
-    public NodeController(int nodeNumber)
+    public NodeController(int nodeNumber, RoutingAlg routingAlg)
     {
         me = new Node(nodeNumber);
+        networkController = new NetworkController(nodeNumber, routingAlg);
         networkController.addObserver(this);
     }
 
@@ -48,6 +48,7 @@ public class NodeController implements Observer
     // probably won't usually be used - GUI should call the constructor instead
     public static void main(String[] args)
     {
+        args = new String[]{"4"};
         if (args.length < 1)
             throw new RuntimeException("Must provide the node number");
 
@@ -63,7 +64,7 @@ public class NodeController implements Observer
             throw new RuntimeException("Go to hell");
         }
 
-        new NodeController(nodeNumber).start();
+        new NodeController(nodeNumber, RoutingAlg.BATMAN).start();
     }
 
     // event received from the NetworkController
@@ -77,6 +78,7 @@ public class NodeController implements Observer
         case RecvdHeartbeat:
             Heartbeat hb = (Heartbeat) netEvent.data;
             // do something useful with it- pass to GUI or something
+            // or GUI has actually registered as the listener
             break;
         }
     }
@@ -86,7 +88,7 @@ public class NodeController implements Observer
         @Override
         public void run()
         {
-            networkInterface.broadcastData(me.getHeartbeat());
+            networkController.sendHeartbeat(me.getHeartbeat());
             
             new Timer().schedule(this, HEARTBEAT_FREQ);
         }

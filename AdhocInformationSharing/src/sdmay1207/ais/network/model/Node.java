@@ -1,9 +1,9 @@
-package sdmay1207.ais.network;
+package sdmay1207.ais.network.model;
 
 import java.util.List;
 
+import sdmay1207.ais.network.NetworkController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
-import sdmay1207.ais.network.model.Heartbeat;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
 
 /**
