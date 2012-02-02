@@ -1,6 +1,8 @@
 package sdmay1207.ais.network;
 
+import sdmay1207.ais.Config;
 import sdmay1207.ais.Device;
+import sdmay1207.ais.network.NetworkController.Receiver;
 import sdmay1207.ais.network.routing.AODV;
 import sdmay1207.ais.network.routing.BATMAN;
 import sdmay1207.ais.network.routing.RoutingImpl;
@@ -11,9 +13,6 @@ import sdmay1207.ais.network.routing.RoutingImpl;
  */
 public class NetworkInterface
 {
-    public static final String SUBNET = "192.168.2.";
-    public static final String ESSID = "sdmay1207";
-
     public enum RoutingAlg
     {
         AODV, BATMAN
@@ -21,6 +20,12 @@ public class NetworkInterface
 
     private RoutingImpl routingImpl = null;
     private int nodeNumber;
+    private Receiver receiver;
+
+    public NetworkInterface(Receiver receiver)
+    {
+        this.receiver = receiver;
+    }
 
     // Need a way to detect whether this was started w/o sudo
     /**
@@ -39,11 +44,11 @@ public class NetworkInterface
             String result = Device.sysCommand("stop network-manager");
             if (result.startsWith("stop: Rejected"))
                 throw new RuntimeException("Superuser privileges required");
-            
+
             Device.sysCommand("ifconfig " + Device.wlanInterfaceName()
                     + " down");
             Device.sysCommand("iwconfig " + Device.wlanInterfaceName()
-                    + " mode ad-hoc essid " + ESSID);
+                    + " mode ad-hoc essid " + Config.ESSID);
             Device.sysCommand("ifconfig " + Device.wlanInterfaceName() + " up");
 
             // Let it start up...
@@ -80,7 +85,7 @@ public class NetworkInterface
             routingImpl = new AODV();
             break;
         case BATMAN:
-            routingImpl = new BATMAN();
+            routingImpl = new BATMAN(receiver);
             break;
         }
 
@@ -122,12 +127,12 @@ public class NetworkInterface
 
     private String getIP()
     {
-        return SUBNET + nodeNumber;
+        return Config.SUBNET + nodeNumber;
     }
 
     public boolean broadcastData(Object data)
     {
-        return transmitData(255, data);
+        return routingImpl.broadcastData(Config.SUBNET, data.toString());
     }
 
     public boolean transmitData(int nodeNum, Object data)

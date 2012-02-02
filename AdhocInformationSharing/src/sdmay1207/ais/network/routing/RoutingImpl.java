@@ -4,6 +4,8 @@ package sdmay1207.ais.network.routing;
 public interface RoutingImpl
 {
     public boolean transmitData(String ip, String data);
+    
+    public boolean broadcastData(String subnet, String data);
 
     public boolean start(String ip, String interfaceName);
 

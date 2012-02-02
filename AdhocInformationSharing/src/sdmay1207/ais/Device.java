@@ -23,7 +23,6 @@ public class Device
         if (isAndroidSystem())
             return runCommand(command) + "";
 
-        System.out.println(command);
         String result = "";
         try
         {
@@ -42,7 +41,6 @@ public class Device
             return result;
         }
 
-        System.out.println(result);
         return result;
     }
 

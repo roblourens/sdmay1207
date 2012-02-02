@@ -13,9 +13,9 @@ public class NetworkCommand extends NetworkMessage
 
     public CommandType commandType;
 
-    public NetworkCommand(String strCommand)
+    public NetworkCommand(String fromIP, String[] commandArgs)
     {
-        super(strCommand);
+        super(fromIP, commandArgs);
     }
 
     public NetworkCommand()

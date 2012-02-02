@@ -11,9 +11,9 @@ public class Heartbeat extends NetworkMessage
 {
     public Map<SensorType, String> sensorOutput = new HashMap<SensorType, String>();
 
-    public Heartbeat(String strHeartbeat)
+    public Heartbeat(String fromIP, String[] heartbeatArgs)
     {
-        super(strHeartbeat);
+        super(fromIP, heartbeatArgs);
 
         for (String s : data)
         {
