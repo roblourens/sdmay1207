@@ -38,11 +38,11 @@ public class BATMAN implements RoutingImpl
     public boolean start(String ip, String interfaceName)
     {
         String result = Device.sysCommand("sudo batmand " + interfaceName);
-        if (result.startsWith("Not using"))
+        if (result.startsWith("Not using") || result.startsWith("Error"))
         {
             System.out.println("batmand failed to start: " + result);
             return false;
-        } else if (result.startsWith("Using "))
+        } else if (result.startsWith("Interface activated"))
         {
             System.out.println("batmand started successfully");
         } else

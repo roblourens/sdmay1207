@@ -26,9 +26,12 @@ import sdmay1207.ais.sensors.SensorInterface;
  */
 public class NodeController implements Observer
 {
-    NetworkController networkController;
-    SensorInterface sensorInterface = new SensorInterface();
-    Node me;
+    private NetworkController networkController;
+    private SensorInterface sensorInterface = new SensorInterface();
+    private Node me;
+
+    // ms
+    private static final int HEARTBEAT_FREQ = 5000;
 
     public NodeController(int nodeNumber, RoutingAlg routingAlg)
     {
@@ -39,12 +42,9 @@ public class NodeController implements Observer
 
     public void start()
     {
-        //new Timer().schedule(new HeartbeatTask(), HEARTBEAT_FREQ);
+        new Timer().schedule(new HeartbeatTask(), HEARTBEAT_FREQ);
     }
-
-    // ms
-    private static final int HEARTBEAT_FREQ = 5000;
-
+    
     // probably won't usually be used - GUI should call the constructor instead
     public static void main(String[] args)
     {
@@ -88,6 +88,7 @@ public class NodeController implements Observer
         @Override
         public void run()
         {
+            System.out.println("...ba-dump...");
             networkController.sendHeartbeat(me.getHeartbeat());
             
             new Timer().schedule(this, HEARTBEAT_FREQ);

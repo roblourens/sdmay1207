@@ -11,6 +11,14 @@ public class Heartbeat extends NetworkMessage
 {
     public Map<SensorType, String> sensorOutput = new HashMap<SensorType, String>();
 
+    /**
+     * Constructor to build a Heartbeat model object from received data
+     * 
+     * @param fromIP
+     *            The IP address that sent this heartbeat
+     * @param heartbeatArgs
+     *            The (;-separated) data associated with this heartbeat message
+     */
     public Heartbeat(String fromIP, String[] heartbeatArgs)
     {
         super(fromIP, heartbeatArgs);
@@ -24,28 +32,38 @@ public class Heartbeat extends NetworkMessage
         }
     }
 
+    /**
+     * Empty constructor to build a new Heartbeat for sending
+     */
     public Heartbeat()
     {
-
+        super();
+        messageType = MessageType.Heartbeat;
     }
 
     // format like <1 digit sensortype><sensor output><;>
     public String toString()
     {
-        StringBuilder sensorOutputStr = new StringBuilder();
+        StringBuilder sensorOutputSB = new StringBuilder();
 
         Iterator<Entry<SensorType, String>> it = sensorOutput.entrySet()
                 .iterator();
         while (it.hasNext())
         {
             Entry<SensorType, String> entry = it.next();
-            sensorOutputStr.append(entry.getKey().ordinal());
-            sensorOutputStr.append(entry.getValue());
+            sensorOutputSB.append(entry.getKey().ordinal());
+            sensorOutputSB.append(entry.getValue());
 
             if (it.hasNext())
-                sensorOutputStr.append(";");
+                sensorOutputSB.append(";");
         }
 
-        return super.toString() + ";" + sensorOutputStr;
+        String sensorOutputStr = sensorOutputSB.toString();
+        String result = super.toString();
+        
+        if (!sensorOutputStr.isEmpty())
+            result += ";" + sensorOutputStr;
+        
+        return result;
     }
 }

@@ -2,7 +2,6 @@ package sdmay1207.ais.network.model;
 
 import java.util.List;
 
-import sdmay1207.ais.network.NetworkController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
 
@@ -29,8 +28,7 @@ public class Node
     public Heartbeat getHeartbeat()
     {
         Heartbeat hb = new Heartbeat();
-
-        hb.timestamp = System.currentTimeMillis();
+        hb.from = nodeNum;
         return hb;
     }
 }

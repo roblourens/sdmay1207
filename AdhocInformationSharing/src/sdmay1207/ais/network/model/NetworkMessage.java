@@ -22,6 +22,8 @@ public abstract class NetworkMessage
      */
     public static NetworkMessage getMessage(String fromIP, String strMessage)
     {
+        System.out.println("Constructing message from String: " + strMessage);
+        
         String[] messageArgs = strMessage.split(";");
         MessageType messageType = MessageType.values()[Integer
                 .parseInt(messageArgs[0])];
@@ -44,7 +46,7 @@ public abstract class NetworkMessage
 
     public static NetworkMessage getMessage(String fromIP, byte[] messageData)
     {
-        return getMessage(fromIP, messageData.toString());
+        return getMessage(fromIP, new String(messageData));
     }
 
     /**
@@ -86,7 +88,7 @@ public abstract class NetworkMessage
      */
     public NetworkMessage()
     {
-
+        timestamp = System.currentTimeMillis();
     }
 
     public String toString()

@@ -132,6 +132,7 @@ public class NetworkInterface
 
     public boolean broadcastData(Object data)
     {
+        System.out.println("Broadcasting: " + data.toString());
         return routingImpl.broadcastData(Config.SUBNET, data.toString());
     }
 
