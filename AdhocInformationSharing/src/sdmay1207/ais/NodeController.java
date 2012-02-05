@@ -42,13 +42,13 @@ public class NodeController implements Observer
 
     public void start()
     {
-        new Timer().schedule(new HeartbeatTask(), HEARTBEAT_FREQ);
+        new Timer().schedule(new HeartbeatTask(), 0);
     }
-    
+
     // probably won't usually be used - GUI should call the constructor instead
     public static void main(String[] args)
     {
-        args = new String[]{"4"};
+        args = new String[] { "4" };
         if (args.length < 1)
             throw new RuntimeException("Must provide the node number");
 
@@ -72,11 +72,11 @@ public class NodeController implements Observer
     public void update(Observable observable, Object obj)
     {
         NetworkEvent netEvent = (NetworkEvent) obj;
-
         switch (netEvent.event)
         {
         case RecvdHeartbeat:
             Heartbeat hb = (Heartbeat) netEvent.data;
+            System.out.println("Got heartbeat from " + hb.from);
             // do something useful with it- pass to GUI or something
             // or GUI has actually registered as the listener
             break;
@@ -90,8 +90,8 @@ public class NodeController implements Observer
         {
             System.out.println("...ba-dump...");
             networkController.sendHeartbeat(me.getHeartbeat());
-            
-            new Timer().schedule(this, HEARTBEAT_FREQ);
+
+            new Timer().schedule(new HeartbeatTask(), HEARTBEAT_FREQ);
         }
     }
 }

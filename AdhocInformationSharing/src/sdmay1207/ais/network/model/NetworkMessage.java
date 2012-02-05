@@ -22,9 +22,7 @@ public abstract class NetworkMessage
      */
     public static NetworkMessage getMessage(String fromIP, String strMessage)
     {
-        System.out.println("Constructing message from String: " + strMessage);
-        
-        String[] messageArgs = strMessage.split(";");
+        String[] messageArgs = strMessage.trim().split(";");
         MessageType messageType = MessageType.values()[Integer
                 .parseInt(messageArgs[0])];
         String[] remainingArgs = Arrays.copyOfRange(messageArgs, 1,
@@ -59,10 +57,10 @@ public abstract class NetworkMessage
         // break the nodeNumber out of the fromIP
         if (!fromIP.startsWith(Config.SUBNET))
         {
-            System.err.println("Got a message with an unknown subnet");
+            System.err.println("Got a message with an unknown subnet: "
+                    + fromIP);
             return;
         }
-        from = Integer.parseInt(fromIP.split("\\.")[3]);
 
         if (messageArgs.length < 2)
             System.err.println("Bad message format: Got " + messageArgs.length
@@ -70,14 +68,13 @@ public abstract class NetworkMessage
 
         try
         {
-
-            timestamp = Long.parseLong(messageArgs[1]);
-            from = Integer.parseInt(messageArgs[2]);
+            timestamp = Long.parseLong(messageArgs[0]);
+            from = Integer.parseInt(messageArgs[1]);
         } catch (NumberFormatException e)
         {
             System.err
                     .println("Bad message format: " + e.getLocalizedMessage());
-            System.err.println(e.getStackTrace());
+            e.printStackTrace();
         }
 
         data = Arrays.copyOfRange(messageArgs, 2, messageArgs.length);

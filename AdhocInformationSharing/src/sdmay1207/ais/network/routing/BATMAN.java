@@ -6,8 +6,11 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import sdmay1207.ais.Device;
+import sdmay1207.ais.etc.Utils;
 import sdmay1207.ais.network.NetworkController.Receiver;
 
 // wraps a socket to send data using BATMAN
@@ -103,6 +106,32 @@ public class BATMAN implements RoutingImpl
         return true;
     }
 
+    /**
+     * Returns an array of BATMAN's current one-hop neighbor node numbers
+     */
+    private List<Integer> getCurrentNeighbors()
+    {
+        List<Integer> neighbors = new ArrayList<Integer>();
+
+        String output = Device.sysCommand("sudo batmand -c -b -d 1");
+        String[] lines = output.split("\n");
+
+        // First line is the header
+        for (int i = 1; i < lines.length; i++)
+        {
+            String line = lines[i];
+
+            // Extract (ip)whitespace(ip)something
+            line.trim();
+            String[] lineValues = line.split("\\s*");
+
+            if (lineValues[0].equals(lineValues[1]))
+                neighbors.add(Utils.getNodeNumberFromIP(lineValues[0]));
+        }
+
+        return neighbors;
+    }
+
     private class UDPReceiver implements Runnable
     {
         private volatile boolean keepRunning = true;
@@ -135,7 +164,10 @@ public class BATMAN implements RoutingImpl
 
                     dgramSock.receive(receivedPacket);
 
-                    String fromIP = receivedPacket.getAddress().toString();
+                    String fromAddress = receivedPacket.getAddress().toString();
+                    
+                    // toString returns hostname / ip
+                    String fromIP = fromAddress.split("/")[1];
                     receiver.addMessage(fromIP, receivedPacket.getData());
                 } catch (IOException e)
                 {

@@ -15,8 +15,7 @@ import sdmay1207.ais.network.model.NetworkMessage;
  */
 public class NetworkController extends Observable
 {
-    private NetworkInterface networkInterface = new NetworkInterface(
-            new Receiver());
+    private NetworkInterface networkInterface;
 
     public enum Event
     {
@@ -28,6 +27,10 @@ public class NetworkController extends Observable
      */
     public NetworkController(int nodeNumber, RoutingAlg routingAlg)
     {
+        Receiver r = new Receiver();
+        new Thread(r).start();
+        
+        networkInterface = new NetworkInterface(r);
         networkInterface.startNetwork(nodeNumber);
         networkInterface.startRouting(routingAlg);
     }
@@ -46,42 +49,48 @@ public class NetworkController extends Observable
 
         public Object data;
 
+        public long rcvdTimestamp;
+
         public NetworkEvent(Event event, Object data)
         {
             this.event = event;
             this.data = data;
+            this.rcvdTimestamp = System.currentTimeMillis();
         }
     }
 
+    // TODO not really sure how to structure this- events being passed from
+    // whevever it's detected to where it needs to be handled
     /**
-     * Receives data from the network, interprets it into the correct message
+     * Receives data/events from the network, interprets it into the correct
+     * message
      * 
      * @author rob
      * 
      */
     public class Receiver implements Runnable
     {
-        private Queue<NetworkMessage> receivedMessages;
+        private Queue<NetworkEvent> receivedEvents;
 
         // http://stackoverflow.com/questions/106591/do-you-ever-use-the-volatile-keyword-in-java
         private volatile boolean keepRunning = true;
 
         public Receiver()
         {
-            receivedMessages = new ConcurrentLinkedQueue<NetworkMessage>();
+            receivedEvents = new ConcurrentLinkedQueue<NetworkEvent>();
         }
 
         public void run()
         {
             while (keepRunning)
             {
-                synchronized (receivedMessages)
+                synchronized (receivedEvents)
                 {
-                    while (receivedMessages.isEmpty())
+                    while (receivedEvents.isEmpty())
                     {
                         try
                         {
-                            receivedMessages.wait();
+                            receivedEvents.wait();
                         } catch (InterruptedException e)
                         {
                             e.printStackTrace();
@@ -89,27 +98,42 @@ public class NetworkController extends Observable
                     }
                 }
 
-                NetworkMessage msg = receivedMessages.poll();
-                switch (msg.messageType)
-                {
-                case Command:
-                    notifyObservers(new NetworkEvent(Event.RecvdCommand, msg));
-                    break;
-                case Heartbeat:
-                    notifyObservers(new NetworkEvent(Event.RecvdHeartbeat, msg));
-                    break;
-                }
+                NetworkEvent event = receivedEvents.poll();
+                setChanged();
+                notifyObservers(event);
             }
         }
 
         public void addMessage(String fromIP, byte[] data)
         {
-            receivedMessages.add(NetworkMessage.getMessage(fromIP, data));
-            synchronized (receivedMessages)
+            NetworkMessage msg = NetworkMessage.getMessage(fromIP, data);
+            NetworkEvent event = null;
+
+            switch (msg.messageType)
             {
-                receivedMessages.notify();
+            case Command:
+                event = new NetworkEvent(Event.RecvdCommand, msg);
+                break;
+            case Heartbeat:
+                event = new NetworkEvent(Event.RecvdHeartbeat, msg);
+                break;
             }
 
+            receivedEvents.add(event);
+            synchronized (receivedEvents)
+            {
+                receivedEvents.notify();
+            }
+        }
+
+        public void nodeLeft(int nodeNumber)
+        {
+            receivedEvents.add(new NetworkEvent(Event.NodeLeft, nodeNumber));
+        }
+
+        public void nodeJoined(int nodeNumber)
+        {
+            receivedEvents.add(new NetworkEvent(Event.NodeJoined, nodeNumber));
         }
     }
 }

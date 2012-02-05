@@ -22,7 +22,7 @@ public class Node
 
     public Node(int nodeNum)
     {
-
+        this.nodeNum = nodeNum;
     }
 
     public Heartbeat getHeartbeat()

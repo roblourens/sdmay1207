@@ -14,4 +14,9 @@ public class Utils
         }
         return builder.toString();
     }
+    
+    public static int getNodeNumberFromIP(String ip)
+    {
+        return Integer.parseInt(ip.split("\\.")[3]);
+    }
 }
