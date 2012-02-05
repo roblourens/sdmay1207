@@ -48,7 +48,6 @@ public class NodeController implements Observer
     // probably won't usually be used - GUI should call the constructor instead
     public static void main(String[] args)
     {
-        args = new String[] { "4" };
         if (args.length < 1)
             throw new RuntimeException("Must provide the node number");
 

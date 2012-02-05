@@ -17,7 +17,7 @@ public class Device
         if (isAndroidSystem())
             System.loadLibrary("adhocsetup");
     }
-    
+
     public static String sysCommand(String command)
     {
         if (isAndroidSystem())
@@ -32,7 +32,7 @@ public class Device
                     p.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null)
-                result += line+"\n";
+                result += line + "\n";
         } catch (IOException e1)
         {
             return result;
@@ -49,9 +49,24 @@ public class Device
         // detect this somehow
         return false;
     }
-    
+
+    // cached name
+    private static String wlanInterfaceName = null;
+
     public static String wlanInterfaceName()
     {
-        return "wlan1";
+        if (!isAndroidSystem())
+        {
+            if (wlanInterfaceName == null)
+            {
+                String iwconfig = Device.sysCommand("iwconfig");
+                for (String line : iwconfig.split("\n"))
+                    if (line.contains("802.11"))
+                        return line.split("\\s+")[0];
+            }
+
+            return wlanInterfaceName;
+        } else
+            return "tiwlan"; // ?
     }
 }
