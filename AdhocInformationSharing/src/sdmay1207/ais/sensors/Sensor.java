@@ -4,6 +4,6 @@ public abstract class Sensor
 {
     // or something
     public abstract Object getReading();
-    
+
     public abstract String getUnits();
 }

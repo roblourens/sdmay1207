@@ -26,10 +26,10 @@ public class Utils
     @SuppressWarnings("unchecked")
     public static <T> T[] arrayCopy(T[] original, int from, int to)
     {
-        T[] newArr = (T[]) Array.newInstance(original[0].getClass(), to-from);
+        T[] newArr = (T[]) Array.newInstance(original[0].getClass(), to - from);
 
         for (int i = from; i < to; i++)
-            newArr[i-from] = original[i];
+            newArr[i - from] = original[i];
 
         return newArr;
     }

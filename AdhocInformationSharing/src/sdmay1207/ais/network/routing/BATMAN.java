@@ -44,8 +44,8 @@ public class BATMAN implements RoutingImpl
     {
         if (Device.isAndroidSystem())
         {
-            String result = Device.sysCommand("su -c \""+Device.getDataDir()
-                    + "/lib/batmand " + interfaceName+"\"");
+            String result = Device.sysCommand("su -c \"" + Device.getDataDir()
+                    + "/lib/batmand " + interfaceName + "\"");
             System.out.println(result);
         } else
         {

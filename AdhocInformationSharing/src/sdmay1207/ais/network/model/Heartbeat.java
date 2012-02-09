@@ -61,10 +61,10 @@ public class Heartbeat extends NetworkMessage
 
         String sensorOutputStr = sensorOutputSB.toString();
         String result = super.toString();
-        
+
         if (!sensorOutputStr.equals(""))
             result += ";" + sensorOutputStr;
-        
+
         return result;
     }
 }

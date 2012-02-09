@@ -29,7 +29,7 @@ public class NetworkController extends Observable
     {
         Receiver r = new Receiver();
         new Thread(r).start();
-        
+
         networkInterface = new NetworkInterface(r);
         networkInterface.startNetwork(nodeNumber);
         networkInterface.startRouting(routingAlg);

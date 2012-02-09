@@ -37,7 +37,7 @@ public class NodeController implements Observer
     public NodeController(int nodeNumber, RoutingAlg routingAlg, String dataDir)
     {
         Device.setDataDir(dataDir);
-        
+
         me = new Node(nodeNumber);
         networkController = new NetworkController(nodeNumber, routingAlg);
         networkController.addObserver(this);

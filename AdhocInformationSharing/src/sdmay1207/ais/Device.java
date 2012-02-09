@@ -18,7 +18,6 @@ public class Device
         return Connect.runCommand(command);
     }
 
-
     private static String dataDir;
 
     public static void setDataDir(String dataDir)
