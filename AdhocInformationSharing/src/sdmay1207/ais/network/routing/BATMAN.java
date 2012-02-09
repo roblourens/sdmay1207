@@ -23,7 +23,7 @@ public class BATMAN implements RoutingImpl
     private DatagramSocket sendSock;
     private Receiver receiver;
 
-    public BATMAN(Receiver receiver)
+    public BATMAN(Receiver receiver, String dataDir)
     {
         this.receiver = receiver;
 
@@ -35,23 +35,33 @@ public class BATMAN implements RoutingImpl
             System.out.println("BATMAN could not create a socket");
             e.printStackTrace();
         }
+
+        // for now, assume BATMAN is installed
     }
 
     @Override
     public boolean start(String ip, String interfaceName)
     {
-        String result = Device.sysCommand("sudo batmand " + interfaceName);
-        if (result.startsWith("Not using") || result.startsWith("Error"))
+        if (Device.isAndroidSystem())
         {
-            System.out.println("batmand failed to start: " + result);
-            return false;
-        } else if (result.startsWith("Interface activated"))
-        {
-            System.out.println("batmand started successfully");
+            String result = Device.sysCommand("su -c \""+Device.getDataDir()
+                    + "/lib/batmand " + interfaceName+"\"");
+            System.out.println(result);
         } else
         {
-            System.out.println("Something weird happened: " + result);
-            return false;
+            String result = Device.sysCommand("sudo batmand " + interfaceName);
+            if (result.startsWith("Not using") || result.startsWith("Error"))
+            {
+                System.out.println("batmand failed to start: " + result);
+                return false;
+            } else if (result.startsWith("Interface activated"))
+            {
+                System.out.println("batmand started successfully");
+            } else
+            {
+                System.out.println("Something weird happened: " + result);
+                return false;
+            }
         }
 
         new Thread(new UDPReceiver()).start();
@@ -165,7 +175,7 @@ public class BATMAN implements RoutingImpl
                     dgramSock.receive(receivedPacket);
 
                     String fromAddress = receivedPacket.getAddress().toString();
-                    
+
                     // toString returns hostname / ip
                     String fromIP = fromAddress.split("/")[1];
                     receiver.addMessage(fromIP, receivedPacket.getData());

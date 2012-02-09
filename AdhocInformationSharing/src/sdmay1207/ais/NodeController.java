@@ -32,12 +32,18 @@ public class NodeController implements Observer
 
     // ms
     private static final int HEARTBEAT_FREQ = 5000;
+    private static final String DEFAULT_DATA_DIR = "~/.sdmay1207";
 
-    public NodeController(int nodeNumber, RoutingAlg routingAlg)
+    public NodeController(int nodeNumber, RoutingAlg routingAlg, String dataDir)
     {
+        Device.setDataDir(dataDir);
+        
         me = new Node(nodeNumber);
         networkController = new NetworkController(nodeNumber, routingAlg);
         networkController.addObserver(this);
+
+        if (dataDir == null || dataDir.equals(""))
+            dataDir = DEFAULT_DATA_DIR;
     }
 
     public void start()
@@ -63,7 +69,7 @@ public class NodeController implements Observer
             throw new RuntimeException("Go to hell");
         }
 
-        new NodeController(nodeNumber, RoutingAlg.BATMAN).start();
+        new NodeController(nodeNumber, RoutingAlg.BATMAN, null).start();
     }
 
     // event received from the NetworkController

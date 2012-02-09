@@ -1,8 +1,11 @@
 package sdmay1207.ais;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import android.TextMessenger.view.Connect;
 
 // Maybe there could be a config file for each device with the things here and
 // available sensors, etc.
@@ -10,12 +13,22 @@ public class Device
 {
     // Android-only
     // What happens if the library isn't loaded?
-    public static native int runCommand(String command);
-
-    static
+    private static int runCommand(String command)
     {
-        if (isAndroidSystem())
-            System.loadLibrary("adhocsetup");
+        return Connect.runCommand(command);
+    }
+
+
+    private static String dataDir;
+
+    public static void setDataDir(String dataDir)
+    {
+        Device.dataDir = dataDir;
+    }
+
+    public static String getDataDir()
+    {
+        return Device.dataDir;
     }
 
     public static String sysCommand(String command)
@@ -23,6 +36,7 @@ public class Device
         if (isAndroidSystem())
             return runCommand(command) + "";
 
+        System.out.println("Executing: " + command);
         String result = "";
         try
         {
@@ -44,10 +58,18 @@ public class Device
         return result;
     }
 
+    private static boolean isAndroid;
+    private static boolean detectedOS = false;
+
     public static boolean isAndroidSystem()
     {
-        // detect this somehow
-        return false;
+        if (!detectedOS)
+        {
+            isAndroid = new File("/sdcard").exists();
+            detectedOS = true;
+        }
+
+        return isAndroid;
     }
 
     // cached name
@@ -62,11 +84,14 @@ public class Device
                 String iwconfig = Device.sysCommand("iwconfig");
                 for (String line : iwconfig.split("\n"))
                     if (line.contains("802.11"))
-                        return line.split("\\s+")[0];
+                    {
+                        wlanInterfaceName = line.split("\\s+")[0];
+                        break;
+                    }
             }
 
             return wlanInterfaceName;
         } else
-            return "tiwlan"; // ?
+            return "tiwlan0";
     }
 }

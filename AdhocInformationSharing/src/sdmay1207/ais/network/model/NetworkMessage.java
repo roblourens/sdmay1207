@@ -1,7 +1,5 @@
 package sdmay1207.ais.network.model;
 
-import java.util.Arrays;
-
 import sdmay1207.ais.Config;
 import sdmay1207.ais.etc.Utils;
 
@@ -25,7 +23,7 @@ public abstract class NetworkMessage
         String[] messageArgs = strMessage.trim().split(";");
         MessageType messageType = MessageType.values()[Integer
                 .parseInt(messageArgs[0])];
-        String[] remainingArgs = Arrays.copyOfRange(messageArgs, 1,
+        String[] remainingArgs = Utils.arrayCopy(messageArgs, 1,
                 messageArgs.length);
 
         NetworkMessage message = null;
@@ -77,7 +75,7 @@ public abstract class NetworkMessage
             e.printStackTrace();
         }
 
-        data = Arrays.copyOfRange(messageArgs, 2, messageArgs.length);
+        data = Utils.arrayCopy(messageArgs, 2, messageArgs.length);
     }
 
     /**

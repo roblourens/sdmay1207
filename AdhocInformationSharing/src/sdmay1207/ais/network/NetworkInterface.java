@@ -39,7 +39,13 @@ public class NetworkInterface
     {
         this.nodeNumber = nodeNumber;
 
-        if (!Device.isAndroidSystem())
+        if (Device.isAndroidSystem())
+        {
+            String command = "su -c \"/system/test.d/Bach_adhoc " + getIP()
+                    + "\"";
+            System.out.println(command);
+            System.out.println("result: " + Device.sysCommand(command));
+        } else
         {
             String result = Device.sysCommand("stop network-manager");
             if (result.startsWith("stop: Rejected"))
@@ -65,9 +71,10 @@ public class NetworkInterface
                     + getIP());
             Device.sysCommand("ifconfig " + Device.wlanInterfaceName()
                     + " subnet 255.255.255.0");
+
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -85,7 +92,7 @@ public class NetworkInterface
             routingImpl = new AODV();
             break;
         case BATMAN:
-            routingImpl = new BATMAN(receiver);
+            routingImpl = new BATMAN(receiver, Device.getDataDir());
             break;
         }
 
