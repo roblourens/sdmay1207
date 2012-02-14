@@ -18,14 +18,16 @@ public class BATMAN implements RoutingImpl
 {
     private static final int SEND_PORT = 1207; // ?
     private static final int RECV_PORT = 1208;
-    private static final int BROADCAST_ID = 255;
 
     private DatagramSocket sendSock;
     private Receiver receiver;
+    private String interfaceName;
+    private String subnet;
 
-    public BATMAN(Receiver receiver, String dataDir)
+    public BATMAN(Receiver receiver, String dataDir, String interfaceName)
     {
         this.receiver = receiver;
+        this.interfaceName = interfaceName;
 
         try
         {
@@ -40,8 +42,10 @@ public class BATMAN implements RoutingImpl
     }
 
     @Override
-    public boolean start(String ip, String interfaceName)
+    public boolean start(String subnet, int nodeNumber)
     {
+        this.subnet = subnet;
+        
         if (Device.isAndroidSystem())
         {
             String result = Device.sysCommand("su -c \"" + Device.getDataDir()
@@ -69,14 +73,14 @@ public class BATMAN implements RoutingImpl
     }
 
     @Override
-    public boolean transmitData(String ip, String data)
+    public boolean transmitData(int nodeNumber, String data)
     {
 
         return false;
     }
 
     @Override
-    public boolean broadcastData(String subnet, String data)
+    public boolean broadcastData(String data)
     {
         InetAddress IPAddress;
         try

@@ -54,8 +54,9 @@ public class NodeController implements Observer
     // probably won't usually be used - GUI should call the constructor instead
     public static void main(String[] args)
     {
-        if (args.length < 1)
-            throw new RuntimeException("Must provide the node number");
+        if (args.length < 2)
+            throw new RuntimeException(
+                    "Must provide the node number and routing protocol (A (AODV) or B (BATMAN))");
 
         int nodeNumber = 0;
         try
@@ -69,7 +70,16 @@ public class NodeController implements Observer
             throw new RuntimeException("Go to hell");
         }
 
-        new NodeController(nodeNumber, RoutingAlg.BATMAN, null).start();
+        RoutingAlg routingAlg;
+        if (args[1].equals("A"))
+            routingAlg = RoutingAlg.AODV;
+        else if (args[1].equals("B"))
+            routingAlg = RoutingAlg.BATMAN;
+        else
+            throw new RuntimeException(args[1]
+                    + " isn't a routing algorithm! Enter A or B");
+
+        new NodeController(nodeNumber, routingAlg, null).start();
     }
 
     // event received from the NetworkController

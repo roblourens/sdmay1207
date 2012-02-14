@@ -92,11 +92,12 @@ public class NetworkInterface
             routingImpl = new AODV();
             break;
         case BATMAN:
-            routingImpl = new BATMAN(receiver, Device.getDataDir());
+            routingImpl = new BATMAN(receiver, Device.getDataDir(),
+                    Device.wlanInterfaceName());
             break;
         }
 
-        return routingImpl.start(getIP(), Device.wlanInterfaceName());
+        return routingImpl.start(Config.SUBNET, nodeNumber);
     }
 
     // any reason to implement these two? It was in the design doc but I'm not
@@ -140,13 +141,14 @@ public class NetworkInterface
     public boolean broadcastData(Object data)
     {
         System.out.println("Broadcasting: " + data.toString());
-        return routingImpl.broadcastData(Config.SUBNET, data.toString());
+        return routingImpl.broadcastData(data.toString());
     }
 
     public boolean transmitData(int nodeNum, Object data)
     {
-        // transmit it
-        return routingImpl.transmitData(getIP(), data.toString());
+        System.out.println("Transmitting to node " + nodeNum + ": "
+                + data.toString());
+        return routingImpl.transmitData(nodeNum, data.toString());
     }
 
 }
