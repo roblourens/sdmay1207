@@ -1,5 +1,7 @@
 package sdmay1207.ais.network.routing;
 
+import java.util.Set;
+
 // something useful for AODV and BATMAN to interface with this
 public interface RoutingImpl
 {
@@ -12,4 +14,8 @@ public interface RoutingImpl
     public boolean start(String subnet, int nodeNumber);
 
     public boolean stop();
+    
+    public Set<Integer> getZeroHopNeighbors();
+    
+    // could also get all connected nodes, if needed
 }

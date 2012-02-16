@@ -93,7 +93,7 @@ public class NodeController implements Observer
             Heartbeat hb = (Heartbeat) netEvent.data;
             System.out.println("Got heartbeat from " + hb.from);
             // do something useful with it- pass to GUI or something
-            // or GUI has actually registered as the listener
+            // **or GUI has actually registered as the listener** this
             break;
         }
     }

@@ -18,7 +18,7 @@ public class NetworkInterface
         AODV, BATMAN
     }
 
-    private RoutingImpl routingImpl = null;
+    RoutingImpl routingImpl = null;
     private int nodeNumber;
     private Receiver receiver;
 
@@ -89,7 +89,7 @@ public class NetworkInterface
         switch (routingAlg)
         {
         case AODV:
-            routingImpl = new AODV();
+            routingImpl = new AODV(receiver);
             break;
         case BATMAN:
             routingImpl = new BATMAN(receiver, Device.getDataDir(),
@@ -150,5 +150,4 @@ public class NetworkInterface
                 + data.toString());
         return routingImpl.transmitData(nodeNum, data.toString());
     }
-
 }

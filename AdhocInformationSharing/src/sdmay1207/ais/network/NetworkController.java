@@ -1,12 +1,17 @@
 package sdmay1207.ais.network;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Heartbeat;
 import sdmay1207.ais.network.model.NetworkMessage;
+import sdmay1207.ais.network.model.Node;
 
 /**
  * The network controller component encapsulates all behavior related to
@@ -17,27 +22,12 @@ public class NetworkController extends Observable
 {
     private NetworkInterface networkInterface;
 
+    // A map of all nodes which have been seen so far
+    private Map<Integer, Node> knownNodes = new ConcurrentHashMap<Integer, Node>();
+
     public enum Event
     {
         NodeJoined, NodeLeft, RecvdHeartbeat, RecvdData, RecvdCommand
-    }
-
-    /**
-     * Do setup
-     */
-    public NetworkController(int nodeNumber, RoutingAlg routingAlg)
-    {
-        Receiver r = new Receiver();
-        new Thread(r).start();
-
-        networkInterface = new NetworkInterface(r);
-        networkInterface.startNetwork(nodeNumber);
-        networkInterface.startRouting(routingAlg);
-    }
-
-    public boolean sendHeartbeat(Heartbeat hb)
-    {
-        return networkInterface.broadcastData(hb);
     }
 
     /**
@@ -59,8 +49,68 @@ public class NetworkController extends Observable
         }
     }
 
+    /**
+     * Do setup
+     */
+    public NetworkController(int nodeNumber, RoutingAlg routingAlg)
+    {
+        Receiver r = new Receiver();
+        new Thread(r).start();
+
+        networkInterface = new NetworkInterface(r);
+        networkInterface.startNetwork(nodeNumber);
+        networkInterface.startRouting(routingAlg);
+    }
+
+    public boolean sendHeartbeat(Heartbeat hb)
+    {
+        return networkInterface.broadcastData(hb);
+    }
+
+    /**
+     * Returns all known nodes. Depends on which nodes we've received a
+     * heartbeat from, not which nodes the routing algorithm has detected
+     * 
+     * @return a list of all nodes in the entire mesh network that this node can
+     *         currently connect to.
+     */
+    public Map<Integer, Node> nodesInNetwork()
+    {
+        return knownNodes;
+    }
+
+    /**
+     * @return a list of all nodes that this node is directly connected to
+     */
+    public Map<Integer, Node> neighborNodes()
+    {
+        Set<Integer> neighbors = networkInterface.routingImpl
+                .getZeroHopNeighbors();
+        Map<Integer, Node> neighborMap = new HashMap<Integer, Node>();
+
+        for (Integer neighborAddr : neighbors)
+        {
+            Node neighborNode = knownNodes.get(neighborAddr);
+            if (neighborNode == null)
+                System.err.println("Problem: node " + neighborAddr
+                        + " isn't known by the NetworkController");
+            else
+                neighborMap.put(neighborAddr, neighborNode);
+        }
+
+        return neighborMap;
+    }
+
+    private void updateKnownNodes(Heartbeat hb)
+    {
+        if (knownNodes.get(hb.from) == null)
+            knownNodes.put(hb.from, new Node(hb.from));
+
+        knownNodes.get(hb.from).update(hb);
+    }
+
     // TODO not really sure how to structure this- events being passed from
-    // whevever it's detected to where it needs to be handled
+    // wherever it's detected to where it needs to be handled
     /**
      * Receives data/events from the network, interprets it into the correct
      * message
@@ -116,6 +166,7 @@ public class NetworkController extends Observable
                 break;
             case Heartbeat:
                 event = new NetworkEvent(Event.RecvdHeartbeat, msg);
+                updateKnownNodes((Heartbeat) msg);
                 break;
             }
 

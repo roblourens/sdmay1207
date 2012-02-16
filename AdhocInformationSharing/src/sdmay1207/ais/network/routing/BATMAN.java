@@ -6,8 +6,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import sdmay1207.ais.Device;
 import sdmay1207.ais.etc.Utils;
@@ -23,6 +23,9 @@ public class BATMAN implements RoutingImpl
     private Receiver receiver;
     private String interfaceName;
     private String subnet;
+    
+    private UDPReceiver udpReceiver;
+    private ConnectedNodeMonitor connectedNodeMonitor;
 
     public BATMAN(Receiver receiver, String dataDir, String interfaceName)
     {
@@ -45,7 +48,7 @@ public class BATMAN implements RoutingImpl
     public boolean start(String subnet, int nodeNumber)
     {
         this.subnet = subnet;
-        
+
         if (Device.isAndroidSystem())
         {
             String result = Device.sysCommand("su -c \"" + Device.getDataDir()
@@ -68,7 +71,12 @@ public class BATMAN implements RoutingImpl
             }
         }
 
-        new Thread(new UDPReceiver()).start();
+        udpReceiver = new UDPReceiver();
+        new Thread(udpReceiver).start();
+        
+        connectedNodeMonitor = new ConnectedNodeMonitor();
+        new Thread(connectedNodeMonitor).start();
+        
         return true;
     }
 
@@ -116,16 +124,18 @@ public class BATMAN implements RoutingImpl
         String result = Device.sysCommand("sudo killall batmand");
 
         sendSock.close();
+        udpReceiver.stop();
+        connectedNodeMonitor.stop();
 
         return true;
     }
 
     /**
-     * Returns an array of BATMAN's current one-hop neighbor node numbers
+     * Returns a Set of BATMAN's current one-hop neighbor node numbers
      */
-    private List<Integer> getCurrentNeighbors()
+    public Set<Integer> getZeroHopNeighbors()
     {
-        List<Integer> neighbors = new ArrayList<Integer>();
+        Set<Integer> neighbors = new HashSet<Integer>();
 
         String output = Device.sysCommand("sudo batmand -c -b -d 1");
         String[] lines = output.split("\n");
@@ -146,6 +156,63 @@ public class BATMAN implements RoutingImpl
         return neighbors;
     }
 
+    public Set<Integer> getConnectedNodes()
+    {
+        Set<Integer> neighbors = new HashSet<Integer>();
+
+        String output = Device.sysCommand("sudo batmand -c -b -d 1");
+        String[] lines = output.split("\n");
+
+        // First line is the header
+        for (int i = 1; i < lines.length; i++)
+        {
+            String line = lines[i];
+
+            // Extract (ip)whitespace(ip)something
+            line.trim();
+            String[] lineValues = line.split("\\s*");
+            neighbors.add(Utils.getNodeNumberFromIP(lineValues[0]));
+        }
+
+        return neighbors;
+    }
+
+    private class ConnectedNodeMonitor implements Runnable
+    {
+        private volatile boolean keepRunning = true;
+
+        private Set<Integer> connectedNodes = null;
+
+        public void stop()
+        {
+            keepRunning = false;
+        }
+        
+        @Override
+        public void run()
+        {
+            while (keepRunning)
+            {
+                Set<Integer> newConnectedNodes = getConnectedNodes();
+
+                if (connectedNodes != null)
+                {
+                    // Find new nodes
+                    for (Integer nodeNum : newConnectedNodes)
+                        if (!connectedNodes.contains(nodeNum))
+                            receiver.nodeJoined(nodeNum);
+
+                    // Find lost nodes
+                    for (Integer nodeNum : connectedNodes)
+                        if (!newConnectedNodes.contains(nodeNum))
+                            receiver.nodeLeft(nodeNum);
+                }
+
+                connectedNodes = newConnectedNodes;
+            }
+        }
+    }
+
     private class UDPReceiver implements Runnable
     {
         private volatile boolean keepRunning = true;
@@ -162,6 +229,11 @@ public class BATMAN implements RoutingImpl
                 throw new RuntimeException(
                         "Could not set up the receiver socket: network problems");
             }
+        }
+
+        public void stop()
+        {
+            keepRunning = false;
         }
 
         @Override
