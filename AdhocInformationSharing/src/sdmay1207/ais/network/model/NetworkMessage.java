@@ -95,8 +95,10 @@ public abstract class NetworkMessage
                 + from);
     }
 
+    // ShuttingDown is to inform others that the node is going offline purposely
+    // - "don't look for me"
     public static enum MessageType
     {
-        Command, Heartbeat
+        Command, Heartbeat, ShuttingDown
     }
 }

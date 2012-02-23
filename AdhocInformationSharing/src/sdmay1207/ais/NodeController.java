@@ -1,10 +1,10 @@
 package sdmay1207.ais;
 
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Timer;
-import java.util.TimerTask;
 
+import sdmay1207.ais.etc.Utils;
 import sdmay1207.ais.network.NetworkController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
@@ -26,29 +26,51 @@ import sdmay1207.ais.sensors.SensorInterface;
  */
 public class NodeController implements Observer
 {
+    // other components
     private NetworkController networkController;
     private SensorInterface sensorInterface = new SensorInterface();
     private Node me;
+    private HeartbeatTask ht;
 
-    // ms
-    private static final int HEARTBEAT_FREQ = 5000;
+    // config
+    private int nodeNumber;
+
+    // static config
+    private static final int HEARTBEAT_FREQ = 5000; // ms
     private static final String DEFAULT_DATA_DIR = "~/.sdmay1207";
 
-    public NodeController(int nodeNumber, RoutingAlg routingAlg, String dataDir)
+    public NodeController(int nodeNumber, String dataDir)
     {
         Device.setDataDir(dataDir);
+        this.nodeNumber = nodeNumber;
 
         me = new Node(nodeNumber);
-        networkController = new NetworkController(nodeNumber, routingAlg);
+        networkController = new NetworkController();
         networkController.addObserver(this);
 
         if (dataDir == null || dataDir.equals(""))
             dataDir = DEFAULT_DATA_DIR;
     }
 
-    public void start()
+    /**
+     * Turn on the network, initialize routing, start sending hearbeats
+     */
+    public void start(RoutingAlg routingAlg)
     {
-        new Timer().schedule(new HeartbeatTask(), 0);
+        networkController.start(nodeNumber, routingAlg);
+        ht = new HeartbeatTask();
+        new Thread(ht).start();
+    }
+
+    /**
+     * SHUT. DOWN. EVERYTHING.
+     */
+    public void stop()
+    {
+        networkController.stop();
+        
+        if (ht != null)
+            ht.stop();
     }
 
     // probably won't usually be used - GUI should call the constructor instead
@@ -79,7 +101,7 @@ public class NodeController implements Observer
             throw new RuntimeException(args[1]
                     + " isn't a routing algorithm! Enter A or B");
 
-        new NodeController(nodeNumber, routingAlg, null).start();
+        new NodeController(nodeNumber, null).start(routingAlg);
     }
 
     // event received from the NetworkController
@@ -97,16 +119,31 @@ public class NodeController implements Observer
             break;
         }
     }
-
-    public class HeartbeatTask extends TimerTask
+    
+    public Map<Integer, Node> getNodesInNetwork()
     {
+        return networkController.getNodesInNetwork();
+    }
+
+    public class HeartbeatTask implements Runnable
+    {
+        private volatile boolean keepRunning = true;
+        
         @Override
         public void run()
         {
-            System.out.println("...ba-dump...");
-            networkController.sendHeartbeat(me.getHeartbeat());
-
-            new Timer().schedule(new HeartbeatTask(), HEARTBEAT_FREQ);
+            while (keepRunning)
+            {
+                System.out.println("...ba-dump...");
+                networkController.sendHeartbeat(me.getHeartbeat());
+                
+                Utils.sleep(HEARTBEAT_FREQ);
+            }
+        }
+        
+        public void stop()
+        {
+            keepRunning = false;
         }
     }
 }

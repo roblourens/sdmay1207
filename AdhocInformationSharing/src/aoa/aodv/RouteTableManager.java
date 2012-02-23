@@ -32,10 +32,11 @@ public class RouteTableManager {
 		timeoutNotifier = new TimeoutNotifier();
 	}
 	
-	public Set<Integer> getZeroHopNeighbors()
-	{
-	    return forwardRouteTable.getZeroHopNeighbors();
-	}
+    public Set<Integer> getZeroHopNeighbors()
+    {
+        return forwardRouteTable.getZeroHopNeighbors();
+    }
+
 
 	public void startTimerThread(){
 		keepRunning = true;

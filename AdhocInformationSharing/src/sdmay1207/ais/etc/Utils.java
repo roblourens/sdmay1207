@@ -50,4 +50,15 @@ public class Utils
 
         return d*1000;
     }
+    
+    public static void sleep(long ms)
+    {
+        try
+        {
+            Thread.sleep(ms);
+        } catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+    }
 }

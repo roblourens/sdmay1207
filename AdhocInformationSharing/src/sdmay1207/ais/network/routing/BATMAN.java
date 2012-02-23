@@ -170,8 +170,11 @@ public class BATMAN implements RoutingImpl
 
             // Extract (ip)whitespace(ip)something
             line.trim();
-            String[] lineValues = line.split("\\s*");
-            neighbors.add(Utils.getNodeNumberFromIP(lineValues[0]));
+            if (!line.startsWith("No batman nodes in range"))
+            {
+                String[] lineValues = line.split("\\s*");
+                neighbors.add(Utils.getNodeNumberFromIP(lineValues[0]));
+            }
         }
 
         return neighbors;
@@ -182,6 +185,8 @@ public class BATMAN implements RoutingImpl
         private volatile boolean keepRunning = true;
 
         private Set<Integer> connectedNodes = null;
+
+        private static final int CHECK_INTERVAL = 5000; // ms
 
         public void stop()
         {
@@ -209,6 +214,12 @@ public class BATMAN implements RoutingImpl
                 }
 
                 connectedNodes = newConnectedNodes;
+
+                if (connectedNodes.size() != 0)
+                    System.out.println("BATMAN has " + connectedNodes.size()
+                            + " neighbors");
+
+                Utils.sleep(CHECK_INTERVAL);
             }
         }
     }

@@ -22,13 +22,15 @@ public class UdpReceiver implements Runnable{
 	private UdpBroadcastReceiver udpBroadcastReceiver;
 	private volatile boolean keepRunning = true;
 	private Thread udpReceiverthread;
+	private int port = 8888;
+	private String subnet = "192.168.2.";
 	
 	public UdpReceiver(Receiver parent, int nodeAddress) throws SocketException, UnknownHostException, BindException{
 		this.parent = parent;
-		InetSocketAddress isa = new InetSocketAddress("192.168.2."+nodeAddress ,8888);
+		InetSocketAddress isa = new InetSocketAddress(subnet+nodeAddress ,port);
 		datagramSocket = new DatagramSocket(isa);
 		datagramSocket.setBroadcast(true);
-		udpBroadcastReceiver = new UdpBroadcastReceiver(8888);
+		udpBroadcastReceiver = new UdpBroadcastReceiver(port);
 	}
 	
 	public void startThread(){
@@ -72,7 +74,7 @@ public class UdpReceiver implements Runnable{
 		private Thread udpBroadcastReceiverThread;
 		
 		public UdpBroadcastReceiver( int receiverPort) throws SocketException, BindException{
-			brodcastDatagramSocket = new DatagramSocket(new InetSocketAddress("192.168.2.255",receiverPort+1));
+			brodcastDatagramSocket = new DatagramSocket(receiverPort+1);
 		}
 		
 		public void startBroadcastReceiverthread(){

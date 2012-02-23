@@ -44,7 +44,7 @@ public class Node
             System.err.println("Wrong nodeNum");
             return;
         }
-        else if (lastHeartbeat.timestamp > hb.timestamp)
+        else if (lastHeartbeat != null && lastHeartbeat.timestamp > hb.timestamp)
         {
             System.err.println("Can't update with older heartbeat");
             return;

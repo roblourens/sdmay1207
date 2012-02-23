@@ -45,18 +45,18 @@ public class ForwardRouteTable {
 		}
 	}
 	
-	public Set<Integer> getZeroHopNeighbors()
-	{
-	    Set<Integer> neighbors = new HashSet<Integer>();
-	    for (ForwardRouteEntry entry : entries.values())
-	    {
-	        if (entry.getPrecursors().size() == 0)
-	            neighbors.add(entry.destAddress);
-	    }
-	    
-	    return neighbors;
-	}
-	
+    public Set<Integer> getZeroHopNeighbors()
+    {
+        Set<Integer> neighbors = new HashSet<Integer>();
+        for (ForwardRouteEntry entry : entries.values())
+        {
+            if (entry.getPrecursors().size() == 0)
+                neighbors.add(entry.destAddress);
+        }
+        
+        return neighbors;
+    }
+
 	/**
 	 * 
 	 * @param destAddress the destination address which to search for in the table

@@ -5,7 +5,6 @@ import java.util.Observer;
 import java.util.Set;
 
 import sdmay1207.ais.network.NetworkController.Receiver;
-
 import aoa.aodv.Node;
 import aoa.aodv.ObserverConst;
 import aoa.aodv.Node.PacketToObserver;

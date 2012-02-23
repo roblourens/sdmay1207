@@ -93,11 +93,6 @@ public class Node extends Observable implements Runnable {
     	messagesForObservers = new ConcurrentLinkedQueue<MessageToObserver>();
     }
     
-    public Set<Integer> getZeroHopNeighbors()
-    {
-        return routeTableManager.getZeroHopNeighbors();
-    }
-    
     /**
      * Starts executing the AODV routing protocol 
      * @throws UnknownHostException 
@@ -138,6 +133,11 @@ public class Node extends Observable implements Runnable {
      */
     public void sendData(int packetIdentifier, int destinationAddress, byte[] data){
     	sender.queueUserMessageFromNode(new UserDataPacket(packetIdentifier,destinationAddress, data, nodeAddress));
+    }
+    
+    public Set<Integer> getZeroHopNeighbors()
+    {
+        return routeTableManager.getZeroHopNeighbors();
     }
 	
     /**

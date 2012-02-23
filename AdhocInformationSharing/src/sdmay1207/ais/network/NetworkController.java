@@ -21,6 +21,7 @@ import sdmay1207.ais.network.model.Node;
 public class NetworkController extends Observable
 {
     private NetworkInterface networkInterface;
+    private Receiver r;
 
     // A map of all nodes which have been seen so far
     private Map<Integer, Node> knownNodes = new ConcurrentHashMap<Integer, Node>();
@@ -50,16 +51,25 @@ public class NetworkController extends Observable
     }
 
     /**
-     * Do setup
+     * Turn on the adhoc network, start the routing system
      */
-    public NetworkController(int nodeNumber, RoutingAlg routingAlg)
+    public void start(int nodeNumber, RoutingAlg routingAlg)
     {
-        Receiver r = new Receiver();
+        r = new Receiver();
         new Thread(r).start();
 
         networkInterface = new NetworkInterface(r);
         networkInterface.startNetwork(nodeNumber);
         networkInterface.startRouting(routingAlg);
+    }
+    
+    public void stop()
+    {
+        if (networkInterface != null)
+            networkInterface.stop();
+        
+        if (r != null)
+            r.stop();
     }
 
     public boolean sendHeartbeat(Heartbeat hb)
@@ -74,7 +84,7 @@ public class NetworkController extends Observable
      * @return a list of all nodes in the entire mesh network that this node can
      *         currently connect to.
      */
-    public Map<Integer, Node> nodesInNetwork()
+    public Map<Integer, Node> getNodesInNetwork()
     {
         return knownNodes;
     }
@@ -152,6 +162,11 @@ public class NetworkController extends Observable
                 setChanged();
                 notifyObservers(event);
             }
+        }
+        
+        public void stop()
+        {
+            keepRunning = false;
         }
 
         public void addMessage(String fromIP, byte[] data)

@@ -2,6 +2,7 @@ package sdmay1207.ais.network;
 
 import sdmay1207.ais.Config;
 import sdmay1207.ais.Device;
+import sdmay1207.ais.etc.Utils;
 import sdmay1207.ais.network.NetworkController.Receiver;
 import sdmay1207.ais.network.routing.AODV;
 import sdmay1207.ais.network.routing.BATMAN;
@@ -43,7 +44,7 @@ public class NetworkInterface
         {
             String command = "su -c \"/system/test.d/Bach_adhoc " + getIP()
                     + "\"";
-            System.out.println(command);
+            System.out.println("Executing: " + command);
             System.out.println("result: " + Device.sysCommand(command));
         } else
         {
@@ -58,12 +59,7 @@ public class NetworkInterface
             Device.sysCommand("ifconfig " + Device.wlanInterfaceName() + " up");
 
             // Let it start up...
-            try
-            {
-                Thread.sleep(1);
-            } catch (InterruptedException e)
-            {
-            }
+            Utils.sleep(500);
 
             System.out
                     .println("Starting the adhoc network with IP: " + getIP());
@@ -98,6 +94,15 @@ public class NetworkInterface
         }
 
         return routingImpl.start(Config.SUBNET, nodeNumber);
+    }
+
+    public void stop()
+    {
+        if (routingImpl != null)
+            routingImpl.stop();
+
+        // bring the interface down
+        Device.sysCommand("ifconfig " + Device.wlanInterfaceName() + " down");
     }
 
     // any reason to implement these two? It was in the design doc but I'm not

@@ -30,12 +30,17 @@ public class Device
         return Device.dataDir;
     }
 
+    /**
+     * Runs the system command
+     * 
+     * @return For Android, returns 0 if successful. Otherwise, returns the
+     *         console output
+     */
     public static String sysCommand(String command)
     {
         if (isAndroidSystem())
             return runCommand(command) + "";
 
-        System.out.println("Executing: " + command);
         String result = "";
         try
         {
