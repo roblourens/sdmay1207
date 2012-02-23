@@ -23,7 +23,7 @@ public class BATMAN implements RoutingImpl
     private Receiver receiver;
     private String interfaceName;
     private String subnet;
-    
+
     private UDPReceiver udpReceiver;
     private ConnectedNodeMonitor connectedNodeMonitor;
 
@@ -71,12 +71,12 @@ public class BATMAN implements RoutingImpl
             }
         }
 
-        udpReceiver = new UDPReceiver();
+        udpReceiver = new UDPReceiver(nodeNumber);
         new Thread(udpReceiver).start();
-        
+
         connectedNodeMonitor = new ConnectedNodeMonitor();
         new Thread(connectedNodeMonitor).start();
-        
+
         return true;
     }
 
@@ -121,7 +121,7 @@ public class BATMAN implements RoutingImpl
     public boolean stop()
     {
         // TODO Android? Detect failure?
-        String result = Device.sysCommand("sudo killall batmand");
+        Device.sysCommand("sudo killall batmand");
 
         sendSock.close();
         udpReceiver.stop();
@@ -187,7 +187,7 @@ public class BATMAN implements RoutingImpl
         {
             keepRunning = false;
         }
-        
+
         @Override
         public void run()
         {
@@ -217,9 +217,15 @@ public class BATMAN implements RoutingImpl
     {
         private volatile boolean keepRunning = true;
         private DatagramSocket dgramSock;
+        private int exclude;
 
-        public UDPReceiver()
+        /**
+         * @param exclude
+         *            Ignores packets from this node number
+         */
+        public UDPReceiver(int exclude)
         {
+            this.exclude = exclude;
             try
             {
                 dgramSock = new DatagramSocket(RECV_PORT);
@@ -254,7 +260,8 @@ public class BATMAN implements RoutingImpl
 
                     // toString returns hostname / ip
                     String fromIP = fromAddress.split("/")[1];
-                    receiver.addMessage(fromIP, receivedPacket.getData());
+                    if (exclude != Utils.getNodeNumberFromIP(fromIP))
+                        receiver.addMessage(fromIP, receivedPacket.getData());
                 } catch (IOException e)
                 {
                     e.printStackTrace();

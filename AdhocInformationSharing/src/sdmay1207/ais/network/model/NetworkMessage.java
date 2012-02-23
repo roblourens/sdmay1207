@@ -35,6 +35,9 @@ public abstract class NetworkMessage
         case Heartbeat:
             message = new Heartbeat(fromIP, remainingArgs);
             break;
+        default:
+            System.err.println("Receieved unknown message type. Message: "
+                    + strMessage);
         }
 
         return message;
