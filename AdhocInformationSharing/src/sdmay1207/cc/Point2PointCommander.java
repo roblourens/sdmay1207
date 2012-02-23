@@ -38,7 +38,11 @@ public class Point2PointCommander
         // Perform a search over the graph - find the least-hop path between the
         // two positions, with distance to the goal as a heuristic
         LocationAStarSearch search = new LocationAStarSearch(false);
-        return search.findPath(null, null);
+        List<Location> positions = search.findPath(null, null);
+        
+        // If positions.size() < n, figure out where to assign the extra nodes
+        
+        return positions;
     }
 
     // maybe takes params for specifying a subregion
