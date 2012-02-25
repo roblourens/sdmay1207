@@ -12,13 +12,20 @@ public class SensorInterface
     // If there are more than 10, fix the Heartbeat serializing code
     public enum SensorType
     {
-        Location, Thermometer, StillCamera, Video
+        GPS, Thermometer, StillCamera, Video
     }
 
     public Map<SensorType, Sensor> sensors = new HashMap<SensorType, Sensor>();
 
-    public SensorInterface()
+    public void addSensor(Sensor s)
     {
-        // Detect available sensors, populate 'sensors' Map, initialize devices
+        if (sensors.keySet().contains(s.getType()))
+        {
+            System.err.println("Trying to add duplicate sensor type "
+                    + s.getType());
+            return;
+        }
+
+        sensors.put(s.getType(), s);
     }
 }

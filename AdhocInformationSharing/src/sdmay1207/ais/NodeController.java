@@ -10,7 +10,9 @@ import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Heartbeat;
 import sdmay1207.ais.network.model.Node;
+import sdmay1207.ais.sensors.Sensor;
 import sdmay1207.ais.sensors.SensorInterface;
+import sdmay1207.ais.sensors.SensorInterface.SensorType;
 
 /**
  * The node controller component implements node logic by controlling the other
@@ -68,9 +70,75 @@ public class NodeController implements Observer
     public void stop()
     {
         networkController.stop();
-        
+
         if (ht != null)
             ht.stop();
+    }
+
+    /**
+     * Adds a sensor to this node. e.g. implemented using Android classes or
+     * whatever
+     * 
+     * @param s
+     *            An instance of the Sensor object
+     */
+    public void addSensor(Sensor s)
+    {
+        sensorInterface.addSensor(s);
+        me.addSensorType(s.getType());
+    }
+
+    // event received from the NetworkController
+    @Override
+    public void update(Observable observable, Object obj)
+    {
+        NetworkEvent netEvent = (NetworkEvent) obj;
+        switch (netEvent.event)
+        {
+        case RecvdHeartbeat:
+            Heartbeat hb = (Heartbeat) netEvent.data;
+            System.out.println("Got heartbeat from " + hb.from);
+            // do something useful with it- pass to GUI or something
+            // **or GUI has actually registered as the listener** this
+            break;
+        }
+    }
+
+    public Map<Integer, Node> getNodesInNetwork()
+    {
+        return networkController.getNodesInNetwork();
+    }
+
+    public class HeartbeatTask implements Runnable
+    {
+        private volatile boolean keepRunning = true;
+
+        @Override
+        public void run()
+        {
+            while (keepRunning)
+            {
+                System.out.println("...ba-dump...");
+                Heartbeat hb = me.getHeartbeat();
+
+                // Add sensor output to hearbeat message
+                for (SensorType sType : me.sensors)
+                {
+                    Object reading = sensorInterface.sensors.get(sType)
+                            .getReading();
+                    if (reading != null)
+                        hb.sensorOutput.put(sType, reading.toString());
+                }
+
+                networkController.sendHeartbeat(hb);
+                Utils.sleep(HEARTBEAT_FREQ);
+            }
+        }
+
+        public void stop()
+        {
+            keepRunning = false;
+        }
     }
 
     // probably won't usually be used - GUI should call the constructor instead
@@ -102,48 +170,5 @@ public class NodeController implements Observer
                     + " isn't a routing algorithm! Enter A or B");
 
         new NodeController(nodeNumber, null).start(routingAlg);
-    }
-
-    // event received from the NetworkController
-    @Override
-    public void update(Observable observable, Object obj)
-    {
-        NetworkEvent netEvent = (NetworkEvent) obj;
-        switch (netEvent.event)
-        {
-        case RecvdHeartbeat:
-            Heartbeat hb = (Heartbeat) netEvent.data;
-            System.out.println("Got heartbeat from " + hb.from);
-            // do something useful with it- pass to GUI or something
-            // **or GUI has actually registered as the listener** this
-            break;
-        }
-    }
-    
-    public Map<Integer, Node> getNodesInNetwork()
-    {
-        return networkController.getNodesInNetwork();
-    }
-
-    public class HeartbeatTask implements Runnable
-    {
-        private volatile boolean keepRunning = true;
-        
-        @Override
-        public void run()
-        {
-            while (keepRunning)
-            {
-                System.out.println("...ba-dump...");
-                networkController.sendHeartbeat(me.getHeartbeat());
-                
-                Utils.sleep(HEARTBEAT_FREQ);
-            }
-        }
-        
-        public void stop()
-        {
-            keepRunning = false;
-        }
     }
 }

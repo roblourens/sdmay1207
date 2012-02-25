@@ -1,5 +1,6 @@
 package sdmay1207.ais.network.model;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
@@ -13,7 +14,7 @@ public class Node
     // Last part of the IP
     public int nodeNum;
 
-    public Set<SensorType> sensors;
+    public Set<SensorType> sensors = new HashSet<SensorType>();
 
     // The last network event received from this node (??)
     public NetworkEvent lastEvent;
@@ -30,6 +31,11 @@ public class Node
         Heartbeat hb = new Heartbeat();
         hb.from = nodeNum;
         return hb;
+    }
+    
+    public void addSensorType(SensorType st)
+    {
+        sensors.add(st);
     }
     
     /**

@@ -1,24 +1,39 @@
 package sdmay1207.ais.sensors;
 
+import sdmay1207.ais.etc.Utils;
+import sdmay1207.ais.sensors.SensorInterface.SensorType;
+
 // Implemented on USB device and Android
 public abstract class GPS extends Sensor
 {
+    public GPS()
+    {
+        super(SensorType.GPS);
+    }
+
     @Override
     public abstract Location getReading();
 
     public class Location
     {
-        public float latitude;
+        public double latitude;
 
-        public float longitude;
-
+        public double longitude;
+        
         @Override
         public int hashCode()
         {
-            int hash = 0;
-            hash += Float.floatToIntBits(latitude)*37;
-            hash += Float.floatToIntBits(longitude)*37;
-            return hash;
+            long hash = 0;
+            hash += Double.doubleToLongBits(latitude)*37;
+            hash += Double.doubleToLongBits(longitude)*37;
+            
+            // problem?
+            return (int)hash;
+        }
+        
+        public String toString()
+        {
+            return Utils.join(",", ""+latitude, ""+longitude);
         }
     }
 }

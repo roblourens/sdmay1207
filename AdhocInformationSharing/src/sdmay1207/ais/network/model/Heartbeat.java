@@ -42,7 +42,7 @@ public class Heartbeat extends NetworkMessage
         messageType = MessageType.Heartbeat;
     }
 
-    // format like <1 digit sensortype><sensor output><;>
+    // format like <1 digit sensortype><sensor output>;...
     public String toString()
     {
         StringBuilder sensorOutputSB = new StringBuilder();
