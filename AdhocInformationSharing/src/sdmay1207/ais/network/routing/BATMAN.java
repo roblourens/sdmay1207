@@ -51,9 +51,9 @@ public class BATMAN implements RoutingImpl
 
         if (Device.isAndroidSystem())
         {
-            String result = Device.sysCommand("su -c \"" + Device.getDataDir()
-                    + "/lib/batmand " + interfaceName + "\"");
-            System.out.println(result);
+            /*String result = Device.sysCommand("su -c \"" + Device.getDataDir()
+                    + "/lib/batmand " + interfaceName + "\"");*/
+            Device.sysCommand("su -c \"/data/data/adhoc/batmand " + interfaceName + "\"");
         } else
         {
             String result = Device.sysCommand("sudo batmand " + interfaceName);
@@ -160,7 +160,12 @@ public class BATMAN implements RoutingImpl
     {
         Set<Integer> neighbors = new HashSet<Integer>();
 
-        String output = Device.sysCommand("sudo batmand -c -b -d 1");
+        String output;
+        if (Device.isAndroidSystem())
+            output = Device.sysCommand("su -c \"/data/data/adhoc/batmand -c -b -d 1\"");
+        else
+            output = Device.sysCommand("sudo batmand -c -b -d 1");
+        
         String[] lines = output.split("\n");
 
         // First line is the header

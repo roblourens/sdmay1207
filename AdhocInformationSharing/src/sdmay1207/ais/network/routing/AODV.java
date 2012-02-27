@@ -102,12 +102,10 @@ public class AODV implements RoutingImpl, Observer
                 break;
             case 4:
                 int newNodeNum = (Integer) value.getContainedData();
-                System.out.println("Found Node: " + newNodeNum);
                 receiver.nodeJoined(newNodeNum);
                 break;
             case 3:
                 int lostNodeNum = (Integer) value.getContainedData();
-                System.out.println("Lost Node: " + lostNodeNum);
                 receiver.nodeLeft(lostNodeNum);
                 break;
             case 2:

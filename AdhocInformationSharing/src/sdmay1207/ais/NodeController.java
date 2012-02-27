@@ -97,9 +97,21 @@ public class NodeController implements Observer
         {
         case RecvdHeartbeat:
             Heartbeat hb = (Heartbeat) netEvent.data;
-            System.out.println("Got heartbeat from " + hb.from);
+            System.out.println("Got heartbeat from " + hb.from + ": " + hb.toString());
             // do something useful with it- pass to GUI or something
             // **or GUI has actually registered as the listener** this
+            break;
+        case NodeJoined:
+            System.out.println("Node joined: " + netEvent.data);
+            break;
+        case NodeLeft:
+            System.out.println("Node left: " + netEvent.data);
+            break;
+        case RecvdCommand:
+            System.out.println("Received command: " + netEvent.data);
+            break;
+        case RecvdData:
+            System.out.println("Received data: " + netEvent.data);
             break;
         }
     }

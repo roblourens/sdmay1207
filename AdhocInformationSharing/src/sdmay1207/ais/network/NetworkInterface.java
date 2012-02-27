@@ -42,7 +42,7 @@ public class NetworkInterface
 
         if (Device.isAndroidSystem())
         {
-            String command = "su -c \"/system/test.d/Bach_adhoc " + getIP()
+            String command = "su -c \"/data/data/adhoc/start_adhoc " + getIP()
                     + "\"";
             System.out.println("Executing: " + command);
             System.out.println("result: " + Device.sysCommand(command));
