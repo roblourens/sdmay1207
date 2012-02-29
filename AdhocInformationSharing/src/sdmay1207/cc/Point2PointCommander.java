@@ -62,11 +62,12 @@ public class Point2PointCommander
         LocationNode ln1 = graph.getApproxNodeForLocation(p1);
         LocationNode ln2 = graph.getApproxNodeForLocation(p2);
         List<Location> positions = search.findPath(ln1, ln2);
-        
-        // Add the exact start/end points if they are not too close to the first actual graph nodes
+
+        // Add the exact start/end points if they are not too close to the first
+        // actual graph nodes
         if (!ln1.withinDeltaOf(p1))
             positions.add(p1);
-        
+
         if (!ln2.withinDeltaOf(p2))
             positions.add(p2);
 
