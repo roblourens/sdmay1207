@@ -14,26 +14,47 @@ public abstract class GPS extends Sensor
     @Override
     public abstract Location getReading();
 
-    public class Location
+    public static class Location
     {
         public double latitude;
 
         public double longitude;
         
+        public Location(double latitude, double longitude)
+        {
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
+        
+        // in meters
+        public double distanceTo(Location p)
+        {
+            return Utils.distance(this, p);
+        }
+
         @Override
         public int hashCode()
         {
             long hash = 0;
-            hash += Double.doubleToLongBits(latitude)*37;
-            hash += Double.doubleToLongBits(longitude)*37;
-            
+            hash += Double.doubleToLongBits(latitude) * 37;
+            hash += Double.doubleToLongBits(longitude) * 37;
+
             // problem?
-            return (int)hash;
+            return (int) hash;
         }
-        
+
         public String toString()
         {
-            return Utils.join(",", ""+latitude, ""+longitude);
+            return String.format("(%f, %f)", latitude, longitude);
+        }
+
+        public boolean equals(Object o)
+        {
+            if (!(o instanceof Location))
+                return false;
+
+            Location p = (Location) o;
+            return (latitude == p.latitude && longitude == p.longitude);
         }
     }
 }

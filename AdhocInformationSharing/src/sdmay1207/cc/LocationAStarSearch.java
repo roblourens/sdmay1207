@@ -1,9 +1,9 @@
 package sdmay1207.cc;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -19,20 +19,40 @@ public class LocationAStarSearch
 
     private Set<LocationNode> closed = new HashSet<LocationNode>();
 
+    // A* search parameters
+    // cost so far
     private Map<LocationNode, Double> g = new HashMap<LocationNode, Double>();
+
+    // heuristic cost (guessed cost between the node and the goal)
     private Map<LocationNode, Double> h = new HashMap<LocationNode, Double>();
+
+    // estimated total cost, g+h (basically just cached values)
     private Map<LocationNode, Double> f = new HashMap<LocationNode, Double>();
 
+    // pathLength-1 preceding nodes are part of the same straight path as this
+    private Map<LocationNode, Double> pathLength = new HashMap<LocationNode, Double>();
+
+    // the best predecessor node of this node
     private Map<LocationNode, LocationNode> pred = new HashMap<LocationNode, LocationNode>();
 
-    // If true, will do a typical shortest-path search with distance as a
-    // heuristic. If false, will compute the estimated number of jumps (based on
+    // for now, only distanceOnly is implemented, and this is probably all we
+    // will need
+    // distanceOnly: will do a typical shortest-path search with distance as a
+    // heuristic
+    // hops: will compute the estimated number of jumps (based on
     // previous jump sizes) to use as a heuristic
-    private boolean considerDistanceOnly = true;
-
-    public LocationAStarSearch(boolean considerDistanceOnly)
+    // straightPaths: based on the number of straight paths with distance less
+    // than MAX_LINE_OF_SIGHT_DIST
+    public enum SearchMode
     {
-        this.considerDistanceOnly = considerDistanceOnly;
+        distanceOnly, hops, straightPaths
+    }
+
+    private SearchMode searchMode;
+
+    public LocationAStarSearch(SearchMode searchMode)
+    {
+        this.searchMode = searchMode;
     }
 
     public List<Location> findPath(LocationNode start, LocationNode goal)
@@ -68,41 +88,52 @@ public class LocationAStarSearch
                 continue;
 
             double newG = calculateG(neighbor, curNode);
-            boolean updateScores = false;
-            if (!open.contains(neighbor))
-            {
-                open.add(neighbor);
-                h.put(neighbor, calculateH(curNode, start, goal));
-                updateScores = true;
-            } else if (newG < g.get(neighbor))
-                updateScores = true;
 
-            if (updateScores)
+            // calculate h if neighbor has not been found yet
+            if (!open.contains(neighbor))
+                h.put(neighbor, calculateH(curNode, start, goal));
+
+            // update the scores if needed
+            if (!open.contains(neighbor) || newG < g.get(neighbor))
             {
                 pred.put(neighbor, curNode);
                 g.put(neighbor, newG);
                 f.put(neighbor, g.get(neighbor) + h.get(neighbor));
             }
+
+            // make sure that neighbor is in f before it's added to open
+            if (!open.contains(neighbor))
+                open.add(neighbor);
         }
 
         return false;
     }
 
+    private boolean straightPath(LocationNode node, LocationNode predNode)
+    {
+        return false;
+    }
+
     private double calculateG(LocationNode node, LocationNode predNode)
     {
-        if (considerDistanceOnly)
+        if (searchMode == SearchMode.distanceOnly)
             return g.get(predNode) + node.distanceTo(predNode);
-        else
+        else if (searchMode == SearchMode.hops)
             return g.get(predNode) + 1;
+        else
+            // straightPath
+            return straightPath(predNode, node) ? g.get(predNode) : g
+                    .get(predNode) + 1;
     }
 
     private double calculateH(LocationNode node, LocationNode start,
             LocationNode goal)
     {
-        if (considerDistanceOnly)
+        if (searchMode == SearchMode.distanceOnly)
             return node.distanceTo(goal);
         else
         {
+            // estimate remaining hops based on hops so far for both searchmodes
             int jumps = g.get(node).intValue();
             double jumpDist = start.distanceTo(node) / jumps;
 
@@ -110,15 +141,33 @@ public class LocationAStarSearch
         }
     }
 
-    private List<Location> pathFromStartToNode(LocationNode node)
+    private List<LocationNode> nodesFromStartToNode(LocationNode node)
     {
-        List<Location> path = new LinkedList<Location>();
+        List<LocationNode> path = new ArrayList<LocationNode>();
 
         while (node != null)
         {
-            path.add(0, node.getLocation());
+            path.add(0, node);
+
+            // print for debugging in josm.jar
+            System.out.print("id:" + node.getId());
+
             node = pred.get(node);
+
+            // print for debugging in josm.jar
+            if (node != null)
+                System.out.print("|");
         }
+
+        return path;
+    }
+
+    private List<Location> pathFromStartToNode(LocationNode node)
+    {
+        List<Location> path = new ArrayList<Location>();
+
+        for (LocationNode n : nodesFromStartToNode(node))
+            path.add(n.getLocation());
 
         return path;
     }

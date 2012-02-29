@@ -39,7 +39,7 @@ public class NodeController implements Observer
 
     // static config
     private static final int HEARTBEAT_FREQ = 5000; // ms
-    private static final String DEFAULT_DATA_DIR = "~/.sdmay1207";
+    private static final String DEFAULT_DATA_DIR = "~/sdmay1207";
 
     public NodeController(int nodeNumber, String dataDir)
     {
