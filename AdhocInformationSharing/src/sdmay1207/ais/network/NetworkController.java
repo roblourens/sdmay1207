@@ -23,7 +23,8 @@ public class NetworkController extends Observable
     private NetworkInterface networkInterface;
     private Receiver r;
 
-    // A map of all nodes which have been seen so far
+    // A map of all nodes which have been seen so far - at this point, may or
+    // may not include this node
     private Map<Integer, Node> knownNodes = new ConcurrentHashMap<Integer, Node>();
 
     public enum Event
@@ -62,12 +63,12 @@ public class NetworkController extends Observable
         networkInterface.startNetwork(nodeNumber);
         networkInterface.startRouting(routingAlg);
     }
-    
+
     public void stop()
     {
         if (networkInterface != null)
             networkInterface.stop();
-        
+
         if (r != null)
             r.stop();
     }
@@ -163,7 +164,7 @@ public class NetworkController extends Observable
                 notifyObservers(event);
             }
         }
-        
+
         public void stop()
         {
             keepRunning = false;

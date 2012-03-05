@@ -20,6 +20,16 @@ public abstract class GPS extends Sensor
 
         public double longitude;
         
+        /**
+         * Instantiates a Location from its toString output
+         */
+        public Location(String locString)
+        {
+            String[] coords = locString.split(",");
+            latitude = Double.parseDouble(coords[0]);
+            longitude = Double.parseDouble(coords[1]);
+        }
+        
         public Location(double latitude, double longitude)
         {
             this.latitude = latitude;
@@ -43,9 +53,11 @@ public abstract class GPS extends Sensor
             return (int) hash;
         }
 
+        // This is the data sent in the Heartbeat
         public String toString()
         {
-            return String.format("(%f, %f)", latitude, longitude);
+            return String.format("%f,%f", latitude, longitude);
+            //return String.format("(%f, %f)", latitude, longitude);
         }
 
         public boolean equals(Object o)

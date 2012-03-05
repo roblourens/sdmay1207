@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
+import sdmay1207.ais.sensors.GPS.Location;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
 
 /**
@@ -20,6 +21,8 @@ public class Node
     public NetworkEvent lastEvent;
 
     public Heartbeat lastHeartbeat;
+    
+    public Location lastLocation;
 
     public Node(int nodeNum)
     {
@@ -58,5 +61,8 @@ public class Node
         
         lastHeartbeat = hb;
         sensors = hb.sensorOutput.keySet();
+        
+        String locationStr = hb.sensorOutput.get(SensorType.GPS);
+        lastLocation = new Location(locationStr);
     }
 }

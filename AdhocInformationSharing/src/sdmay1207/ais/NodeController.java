@@ -116,9 +116,17 @@ public class NodeController implements Observer
         }
     }
 
+    /**
+     * Returns a map of ALL known nodes (including this)
+     */
     public Map<Integer, Node> getNodesInNetwork()
     {
-        return networkController.getNodesInNetwork();
+        Map<Integer, Node> nodes = networkController.getNodesInNetwork();
+        
+        // modifies the map in NetworkController, deal with it
+        nodes.put(nodeNumber, me);
+        
+        return nodes;
     }
 
     public class HeartbeatTask implements Runnable

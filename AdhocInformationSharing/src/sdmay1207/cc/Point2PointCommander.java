@@ -1,8 +1,14 @@
 package sdmay1207.cc;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import sdmay1207.ais.NodeController;
+import sdmay1207.ais.network.model.Node;
 import sdmay1207.ais.sensors.GPS.Location;
 import sdmay1207.cc.LocationAStarSearch.SearchMode;
 import sdmay1207.cc.LocationGraph.LocationNode;
@@ -39,6 +45,115 @@ public class Point2PointCommander
         }
     }
 
+    public void initiateP2PTask(Location p1, Location p2)
+    {
+        Map<Integer, Node> availableNodes = nodeController.getNodesInNetwork();
+        List<Location> positions = getNodePositionsBetweenPoints(p1, p2,
+                availableNodes.size());
+
+        // assign nodes to positions
+        Map<Node, Location> assignments = assignNodesToPositions(
+                availableNodes, positions);
+
+        // send position assignments
+        
+
+        // wait until this node is close to its assigned position
+    }
+
+    private Map<Node, Location> assignNodesToPositions(
+            Map<Integer, Node> availableNodes, List<Location> positions)
+    {
+        Map<Node, List<Location>> nodePrefs = new HashMap<Node, List<Location>>();
+        Map<Location, List<Node>> locPrefs = new HashMap<Location, List<Node>>();
+
+        // Collect node prefs
+        for (final Node node : availableNodes.values())
+        {
+            List<Location> thisNodePrefs = new ArrayList<Location>(positions);
+
+            // Sort all positions by distance to the node
+            Collections.sort(thisNodePrefs, new Comparator<Location>()
+            {
+                @Override
+                public int compare(Location p1, Location p2)
+                {
+                    double d1 = node.lastLocation.distanceTo(p1);
+                    double d2 = node.lastLocation.distanceTo(p2);
+
+                    if (d1 < d2)
+                        return -1;
+                    else if (d2 < d1)
+                        return 1;
+                    else
+                        return 0;
+                }
+            });
+
+            nodePrefs.put(node, thisNodePrefs);
+        }
+
+        // Collect position prefs
+        for (final Location position : positions)
+        {
+            List<Node> thisPositionPrefs = new ArrayList<Node>(
+                    availableNodes.values());
+
+            // Sort all nodes by distance to the position
+            Collections.sort(thisPositionPrefs, new Comparator<Node>()
+            {
+                @Override
+                public int compare(Node n1, Node n2)
+                {
+                    double d1 = position.distanceTo(n1.lastLocation);
+                    double d2 = position.distanceTo(n2.lastLocation);
+
+                    if (d1 < d2)
+                        return -1;
+                    else if (d2 > d1)
+                        return 1;
+                    else
+                        return 0;
+                }
+            });
+        }
+
+        Map<Location, Node> locationAssignments = new HashMap<Location, Node>();
+        List<Node> freeNodes = new ArrayList<Node>(availableNodes.values());
+        while (freeNodes.size() > 0)
+        {
+            Node node = freeNodes.remove(0);
+
+            for (Location p : nodePrefs.get(node))
+            {
+                if (locationAssignments.get(p) == null)
+                {
+                    locationAssignments.put(p, node);
+                    break;
+                } else
+                {
+                    Node other = locationAssignments.get(p);
+                    List<Node> thisLocPrefs = locPrefs.get(p);
+
+                    if (thisLocPrefs.indexOf(node) < thisLocPrefs
+                            .indexOf(other))
+                    {
+                        freeNodes.add(other);
+                        locationAssignments.put(p, node);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Reverse the map and return
+        Map<Node, Location> assignments = new HashMap<Node, Location>();
+        for (Location p : locationAssignments.keySet())
+            assignments.put(locationAssignments.get(p), p);
+
+        return assignments;
+    }
+
     /**
      * Returns a list of Locations which should be able to form a connected
      * network between Locations p1 and p2, per the maps of these areas. Returns
@@ -48,7 +163,7 @@ public class Point2PointCommander
      *            The number of nodes to form the network
      * @return
      */
-    public List<Location> getNodePositionsBetweenPoints(Location p1,
+    private List<Location> getNodePositionsBetweenPoints(Location p1,
             Location p2, int n)
     {
         // Get the region as a graph, where a connection between two positions
