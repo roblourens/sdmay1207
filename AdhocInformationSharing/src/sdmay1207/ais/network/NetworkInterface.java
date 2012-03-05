@@ -149,7 +149,7 @@ public class NetworkInterface
         return routingImpl.broadcastData(data.toString());
     }
 
-    public boolean transmitData(int nodeNum, Object data)
+    public boolean sendData(int nodeNum, Object data)
     {
         System.out.println("Transmitting to node " + nodeNum + ": "
                 + data.toString());

@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Heartbeat;
+import sdmay1207.ais.network.model.NetworkCommand;
 import sdmay1207.ais.network.model.NetworkMessage;
 import sdmay1207.ais.network.model.Node;
 
@@ -64,6 +65,9 @@ public class NetworkController extends Observable
         networkInterface.startRouting(routingAlg);
     }
 
+    /**
+     * Shut off the network, stop the routing system
+     */
     public void stop()
     {
         if (networkInterface != null)
@@ -73,9 +77,20 @@ public class NetworkController extends Observable
             r.stop();
     }
 
+    /**
+     * Broadcasts the heartbeat object
+     */
     public boolean sendHeartbeat(Heartbeat hb)
     {
         return networkInterface.broadcastData(hb);
+    }
+
+    /**
+     * Sends the command to the specified node
+     */
+    public boolean sendCommand(NetworkCommand command, int destNodeNum)
+    {
+        return networkInterface.sendData(destNodeNum, command);
     }
 
     /**
@@ -112,6 +127,10 @@ public class NetworkController extends Observable
         return neighborMap;
     }
 
+    /**
+     * Update the map of known nodes with the info from the given Heartbeat
+     * object
+     */
     private void updateKnownNodes(Heartbeat hb)
     {
         if (knownNodes.get(hb.from) == null)

@@ -1,5 +1,8 @@
 package sdmay1207.ais;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -9,6 +12,7 @@ import sdmay1207.ais.network.NetworkController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Heartbeat;
+import sdmay1207.ais.network.model.NetworkCommand;
 import sdmay1207.ais.network.model.Node;
 import sdmay1207.ais.sensors.Sensor;
 import sdmay1207.ais.sensors.SensorInterface;
@@ -28,6 +32,9 @@ import sdmay1207.ais.sensors.SensorInterface.SensorType;
  */
 public class NodeController implements Observer
 {
+    // For listeners
+    private Map<String, List<CommandHandler>> commandHandlers = new HashMap<String, List<CommandHandler>>();
+
     // other components
     private NetworkController networkController;
     private SensorInterface sensorInterface = new SensorInterface();
@@ -88,32 +95,30 @@ public class NodeController implements Observer
         me.addSensorType(s.getType());
     }
 
-    // event received from the NetworkController
-    @Override
-    public void update(Observable observable, Object obj)
+    /**
+     * Send a command to a node on the network
+     */
+    public void sendCommand(String commandType, String commandData,
+            int destNodeNum)
     {
-        NetworkEvent netEvent = (NetworkEvent) obj;
-        switch (netEvent.event)
-        {
-        case RecvdHeartbeat:
-            Heartbeat hb = (Heartbeat) netEvent.data;
-            System.out.println("Got heartbeat from " + hb.from + ": " + hb.toString());
-            // do something useful with it- pass to GUI or something
-            // **or GUI has actually registered as the listener** this
-            break;
-        case NodeJoined:
-            System.out.println("Node joined: " + netEvent.data);
-            break;
-        case NodeLeft:
-            System.out.println("Node left: " + netEvent.data);
-            break;
-        case RecvdCommand:
-            System.out.println("Received command: " + netEvent.data);
-            break;
-        case RecvdData:
-            System.out.println("Received data: " + netEvent.data);
-            break;
-        }
+        NetworkCommand command = new NetworkCommand(commandType, commandData);
+
+        if (destNodeNum == me.nodeNum)
+            this.update(null, command);
+
+        networkController.sendCommand(command, destNodeNum);
+    }
+
+    /**
+     * Register to be notified when a command type is received
+     */
+    public void registerForCommand(String commandType,
+            CommandHandler commandHandler)
+    {
+        if (!commandHandlers.containsKey(commandType))
+            commandHandlers.put(commandType, new ArrayList<CommandHandler>());
+
+        commandHandlers.get(commandType).add(commandHandler);
     }
 
     /**
@@ -122,14 +127,19 @@ public class NodeController implements Observer
     public Map<Integer, Node> getNodesInNetwork()
     {
         Map<Integer, Node> nodes = networkController.getNodesInNetwork();
-        
+
         // modifies the map in NetworkController, deal with it
         nodes.put(nodeNumber, me);
-        
+
         return nodes;
     }
 
-    public class HeartbeatTask implements Runnable
+    public interface CommandHandler
+    {
+        public void commandReceived(NetworkCommand command);
+    }
+
+    private class HeartbeatTask implements Runnable
     {
         private volatile boolean keepRunning = true;
 
@@ -161,7 +171,45 @@ public class NodeController implements Observer
         }
     }
 
+    // event received from the NetworkController
+    @Override
+    public void update(Observable observable, Object obj)
+    {
+        NetworkEvent netEvent = (NetworkEvent) obj;
+        switch (netEvent.event)
+        {
+        case RecvdHeartbeat:
+            Heartbeat hb = (Heartbeat) netEvent.data;
+            System.out.println("Got heartbeat from " + hb.from + ": "
+                    + hb.toString());
+            // do something useful with it- pass to GUI or something
+            // **or GUI has actually registered as the listener** this
+            break;
+        case NodeJoined:
+            System.out.println("Node joined: " + netEvent.data);
+            break;
+        case NodeLeft:
+            System.out.println("Node left: " + netEvent.data);
+            break;
+        case RecvdCommand:
+            NetworkCommand command = (NetworkCommand) netEvent.data;
+            List<CommandHandler> typeHandlers = commandHandlers
+                    .get(command.commandType);
+
+            // Alert them
+            for (CommandHandler handler : typeHandlers)
+                handler.commandReceived(command);
+
+            System.out.println("Received command: " + netEvent.data);
+            break;
+        case RecvdData:
+            System.out.println("Received data: " + netEvent.data);
+            break;
+        }
+    }
+
     // probably won't usually be used - GUI should call the constructor instead
+    // netbook testing only
     public static void main(String[] args)
     {
         if (args.length < 2)

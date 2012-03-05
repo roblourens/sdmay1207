@@ -6,13 +6,27 @@ package sdmay1207.ais.network.model;
  */
 public class NetworkCommand extends NetworkMessage
 {
-    public enum CommandType
+    // Defined by the command implementor, so arbitrary command types are
+    // allowed
+    public String commandType;
+    
+    // Extra data, e.g. location
+    public String commandData;
+    
+    public NetworkCommand(String commandType, String commandData)
     {
-        GetImage, StartVideoStream, StopVideoStream
+        this.commandType = commandType;
+        this.commandData = commandData;
     }
 
-    public CommandType commandType;
-
+    /**
+     * Constructor to build a NetworkCommand model object from received data
+     * 
+     * @param fromIP
+     *            The IP address that sent this command
+     * @param heartbeatArgs
+     *            The (;-separated) data associated with this command
+     */
     public NetworkCommand(String fromIP, String[] commandArgs)
     {
         super(fromIP, commandArgs);

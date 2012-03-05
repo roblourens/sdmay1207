@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import sdmay1207.ais.NodeController;
+import sdmay1207.ais.NodeController.CommandHandler;
+import sdmay1207.ais.network.model.NetworkCommand;
 import sdmay1207.ais.network.model.Node;
 import sdmay1207.ais.sensors.GPS.Location;
 import sdmay1207.cc.LocationAStarSearch.SearchMode;
@@ -17,11 +19,13 @@ import br.zuq.osm.parser.model.OSM;
 import br.zuq.osm.parser.model.OSMNode;
 import br.zuq.osm.parser.model.Way;
 
-public class Point2PointCommander
+public class Point2PointCommander implements CommandHandler
 {
     private NodeController nodeController;
 
     private OSM osm;
+
+    public static final String P2P_COMMAND_TYPE = "p2p_GoToLocation";
 
     // Consider this to be the furthest that a connection can be made with
     // roughly a line of sight, in meters
@@ -43,6 +47,14 @@ public class Point2PointCommander
             e.printStackTrace();
             return;
         }
+        
+        // Register for P2P commands on the network
+        nodeController.registerForCommand(P2P_COMMAND_TYPE, this);
+    }
+    
+    public void commandReceived(NetworkCommand command)
+    {
+        
     }
 
     public void initiateP2PTask(Location p1, Location p2)
@@ -56,9 +68,11 @@ public class Point2PointCommander
                 availableNodes, positions);
 
         // send position assignments
-        
-
-        // wait until this node is close to its assigned position
+        // this will also send a command to this node, putting it into the
+        // command received loop like all the others
+        for (Node n : assignments.keySet())
+            nodeController.sendCommand(P2P_COMMAND_TYPE, assignments.get(n)
+                    .toString(), n.nodeNum);
     }
 
     private Map<Node, Location> assignNodesToPositions(
