@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
-import sdmay1207.ais.etc.Utils;
+import sdmay1207.ais.etc.Repeater.TimedRepeater;
 import sdmay1207.ais.network.NetworkController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
@@ -45,7 +45,7 @@ public class NodeController implements Observer
     private int nodeNumber;
 
     // static config
-    private static final int HEARTBEAT_FREQ = 5000; // ms
+    private static final long HEARTBEAT_FREQ = 5000; // ms
     private static final String DEFAULT_DATA_DIR = "~/sdmay1207";
 
     public NodeController(int nodeNumber, String dataDir)
@@ -67,7 +67,7 @@ public class NodeController implements Observer
     public void start(RoutingAlg routingAlg)
     {
         networkController.start(nodeNumber, routingAlg);
-        ht = new HeartbeatTask();
+        ht = new HeartbeatTask(HEARTBEAT_FREQ);
         new Thread(ht).start();
     }
 
@@ -98,11 +98,9 @@ public class NodeController implements Observer
     /**
      * Send a command to a node on the network
      */
-    public void sendCommand(String commandType, String commandData,
+    public void sendCommand(NetworkCommand command,
             int destNodeNum)
     {
-        NetworkCommand command = new NetworkCommand(commandType, commandData);
-
         if (destNodeNum == me.nodeNum)
             this.update(null, command);
 
@@ -120,6 +118,11 @@ public class NodeController implements Observer
 
         commandHandlers.get(commandType).add(commandHandler);
     }
+    
+    public Object getSensorReading(SensorType sensorType)
+    {
+        return sensorInterface.getReading(sensorType);
+    }
 
     /**
      * Returns a map of ALL known nodes (including this)
@@ -133,41 +136,42 @@ public class NodeController implements Observer
 
         return nodes;
     }
+    
+    /**
+     * Access to the current node object
+     */
+    public Node getMe()
+    {
+        return me;
+    }
 
     public interface CommandHandler
     {
         public void commandReceived(NetworkCommand command);
     }
 
-    private class HeartbeatTask implements Runnable
+    private class HeartbeatTask extends TimedRepeater
     {
-        private volatile boolean keepRunning = true;
-
-        @Override
-        public void run()
+        public HeartbeatTask(long freq)
         {
-            while (keepRunning)
-            {
-                System.out.println("...ba-dump...");
-                Heartbeat hb = me.getHeartbeat();
-
-                // Add sensor output to hearbeat message
-                for (SensorType sType : me.sensors)
-                {
-                    Object reading = sensorInterface.sensors.get(sType)
-                            .getReading();
-                    if (reading != null)
-                        hb.sensorOutput.put(sType, reading.toString());
-                }
-
-                networkController.sendHeartbeat(hb);
-                Utils.sleep(HEARTBEAT_FREQ);
-            }
+            super(freq);
         }
 
-        public void stop()
+        protected void runOnce()
         {
-            keepRunning = false;
+            System.out.println("...ba-dump...");
+            Heartbeat hb = me.getHeartbeat();
+
+            // Add sensor output to hearbeat message
+            for (SensorType sType : me.sensors)
+            {
+                Object reading = sensorInterface.sensors.get(sType)
+                        .getReading();
+                if (reading != null)
+                    hb.sensorOutput.put(sType, reading.toString());
+            }
+
+            networkController.sendHeartbeat(hb);
         }
     }
 

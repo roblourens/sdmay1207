@@ -87,7 +87,7 @@ public class LocationGraph
         for (LocationNode node : vertices.values())
         {
             double dist = node.distanceTo(p);
-            if (dist <= LocationNode.DELTA)
+            if (dist <= RealWorldLocation.DELTA)
             {
                 if (best == null || dist < bestDist)
                 {
@@ -158,11 +158,8 @@ public class LocationGraph
 
     class LocationNode
     {
-        // If two Locations are within DELTA meters, consider them equal
-        public static final double DELTA = 5;
-
-        private Location loc;
-
+        private RealWorldLocation rwloc;
+        
         private Set<LocationNode> neighbors = new HashSet<LocationNode>();
         
         private String id;
@@ -174,13 +171,13 @@ public class LocationGraph
         
         public LocationNode(Location loc, String id)
         {
-            this.loc = loc;
+            this.rwloc = new RealWorldLocation(loc);
             this.id = id;
         }
 
         public Location getLocation()
         {
-            return loc;
+            return rwloc.loc;
         }
         
         public String getId()
@@ -200,24 +197,24 @@ public class LocationGraph
 
         public boolean withinDeltaOf(LocationNode other)
         {
-            return withinDeltaOf(other.loc);
+            return withinDeltaOf(other.rwloc.loc);
         }
 
         public boolean withinDeltaOf(Location p)
         {
-            return distanceTo(p) <= DELTA;
+            return rwloc.withinDeltaOf(p);
         }
 
         // in meters
         public double distanceTo(LocationNode other)
         {
-            return distanceTo(other.loc);
+            return distanceTo(other.rwloc.loc);
         }
 
         // in meters
         public double distanceTo(Location p)
         {
-            return Utils.distance(this.loc, p);
+            return rwloc.distanceTo(p);
         }
 
         public boolean equals(Object o)
@@ -225,13 +222,8 @@ public class LocationGraph
             if (!(o instanceof LocationNode))
                 return false;
 
-            LocationNode ln = (LocationNode) o;
-            return loc.equals(ln.loc);
-        }
-
-        public String toString()
-        {
-            return id + ": " + loc.toString();
+            LocationNode other = (LocationNode) o;
+            return rwloc.equals(other.rwloc);
         }
     }
 }

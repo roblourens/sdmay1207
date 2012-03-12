@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import sdmay1207.ais.etc.Repeater;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Heartbeat;
 import sdmay1207.ais.network.model.NetworkCommand;
@@ -148,45 +149,35 @@ public class NetworkController extends Observable
      * @author rob
      * 
      */
-    public class Receiver implements Runnable
+    public class Receiver extends Repeater
     {
         private Queue<NetworkEvent> receivedEvents;
-
-        // http://stackoverflow.com/questions/106591/do-you-ever-use-the-volatile-keyword-in-java
-        private volatile boolean keepRunning = true;
 
         public Receiver()
         {
             receivedEvents = new ConcurrentLinkedQueue<NetworkEvent>();
         }
 
-        public void run()
+        @Override
+        protected void runOnce()
         {
-            while (keepRunning)
+            synchronized (receivedEvents)
             {
-                synchronized (receivedEvents)
+                while (receivedEvents.isEmpty())
                 {
-                    while (receivedEvents.isEmpty())
+                    try
                     {
-                        try
-                        {
-                            receivedEvents.wait();
-                        } catch (InterruptedException e)
-                        {
-                            e.printStackTrace();
-                        }
+                        receivedEvents.wait();
+                    } catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
                     }
                 }
-
-                NetworkEvent event = receivedEvents.poll();
-                setChanged();
-                notifyObservers(event);
             }
-        }
 
-        public void stop()
-        {
-            keepRunning = false;
+            NetworkEvent event = receivedEvents.poll();
+            setChanged();
+            notifyObservers(event);
         }
 
         public void addMessage(String fromIP, byte[] data)

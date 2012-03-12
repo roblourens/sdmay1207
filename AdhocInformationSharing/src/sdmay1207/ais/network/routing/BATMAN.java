@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import sdmay1207.ais.Device;
+import sdmay1207.ais.etc.Repeater;
+import sdmay1207.ais.etc.Repeater.TimedRepeater;
 import sdmay1207.ais.etc.Utils;
 import sdmay1207.ais.network.NetworkController.Receiver;
 
@@ -185,53 +187,45 @@ public class BATMAN implements RoutingImpl
         return neighbors;
     }
 
-    private class ConnectedNodeMonitor implements Runnable
+    private class ConnectedNodeMonitor extends TimedRepeater
     {
-        private volatile boolean keepRunning = true;
-
         private Set<Integer> connectedNodes = null;
 
         private static final int CHECK_INTERVAL = 5000; // ms
-
-        public void stop()
+        
+        public ConnectedNodeMonitor()
         {
-            keepRunning = false;
+            super(CHECK_INTERVAL);
         }
 
         @Override
-        public void run()
+        public void runOnce()
         {
-            while (keepRunning)
+            Set<Integer> newConnectedNodes = getConnectedNodes();
+
+            if (connectedNodes != null)
             {
-                Set<Integer> newConnectedNodes = getConnectedNodes();
+                // Find new nodes
+                for (Integer nodeNum : newConnectedNodes)
+                    if (!connectedNodes.contains(nodeNum))
+                        receiver.nodeJoined(nodeNum);
 
-                if (connectedNodes != null)
-                {
-                    // Find new nodes
-                    for (Integer nodeNum : newConnectedNodes)
-                        if (!connectedNodes.contains(nodeNum))
-                            receiver.nodeJoined(nodeNum);
-
-                    // Find lost nodes
-                    for (Integer nodeNum : connectedNodes)
-                        if (!newConnectedNodes.contains(nodeNum))
-                            receiver.nodeLeft(nodeNum);
-                }
-
-                connectedNodes = newConnectedNodes;
-
-                if (connectedNodes.size() != 0)
-                    System.out.println("BATMAN has " + connectedNodes.size()
-                            + " neighbors");
-
-                Utils.sleep(CHECK_INTERVAL);
+                // Find lost nodes
+                for (Integer nodeNum : connectedNodes)
+                    if (!newConnectedNodes.contains(nodeNum))
+                        receiver.nodeLeft(nodeNum);
             }
+
+            connectedNodes = newConnectedNodes;
+
+            if (connectedNodes.size() != 0)
+                System.out.println("BATMAN has " + connectedNodes.size()
+                        + " neighbors");
         }
     }
 
-    private class UDPReceiver implements Runnable
+    private class UDPReceiver extends Repeater
     {
-        private volatile boolean keepRunning = true;
         private DatagramSocket dgramSock;
         private int exclude;
 
@@ -253,37 +247,29 @@ public class BATMAN implements RoutingImpl
             }
         }
 
-        public void stop()
-        {
-            keepRunning = false;
-        }
-
         @Override
-        public void run()
+        protected void runOnce()
         {
-            while (keepRunning)
+            try
             {
-                try
-                {
-                    // 52kb buffer
-                    byte[] buffer = new byte[52000];
-                    DatagramPacket receivedPacket = new DatagramPacket(buffer,
-                            buffer.length);
+                // 52kb buffer
+                byte[] buffer = new byte[52000];
+                DatagramPacket receivedPacket = new DatagramPacket(buffer,
+                        buffer.length);
 
-                    dgramSock.receive(receivedPacket);
+                dgramSock.receive(receivedPacket);
 
-                    String fromAddress = receivedPacket.getAddress().toString();
+                String fromAddress = receivedPacket.getAddress().toString();
 
-                    // toString returns hostname / ip
-                    String fromIP = fromAddress.split("/")[1];
-                    if (exclude != Utils.getNodeNumberFromIP(fromIP))
-                        receiver.addMessage(fromIP, receivedPacket.getData());
-                } catch (IOException e)
-                {
-                    e.printStackTrace();
-                    System.err
-                            .println("Bad things happened in BATMAN message receiver thread");
-                }
+                // toString returns hostname / ip
+                String fromIP = fromAddress.split("/")[1];
+                if (exclude != Utils.getNodeNumberFromIP(fromIP))
+                    receiver.addMessage(fromIP, receivedPacket.getData());
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+                System.err
+                        .println("Bad things happened in BATMAN message receiver thread");
             }
         }
     }

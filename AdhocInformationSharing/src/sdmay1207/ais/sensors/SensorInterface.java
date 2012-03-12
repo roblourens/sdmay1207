@@ -28,4 +28,9 @@ public class SensorInterface
 
         sensors.put(s.getType(), s);
     }
+    
+    public Object getReading(SensorType sensorType)
+    {
+        return sensors.get(sensorType).getReading();
+    }
 }

@@ -1,6 +1,7 @@
 package sdmay1207.ais.etc;
 
 import java.lang.reflect.Array;
+import java.util.Map;
 
 import sdmay1207.ais.sensors.GPS.Location;
 
@@ -48,9 +49,9 @@ public class Utils
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         double d = 6367 * c;
 
-        return d*1000;
+        return d * 1000;
     }
-    
+
     public static void sleep(long ms)
     {
         try
@@ -60,5 +61,16 @@ public class Utils
         {
             e.printStackTrace();
         }
+    }
+
+    // Return key for given value
+    public static Object reverseMapLookup(
+            Map<? extends Object, ? extends Object> map, Object value)
+    {
+        for (Object k : map.keySet())
+            if (map.get(k).equals(value))
+                return k;
+
+        return null;
     }
 }

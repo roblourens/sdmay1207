@@ -22,8 +22,8 @@ public class Heartbeat extends NetworkMessage
     public Heartbeat(String fromIP, String[] heartbeatArgs)
     {
         super(fromIP, heartbeatArgs);
-
         messageType = MessageType.Heartbeat;
+        
         for (String s : data)
         {
             SensorType st = SensorType.values()[s.charAt(0) - '0'];
