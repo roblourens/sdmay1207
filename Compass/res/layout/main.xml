@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/compass" />
+    
+    <EditText
+        android:id="@+id/saved"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_above="@+id/retrieveButton"
+        android:layout_below="@+id/output"
+        android:clickable="true"
+        android:editable="false"
+        android:gravity="top"
+        android:inputType="none"
+        android:scrollbarSize="10dp"
+        android:scrollbars="vertical" />
+
+ 	<EditText
+ 	    android:id="@+id/output"
+ 	    android:layout_width="fill_parent"
+ 	    android:layout_height="wrap_content"
+ 	    android:layout_alignParentRight="true"
+ 	    android:layout_below="@+id/textView1"
+ 	    android:clickable="true"
+ 	    android:editable="false"
+ 	    android:gravity="top"
+ 	    android:inputType="none"
+ 	    android:scrollbarSize="10dp"
+ 	    android:scrollbars="vertical" />
+
+    <LinearLayout
+        android:id="@+id/layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/retrieveButton"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="@string/retrieve" />
+
+</RelativeLayout>

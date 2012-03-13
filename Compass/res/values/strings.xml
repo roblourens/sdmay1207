@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, CompassActivity!</string>
+    <string name="app_name">Compass</string>
+    <string name="compass">Compass</string>
+    <string name="retrieve">Retrieve</string>
+
+</resources>
