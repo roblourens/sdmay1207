@@ -2,9 +2,11 @@ package sdmay1207.android.sensors;
 
 import sdmay1207.ais.sensors.GPS;
 import android.content.Context;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
 
-public class GPSSensor extends GPS
+public class GPSSensor extends GPS implements LocationListener
 {
 
     private LocationManager locManager;
@@ -16,24 +18,24 @@ public class GPSSensor extends GPS
     {
         locManager = (LocationManager) c
                 .getSystemService(Context.LOCATION_SERVICE);
+        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
     }
 
     /*
-     * Reads latest output and returns a new AISLocation object found in the GPS
-     * interface in AIS
+     * Reads latest output and returns a new Location object
      */
     @Override
-    public GPS.Location getReading()
+    public Location getReading()
     {
         android.location.Location location = locManager
                 .getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (location != null)
         {
-            return new GPS.Location(location.getLatitude(),
+            return new Location(location.getLatitude(),
                     location.getLongitude());
         } else
         {
-            return new GPS.Location(0.0, 0.0);
+            return new Location(0.0, 0.0);
         }
     }
 
@@ -44,5 +46,25 @@ public class GPSSensor extends GPS
     public String getUnits()
     {
         return "degrees";
+    }
+
+    @Override
+    public void onLocationChanged(android.location.Location location)
+    {
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras)
+    {
+    }
+
+    @Override
+    public void onProviderEnabled(String provider)
+    {
+    }
+
+    @Override
+    public void onProviderDisabled(String provider)
+    {
     }
 }
