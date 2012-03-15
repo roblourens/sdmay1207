@@ -12,7 +12,7 @@ public class SensorInterface
     // If there are more than 10, fix the Heartbeat serializing code
     public enum SensorType
     {
-        GPS, Thermometer, StillCamera, Video
+        GPS, Thermometer, StillCamera, Video, Battery, Compass
     }
 
     public Map<SensorType, Sensor> sensors = new HashMap<SensorType, Sensor>();
