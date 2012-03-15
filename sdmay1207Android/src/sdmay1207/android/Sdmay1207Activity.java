@@ -5,6 +5,9 @@ import java.util.Random;
 import sdmay1207.ais.Device;
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
+import sdmay1207.android.sensors.BatterySensor;
+import sdmay1207.android.sensors.CompassSensor;
+import sdmay1207.android.sensors.GPSSensor;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -27,7 +30,10 @@ public class Sdmay1207Activity extends Activity
         String dataDir = getApplicationContext().getFilesDir().getParent();
         System.out.println("Using dataDir: " + dataDir);
         final NodeController nc = new NodeController(nodeNumber, dataDir);
-
+        nc.addSensor(new BatterySensor(this));
+        nc.addSensor(new CompassSensor(this));
+        nc.addSensor(new GPSSensor(this));
+        
         ((Button) findViewById(R.id.startButton))
                 .setOnClickListener(new OnClickListener()
                 {
@@ -36,7 +42,7 @@ public class Sdmay1207Activity extends Activity
                     {
                         Device.sysCommand("su -c \"/data/data/android.tether/bin/tether stop 1\"");
                         System.out.println("Starting as node: " + nodeNumber);
-                        nc.start(RoutingAlg.BATMAN);
+                        nc.start(RoutingAlg.AODV);
                     }
                 });
 
