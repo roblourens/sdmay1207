@@ -17,6 +17,7 @@ import sdmay1207.ais.network.model.Node;
 import sdmay1207.ais.sensors.Sensor;
 import sdmay1207.ais.sensors.SensorInterface;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
+import sdmay1207.networkrejoining.NetworkRejoinMonitor;
 
 /**
  * The node controller component implements node logic by controlling the other
@@ -68,7 +69,9 @@ public class NodeController implements Observer
     {
         networkController.start(nodeNumber, routingAlg);
         ht = new HeartbeatTask(HEARTBEAT_FREQ);
-        new Thread(ht).start();
+        ht.start();
+
+        new NetworkRejoinMonitor(this).start();
     }
 
     /**
@@ -98,8 +101,7 @@ public class NodeController implements Observer
     /**
      * Send a command to a node on the network
      */
-    public void sendCommand(NetworkCommand command,
-            int destNodeNum)
+    public void sendCommand(NetworkCommand command, int destNodeNum)
     {
         if (destNodeNum == me.nodeNum)
             this.update(null, command);
@@ -118,7 +120,7 @@ public class NodeController implements Observer
 
         commandHandlers.get(commandType).add(commandHandler);
     }
-    
+
     public Object getSensorReading(SensorType sensorType)
     {
         return sensorInterface.getReading(sensorType);
@@ -136,7 +138,7 @@ public class NodeController implements Observer
 
         return nodes;
     }
-    
+
     /**
      * Access to the current node object
      */
@@ -173,6 +175,12 @@ public class NodeController implements Observer
 
             networkController.sendHeartbeat(hb);
         }
+    }
+
+    // see example implementation of update below
+    public void addNetworkObserver(Observer obs)
+    {
+        networkController.addObserver(obs);
     }
 
     // event received from the NetworkController
