@@ -59,7 +59,7 @@ public class NetworkController extends Observable
     public void start(int nodeNumber, RoutingAlg routingAlg)
     {
         r = new Receiver();
-        new Thread(r).start();
+        r.start();
 
         networkInterface = new NetworkInterface(r);
         networkInterface.startNetwork(nodeNumber);

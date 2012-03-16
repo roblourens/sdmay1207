@@ -73,6 +73,7 @@ public class AODV implements RoutingImpl, Observer
         return nodeAODV.getZeroHopNeighbors();
     }
 
+    // updated by AODV
     @Override
     public void update(Observable sender, Object data)
     {

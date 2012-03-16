@@ -74,10 +74,10 @@ public class BATMAN implements RoutingImpl
         }
 
         udpReceiver = new UDPReceiver(nodeNumber);
-        new Thread(udpReceiver).start();
+        udpReceiver.start();
 
         connectedNodeMonitor = new ConnectedNodeMonitor();
-        new Thread(connectedNodeMonitor).start();
+        connectedNodeMonitor.start();
 
         return true;
     }

@@ -24,10 +24,7 @@ public abstract class Repeater implements Runnable
         keepRunning = false;
     }
 
-    protected void runOnce()
-    {
-
-    }
+    protected abstract void runOnce();
     
     public static abstract class TimedRepeater extends Repeater
     {
