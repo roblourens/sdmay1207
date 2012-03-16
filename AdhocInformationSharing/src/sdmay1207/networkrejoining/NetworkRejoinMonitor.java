@@ -32,6 +32,9 @@ public class NetworkRejoinMonitor extends TimedRepeater
     protected void runOnce()
     {
         Map<Integer, Node> nodes = nc.getNodesInNetwork();
+        
+        if (lastNodes == null)
+            return;
 
         if (nodes.size() < lastNodes.size())
         {
