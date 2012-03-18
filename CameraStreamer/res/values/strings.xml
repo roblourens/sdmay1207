@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">CameraStreamer</string>
+    <string name="app_name">CameraStreamer</string>
+    <string name="iptext">192.168.1.66</string>
+    <string name="iphint">Enter IP to send stream to</string>
+    <string name="streamButton">Stream!</string>
+        
+</resources>

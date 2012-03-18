@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainlayout"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <SurfaceView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/smallcameraview"
+        android:layout_alignParentLeft="true" />
+
+    <LinearLayout
+	    android:id="@+id/linearLayout2"
+	    android:layout_width="fill_parent"
+	    android:gravity="center"
+	    android:layout_height="fill_parent" >
+    
+		
+	</LinearLayout>
+    
+	<TextView 
+		android:gravity="top"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/console"
+		android:textColor="#FFAC63"
+		android:shadowRadius="1"
+		android:shadowDx="1"
+		android:shadowDy="1"
+		android:shadowColor="#000000"
+		android:padding="10dip"
+    />
+    
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true" >
+
+        <EditText
+            android:id="@+id/ip"
+            android:hint="@string/iphint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="9"
+            android:gravity="center_horizontal"
+            android:text="@string/iptext" >
+        </EditText>
+
+        <Button
+            android:id="@+id/streambutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/streamButton" />
+        
+    </LinearLayout>
+
+</RelativeLayout>
