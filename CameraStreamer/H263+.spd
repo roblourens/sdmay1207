@@ -1,0 +1,7 @@
+v=0 
+o=- 1234 3 IN IP4 192.168.1.3 
+s=Streamer 
+t=0 0 
+m=video 7476 RTP/AVP 74
+a=rtpmap:74 H263-1998/90000 
+a=fmtp:74 profile=0; level=40 
