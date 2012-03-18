@@ -12,7 +12,7 @@ public abstract class Battery extends Sensor
 
     public abstract BatteryStatus getReading();
 
-    public class BatteryStatus
+    public static class BatteryStatus
     {
         private boolean charging;
         private float percentage;

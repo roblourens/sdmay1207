@@ -12,7 +12,7 @@ public abstract class Compass extends Sensor
 
     public abstract CompassReading getReading();
 
-    public class CompassReading
+    public static class CompassReading
     {
         private float reading;
 
