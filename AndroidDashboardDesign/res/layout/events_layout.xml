@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"  
+    android:background="#f8f9fe">
+	<include layout="@layout/actionbar_layout"/>
+	
+	<LinearLayout android:layout_width="fill_parent"
+	    		android:layout_height="wrap_content">
+			<TextView android:layout_width="fill_parent"
+		        	android:layout_height="wrap_content"
+		        	android:text="Events Screen"
+		        	android:textSize="25dip"
+		        	android:padding="15dip"
+		        	android:textStyle="bold"
+		        	android:textColor="#ff29549f"/>    
+	</LinearLayout>   
+
+</LinearLayout>

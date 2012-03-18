@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidhive.dashboard"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="7" />
+     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.INTERNET" />
+
+	    
+ 
+	<uses-feature android:name="android.hardware.location.network" />
+	<uses-feature android:name="android.hardware.location.gps" />	
+	<uses-feature android:name="android.hardware.wifi" />
+    
+
+    <application
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name" >
+        <activity
+            android:label="@string/app_name"
+            android:name="com.androidhive.dashboard.AndroidDashboardDesignActivity" >
+            <intent-filter >
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- News Feed Activity -->
+        <activity android:name="com.androidhive.dashboard.NewsFeedActivity" ></activity>
+
+        <!-- Friends Activity -->
+        <activity android:name="com.androidhive.dashboard.FriendsActivity" ></activity>
+
+        <!-- Messages Activity -->
+        <activity android:name="com.androidhive.dashboard.MessagesActivity" ></activity>
+
+        <!-- Places Activity -->
+        <activity android:name="com.androidhive.dashboard.PlacesActivity" ></activity>
+
+        <!-- Events Activity -->
+        <activity android:name="com.androidhive.dashboard.EventsActivity" ></activity>
+        
+        <!-- Photos Activity -->
+        <activity android:name="com.androidhive.dashboard.PhotosActivity" ></activity>
+    </application>
+
+</manifest>

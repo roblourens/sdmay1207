@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry kind="lib" path="C:/Users/miniMe/Desktop/MouseWithoutBorders/osmdroid-android-3.0.8-20120208.220818-1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/miniMe/Desktop/MouseWithoutBorders/slf4j-android-1.6.1-RC1.jar"/>
+	<classpathentry kind="output" path="bin/classes"/>
+</classpath>

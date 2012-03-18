@@ -1,0 +1,16 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/ActionBarCompat"
+    android:orientation="horizontal" >
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:clickable="false"
+        android:paddingLeft="15dip"
+        android:scaleType="center"
+        android:text="Events Screen"
+       	android:textSize="25dip"
+       	android:textStyle="bold"
+       	android:textColor="#ff29549f"/>
+
+</LinearLayout>
