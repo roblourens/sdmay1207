@@ -42,7 +42,7 @@ public class NewsFeedActivity extends Activity {
        
         setContentView(R.layout.news_feed_layout);
 
-       mapView= (MapView) findViewById(R.id.map);
+       mapView= (MapView) findViewById(R.id.map1);
        
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setClickable(true);
