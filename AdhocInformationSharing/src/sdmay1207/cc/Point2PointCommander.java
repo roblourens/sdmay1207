@@ -171,7 +171,7 @@ public class Point2PointCommander implements CommandHandler
                 }
             }
         }
-        
+
         private void changeState(P2PState newState)
         {
             gui.stateChanged(newState);
@@ -219,7 +219,7 @@ public class Point2PointCommander implements CommandHandler
 
     // Get the region as a graph, where a connection between two positions
     // means that it is possible to walk in a straight line between them
-    private LocationGraph getRegionGraph(OSM osm)
+    public static LocationGraph getRegionGraph(OSM osm)
     {
         LocationGraph lg = new LocationGraph();
 

@@ -117,18 +117,8 @@ public class Point2PointNodeWrangler
 
         return assignments;
     }
-
-    /**
-     * Returns a list of Locations which should be able to form a connected
-     * network between Locations p1 and p2, per the maps of these areas. Returns
-     * null if impossible (distance too far, etc.)
-     * 
-     * @param n
-     *            The number of nodes to form the network
-     * @return
-     */
-    public List<Location> getNodePositionsBetweenPoints(Location p1,
-            Location p2, int n)
+    
+    public List<Location> getPathBetweenPoints(Location p1, Location p2)
     {
         // Setup the search algorithm to perform a shortest-path A* search
         LocationAStarSearch search = new LocationAStarSearch(
@@ -145,6 +135,23 @@ public class Point2PointNodeWrangler
 
         if (!ln2.withinDeltaOf(p2))
             positions.add(p2);
+        
+        return positions;
+    }
+
+    /**
+     * Returns a list of Locations which should be able to form a connected
+     * network between Locations p1 and p2, per the maps of these areas. Returns
+     * null if impossible (distance too far, etc.)
+     * 
+     * @param n
+     *            The number of nodes to form the network
+     * @return
+     */
+    public List<Location> getNodePositionsBetweenPoints(Location p1,
+            Location p2, int n)
+    {
+        List<Location> positions = getPathBetweenPoints(p1, p2);
 
         // Not enough nodes to cover all corners - if we eventually consider
         // known obstacles, this is one place it would be useful
