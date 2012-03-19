@@ -2,10 +2,6 @@ package com.androidhive.dashboard;
 
 import java.io.IOException;
 
-
-import com.CameraStreamer.control.*;
-import com.CameraStreamer.model.CameraStreamer;
-import com.CameraStreamer.control.CameraCallback;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -18,6 +14,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import androidhive.dashboard.R;
+
+import com.CameraStreamer.control.ButtonListener;
+import com.CameraStreamer.control.CameraCallback;
+import com.CameraStreamer.model.CameraStreamer;
 
 public class PhotosActivity extends Activity {
 	

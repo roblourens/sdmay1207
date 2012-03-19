@@ -2,19 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"  
-    android:background="#f8f9fe">
-	<include layout="@layout/actionbar_layout"/>
-	
-	<LinearLayout android:layout_width="fill_parent"
-	    		android:layout_height="wrap_content">
-			<TextView android:layout_width="fill_parent"
-		        	android:layout_height="wrap_content"
-		        	android:text="Events Screen"
-		        	android:textSize="25dip"
-		        	android:padding="15dip"
-		        	android:textStyle="bold"
-		        	android:textColor="#ff29549f"/>    
-	</LinearLayout>   
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <Button
+        android:id="@+id/startButton"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Start" />
+
+    <Button
+        android:id="@+id/endButton"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Stop" />
 
 </LinearLayout>

@@ -1,8 +1,9 @@
 package com.CameraStreamer.control;
 
-import com.androidhive.dashboard.*;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
+
+import com.androidhive.dashboard.PhotosActivity;
 
 public class CameraCallback implements Callback {
 	

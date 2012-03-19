@@ -1,10 +1,9 @@
 package com.CameraStreamer.model;
 
 import java.io.IOException;
-
 import java.io.InputStream;
 import java.net.InetAddress;
-import com.androidhive.dashboard.*;
+
 import android.hardware.Camera;
 import android.media.MediaRecorder;
 import android.net.LocalServerSocket;
@@ -12,6 +11,8 @@ import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
 import android.util.Log;
 import android.view.SurfaceHolder;
+
+import com.androidhive.dashboard.PhotosActivity;
 
 public class CameraStreamer extends MediaRecorder{
 

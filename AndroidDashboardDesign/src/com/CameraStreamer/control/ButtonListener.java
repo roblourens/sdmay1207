@@ -1,12 +1,12 @@
 package com.CameraStreamer.control;
 
-import com.androidhive.dashboard.PhotosActivity;
-
 import android.app.Activity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import androidhive.dashboard.R;
+
+import com.androidhive.dashboard.PhotosActivity;
 
 
 public class ButtonListener implements OnClickListener{
