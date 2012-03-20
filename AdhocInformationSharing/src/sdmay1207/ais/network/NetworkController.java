@@ -196,21 +196,29 @@ public class NetworkController extends Observable
                 break;
             }
 
+            addEvent(event);
+        }
+
+        public void nodeLeft(int nodeNumber)
+        {
+            addEvent(new NetworkEvent(Event.NodeLeft, nodeNumber));
+        }
+
+        public void nodeJoined(int nodeNumber)
+        {
+            addEvent(new NetworkEvent(Event.NodeJoined, nodeNumber));
+        }
+        
+        /**
+         * Add the event to the queue, then wake the notifer thread
+         */
+        private void addEvent(NetworkEvent event)
+        {
             receivedEvents.add(event);
             synchronized (receivedEvents)
             {
                 receivedEvents.notify();
             }
-        }
-
-        public void nodeLeft(int nodeNumber)
-        {
-            receivedEvents.add(new NetworkEvent(Event.NodeLeft, nodeNumber));
-        }
-
-        public void nodeJoined(int nodeNumber)
-        {
-            receivedEvents.add(new NetworkEvent(Event.NodeJoined, nodeNumber));
         }
     }
 }
