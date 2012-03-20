@@ -22,8 +22,9 @@ import sdmay1207.ais.network.model.Node;
  */
 public class NetworkController extends Observable
 {
-    private NetworkInterface networkInterface;
+    public NetworkInterface networkInterface;
     private Receiver r;
+    private boolean isRunning = false;
 
     // A map of all nodes which have been seen so far - at this point, may or
     // may not include this node
@@ -64,6 +65,8 @@ public class NetworkController extends Observable
         networkInterface = new NetworkInterface(r);
         networkInterface.startNetwork(nodeNumber);
         networkInterface.startRouting(routingAlg);
+        
+        isRunning = true;
     }
 
     /**
@@ -76,6 +79,8 @@ public class NetworkController extends Observable
 
         if (r != null)
             r.stop();
+        
+        isRunning = false;
     }
 
     /**
@@ -126,6 +131,16 @@ public class NetworkController extends Observable
         }
 
         return neighborMap;
+    }
+    
+    public void transmitData(int nodeNum, byte[] data)
+    {
+        networkInterface.sendData(nodeNum, data);
+    }
+    
+    public boolean isRunning()
+    {
+        return isRunning;
     }
 
     /**

@@ -42,6 +42,8 @@ public class NodeController implements Observer
     private Node me;
     private HeartbeatTask ht;
     private NetworkRejoinMonitor networkRejoinMonitor;
+    
+    private boolean isRunning = false;
 
     // config
     private int nodeNumber;
@@ -74,6 +76,8 @@ public class NodeController implements Observer
 
         networkRejoinMonitor = new NetworkRejoinMonitor(this);
         networkRejoinMonitor.start();
+        
+        isRunning = true;
     }
 
     /**
@@ -88,6 +92,8 @@ public class NodeController implements Observer
         
         if (networkRejoinMonitor != null)
             networkRejoinMonitor.stop();
+        
+        isRunning = false;
     }
 
     /**
@@ -150,6 +156,11 @@ public class NodeController implements Observer
     public Node getMe()
     {
         return me;
+    }
+    
+    public boolean isRunning()
+    {
+        return isRunning;
     }
 
     public interface CommandHandler
