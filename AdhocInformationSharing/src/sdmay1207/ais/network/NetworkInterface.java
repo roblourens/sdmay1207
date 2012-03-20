@@ -138,7 +138,7 @@ public class NetworkInterface
         return 0;
     }
 
-    private String getIP()
+    public String getIP()
     {
         return Config.SUBNET + nodeNumber;
     }
@@ -154,5 +154,10 @@ public class NetworkInterface
         System.out.println("Transmitting to node " + nodeNum + ": "
                 + data.toString());
         return routingImpl.transmitData(nodeNum, data.toString());
+    }
+    
+    public boolean sendData(int nodeNum, byte[] data)
+    {
+        return routingImpl.transmitData(nodeNum, data);
     }
 }

@@ -3,5 +3,8 @@
 
     <string name="hello">Hello World, Sdmay1207Activity!</string>
     <string name="app_name">Sdmay1207</string>
+    <string name="iptext">192.168.1.66</string>
+    <string name="iphint">Enter IP to send stream to</string>
+    <string name="streamButton">Stream!</string>
 
 </resources>

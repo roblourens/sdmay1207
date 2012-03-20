@@ -7,6 +7,8 @@ public interface RoutingImpl
 {
     static final int BROADCAST_ID = 255;
     
+    public boolean transmitData(int nodeNumber, byte[] data);
+    
     public boolean transmitData(int nodeNumber, String data);
 
     public boolean broadcastData(String data);

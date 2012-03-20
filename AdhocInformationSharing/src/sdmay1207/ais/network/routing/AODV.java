@@ -25,12 +25,17 @@ public class AODV implements RoutingImpl, Observer
     {
         this.receiver = receiver;
     }
+    
+    public boolean transmitData(int nodeNumber, byte[] data)
+    {
+        nodeAODV.sendData(TRANSMIT_PKT_ID, nodeNumber, data);
+        return true;
+    }
 
     @Override
     public boolean transmitData(int nodeNumber, String data)
     {
-        nodeAODV.sendData(TRANSMIT_PKT_ID, nodeNumber, data.getBytes());
-        return true;
+        return transmitData(nodeNumber, data.getBytes());
     }
 
     public boolean broadcastData(String data)

@@ -1,23 +1,25 @@
 package sdmay1207.android;
 
-import java.awt.Button;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Random;
-
-import javax.swing.text.View;
 
 import sdmay1207.ais.Device;
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Heartbeat;
-import sdmay1207.ais.network.model.Node;
-import sdmay1207.ais.sensors.Compass.CompassReading;
-import sdmay1207.ais.sensors.SensorInterface.SensorType;
 import sdmay1207.android.sensors.BatterySensor;
 import sdmay1207.android.sensors.CompassSensor;
 import sdmay1207.android.sensors.GPSSensor;
+import sdmay1207.camerastream.CameraView;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.Toast;
 
 public class Sdmay1207Activity extends Activity implements Observer
 {
@@ -28,19 +30,12 @@ public class Sdmay1207Activity extends Activity implements Observer
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        Random r = new Random();
-        final int nodeNumber = r.nextInt(245) + 10; // reserve the single-digit
-                                                    // ones
-
-        String dataDir = getApplicationContext().getFilesDir().getParent();
-        System.out.println("Using dataDir: " + dataDir);
-        final NodeController nc = new NodeController(nodeNumber, dataDir);
+        final NodeController nc = ((Sdmay1207Application) getApplication()).nc;
         nc.addSensor(new BatterySensor(this));
         nc.addSensor(new CompassSensor(this));
         nc.addSensor(new GPSSensor(this));
-        
         nc.addNetworkObserver(this);
-        
+
         ((Button) findViewById(R.id.startButton))
                 .setOnClickListener(new OnClickListener()
                 {
@@ -48,7 +43,6 @@ public class Sdmay1207Activity extends Activity implements Observer
                     public void onClick(View v)
                     {
                         Device.sysCommand("su -c \"/data/data/android.tether/bin/tether stop 1\"");
-                        System.out.println("Starting as node: " + nodeNumber);
                         nc.start(RoutingAlg.AODV);
                     }
                 });
@@ -63,9 +57,24 @@ public class Sdmay1207Activity extends Activity implements Observer
                         Device.sysCommand("su -c \"/data/data/android.tether/bin/tether stop 1\"");
                     }
                 });
-        
-        Node n = nc.getNodesInNetwork().get(3);
-        CompassReading cr = new CompassReading(n.lastHeartbeat.sensorOutput.get(SensorType.Compass));
+
+        final Context c = this;
+        ((Button) findViewById(R.id.cameraButton))
+                .setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        if (!nc.isRunning())
+                            Toast.makeText(c, "You must press start first", 4)
+                                    .show();
+                        else
+                        {
+                            Intent i = new Intent(c, CameraView.class);
+                            startActivity(i);
+                        }
+                    }
+                });
     }
 
     @Override

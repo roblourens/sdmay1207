@@ -4,7 +4,7 @@
     android:layout_height="fill_parent"
     android:gravity="center"
     android:orientation="vertical" >
-
+    
     <Button
         android:id="@+id/startButton"
         android:layout_width="200dp"
@@ -16,5 +16,11 @@
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="Stop" />
+    
+    <Button
+        android:id="@+id/cameraButton"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Start Streaming" />
 
 </LinearLayout>

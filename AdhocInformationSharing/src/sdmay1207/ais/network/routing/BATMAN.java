@@ -83,9 +83,14 @@ public class BATMAN implements RoutingImpl
     }
 
     @Override
+    public boolean transmitData(int nodeNumber, byte[] data)
+    {
+        return false;
+    }
+
+    @Override
     public boolean transmitData(int nodeNumber, String data)
     {
-
         return false;
     }
 
