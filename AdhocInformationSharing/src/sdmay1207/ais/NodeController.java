@@ -37,10 +37,11 @@ public class NodeController implements Observer
     private Map<String, List<CommandHandler>> commandHandlers = new HashMap<String, List<CommandHandler>>();
 
     // other components
-    private NetworkController networkController;
+    public NetworkController networkController;
     private SensorInterface sensorInterface = new SensorInterface();
     private Node me;
     private HeartbeatTask ht;
+    private NetworkRejoinMonitor networkRejoinMonitor;
 
     // config
     private int nodeNumber;
@@ -71,7 +72,8 @@ public class NodeController implements Observer
         ht = new HeartbeatTask(HEARTBEAT_FREQ);
         ht.start();
 
-        new NetworkRejoinMonitor(this).start();
+        networkRejoinMonitor = new NetworkRejoinMonitor(this);
+        networkRejoinMonitor.start();
     }
 
     /**
@@ -83,6 +85,9 @@ public class NodeController implements Observer
 
         if (ht != null)
             ht.stop();
+        
+        if (networkRejoinMonitor != null)
+            networkRejoinMonitor.stop();
     }
 
     /**
