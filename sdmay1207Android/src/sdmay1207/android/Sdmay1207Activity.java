@@ -3,6 +3,9 @@ package sdmay1207.android;
 import java.util.Observable;
 import java.util.Observer;
 
+import android.app.Activity;
+import android.os.Bundle;
+
 import sdmay1207.ais.Device;
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
