@@ -85,16 +85,16 @@ public class Sdmay1207Activity extends Activity implements Observer
         {
         case RecvdHeartbeat:
             Heartbeat hb = (Heartbeat) netEvent.data;
-            System.out.println("Got heartbeat from " + hb.from + ": "
-                    + hb.toString());
+            //System.out.println("Got heartbeat from " + hb.from + ": "
+            //        + hb.toString());
             // do something useful with it- pass to GUI or something
             // **or GUI has actually registered as the listener** this
             break;
         case NodeJoined:
-            System.out.println("Node joined: " + netEvent.data);
+            //System.out.println("Node joined: " + netEvent.data);
             break;
         case NodeLeft:
-            System.out.println("Node left: " + netEvent.data);
+            //System.out.println("Node left: " + netEvent.data);
             break;
         }
     }
