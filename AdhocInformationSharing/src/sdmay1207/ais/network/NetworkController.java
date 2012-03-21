@@ -95,9 +95,9 @@ public class NetworkController extends Observable
     /**
      * Sends the command to the specified node
      */
-    public boolean sendCommand(NetworkCommand command, int destNodeNum)
+    public boolean sendNetworkMessage(NetworkMessage message, int destNodeNum)
     {
-        return networkInterface.sendData(destNodeNum, command);
+        return networkInterface.sendData(destNodeNum, message);
     }
 
     /**

@@ -113,7 +113,7 @@ public class Point2PointCommander implements CommandHandler
             Location loc = assignments.get(n);
             GoToLocCommand command = new GoToLocCommand(loc, headNodeNum,
                     tailNodeNum);
-            nodeController.sendCommand(command, n.nodeNum);
+            nodeController.sendNetworkMessage(command, n.nodeNum);
         }
     }
     

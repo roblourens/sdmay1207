@@ -13,6 +13,7 @@ import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Heartbeat;
 import sdmay1207.ais.network.model.NetworkCommand;
+import sdmay1207.ais.network.model.NetworkMessage;
 import sdmay1207.ais.network.model.Node;
 import sdmay1207.ais.sensors.Sensor;
 import sdmay1207.ais.sensors.SensorInterface;
@@ -117,14 +118,14 @@ public class NodeController implements Observer
     }
 
     /**
-     * Send a command to a node on the network
+     * Send a message to a node on the network
      */
-    public void sendCommand(NetworkCommand command, int destNodeNum)
+    public void sendNetworkMessage(NetworkMessage message, int destNodeNum)
     {
         if (destNodeNum == me.nodeNum)
-            this.update(null, command);
+            this.update(null, message);
 
-        networkController.sendCommand(command, destNodeNum);
+        networkController.sendNetworkMessage(message, destNodeNum);
     }
 
     /**
