@@ -4,18 +4,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.etc.Repeater.TimedRepeater;
+import sdmay1207.ais.network.NetworkController.Event;
+import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.model.Node;
 import sdmay1207.ais.sensors.GPS.Location;
 
-public class NetworkRejoinMonitor extends TimedRepeater
+public class NetworkRejoinMonitor extends TimedRepeater implements Observer
 {
     private NodeController nc;
 
-    private Map<Integer, Node> lastNodes = null;
+    private Collection<Node> lostNodes = new HashSet<Node>();
 
     private List<NetworkRejoinListener> listeners = new ArrayList<NetworkRejoinListener>();
 
@@ -26,22 +29,22 @@ public class NetworkRejoinMonitor extends TimedRepeater
         super(4000);
 
         this.nc = nc;
+        nc.addNetworkObserver(this);
     }
 
     @Override
     protected void runOnce()
     {
-        Map<Integer, Node> nodes = nc.getNodesInNetwork();
+        for (Node n : lostNodes)
+            System.out.println(n.nodeNum);
 
-        if (lastNodes == null)
+        System.out.println(" ");
+        
+        int numLostNodes = lostNodes.size();
+        if (numLostNodes > 0)
         {
-            lastNodes = nodes;
-            return;
-        }
-
-        if (nodes.size() < lastNodes.size())
-        {
-            int numLostNodes = lastNodes.size() - nodes.size();
+            System.out.println("lost: " + numLostNodes);
+            int numTotalNodes = nc.getNodesInNetwork().size();
 
             // call back to listeners for the appropriate number of lost nodes
             if (numLostNodes == 1)
@@ -49,27 +52,22 @@ public class NetworkRejoinMonitor extends TimedRepeater
                 System.out.println("Lost 1 node");
                 for (NetworkRejoinListener l : listeners)
                     l.lostSingleNode();
-            } else if (nodes.size() == 0)
+            } else if (numTotalNodes == 0)
             {
                 System.out.println("Lost all nodes");
-                Location goTo = nodesCenterOfGravity(nodes.values());
+                Location goTo = nodesCenterOfGravity(lostNodes);
                 for (NetworkRejoinListener l : listeners)
                     l.lostEntireNetwork(goTo);
             } else
             {
                 System.out.println("Split: lost " + numLostNodes + " nodes");
-                Collection<Node> lostNodes = new HashSet<Node>();
-                for (Node n : lastNodes.values())
-                    if (!nodes.containsKey(n.nodeNum))
-                        lostNodes.add(n);
-
                 Location goTo = nodesCenterOfGravity(lostNodes);
                 for (NetworkRejoinListener l : listeners)
                     l.networkSplit(goTo);
             }
         }
 
-        lastNodes = nodes;
+        lostNodes.clear();
     }
 
     public void addListener(NetworkRejoinListener l)
@@ -101,6 +99,18 @@ public class NetworkRejoinMonitor extends TimedRepeater
         double longAvg = longSum / nodes.size();
 
         return new Location(latAvg, longAvg);
+    }
+
+    // event received from the NetworkController
+    @Override
+    public void update(Observable observable, Object obj)
+    {
+        NetworkEvent netEvent = (NetworkEvent) obj;
+        if (netEvent.event == Event.NodeLeft)
+        {
+            System.out.println("NRM lost node " + netEvent.data);
+            lostNodes.add(nc.getKnownNodes().get(netEvent.data));
+        }
     }
 
     // GUI implements this, maybe this class passes instructions some how to the

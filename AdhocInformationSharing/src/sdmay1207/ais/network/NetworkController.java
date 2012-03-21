@@ -25,9 +25,13 @@ public class NetworkController extends Observable
     private Receiver r;
     private boolean isRunning = false;
 
+    // Note: node objects between knownNodes/connectedNodes are the same
     // A map of all nodes which have been seen so far - at this point, may or
     // may not include this node
     private Map<Integer, Node> knownNodes = new ConcurrentHashMap<Integer, Node>();
+
+    // only nodes which are currently connected
+    private Map<Integer, Node> connectedNodes = new ConcurrentHashMap<Integer, Node>();
 
     public enum Event
     {
@@ -99,20 +103,28 @@ public class NetworkController extends Observable
     {
         return networkInterface.sendData(destNodeNum, message);
     }
-    
+
     public boolean broadcastNetworkMessage(NetworkMessage message)
     {
         return networkInterface.broadcastData(message);
     }
 
     /**
-     * Returns all known nodes. Depends on which nodes we've received a
+     * Returns all connected nodes. Depends on which nodes we've received a
      * heartbeat from, not which nodes the routing algorithm has detected
      * 
      * @return a list of all nodes in the entire mesh network that this node can
      *         currently connect to.
      */
     public Map<Integer, Node> getNodesInNetwork()
+    {
+        return connectedNodes;
+    }
+
+    /**
+     * Returns all nodes which have ever been seen
+     */
+    public Map<Integer, Node> getKnownNodes()
     {
         return knownNodes;
     }
@@ -128,10 +140,12 @@ public class NetworkController extends Observable
 
         for (Integer neighborAddr : neighbors)
         {
-            Node neighborNode = knownNodes.get(neighborAddr);
+            Node neighborNode = connectedNodes.get(neighborAddr);
             if (neighborNode == null)
-                System.err.println("Problem: node " + neighborAddr
-                        + " isn't known by the NetworkController");
+                System.err
+                        .println("Problem: node "
+                                + neighborAddr
+                                + " isn't connected according to the NetworkController");
             else
                 neighborMap.put(neighborAddr, neighborNode);
         }
@@ -159,6 +173,9 @@ public class NetworkController extends Observable
             knownNodes.put(hb.from, new Node(hb.from));
 
         knownNodes.get(hb.from).update(hb);
+        
+        if (!connectedNodes.containsKey(hb.from))
+            connectedNodes.put(hb.from, knownNodes.get(hb.from));
     }
 
     // TODO not really sure how to structure this- events being passed from
@@ -225,9 +242,11 @@ public class NetworkController extends Observable
 
         public void nodeLeft(int nodeNumber)
         {
+            connectedNodes.remove(nodeNumber);
             addEvent(new NetworkEvent(Event.NodeLeft, nodeNumber));
         }
 
+        // Let's only add nodes to connected when we get a heartbeat
         public void nodeJoined(int nodeNumber)
         {
             addEvent(new NetworkEvent(Event.NodeJoined, nodeNumber));

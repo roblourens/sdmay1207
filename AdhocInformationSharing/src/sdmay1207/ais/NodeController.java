@@ -162,7 +162,20 @@ public class NodeController implements Observer
 
         return nodes;
     }
+    
+    /**
+     * Returns a map of ALL known nodes (including this)
+     */
+    public Map<Integer, Node> getKnownNodes()
+    {
+        Map<Integer, Node> nodes = networkController.getKnownNodes();
 
+        // modifies the map in NetworkController, deal with it
+        nodes.put(nodeNumber, me);
+
+        return nodes;
+    }
+    
     /**
      * Access to the current node object
      */
