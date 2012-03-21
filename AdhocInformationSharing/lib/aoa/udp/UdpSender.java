@@ -47,7 +47,7 @@ public class UdpSender {
 			}
 	}
 	
-	public void closeSoket(){
+	public void closeSocket(){
 		datagramSocket.close();
 	}
 

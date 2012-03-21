@@ -58,6 +58,7 @@ public class Sender implements Runnable{
     	keepRunning = false;
     	neighborBroadcaster.stopBroadcastThread();
     	senderThread.interrupt();
+    	udpSender.closeSocket();
     }
     
     public void run(){

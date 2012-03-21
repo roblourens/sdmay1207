@@ -44,6 +44,7 @@ public class UdpReceiver implements Runnable{
 		keepRunning = false;
 		udpBroadcastReceiver.stopBroadcastThread();
 		udpReceiverthread.interrupt();
+		datagramSocket.close();
 	}
 	
 	public void run(){
@@ -86,6 +87,7 @@ public class UdpReceiver implements Runnable{
 		private void stopBroadcastThread(){
 			keepBroadcasting = false;
 			udpBroadcastReceiverThread.interrupt();
+			brodcastDatagramSocket.close();
 		}
 		
 		public void run(){
