@@ -1,6 +1,7 @@
 package sdmay1207.cc;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -26,13 +27,13 @@ public class Point2PointNodeWrangler
     }
     
     public Map<Node, Location> assignNodesToPositions(
-            Map<Integer, Node> availableNodes, List<Location> positions)
+            Collection<Node> availableNodes, List<Location> positions)
     {
         Map<Node, List<Location>> nodePrefs = new HashMap<Node, List<Location>>();
         Map<Location, List<Node>> locPrefs = new HashMap<Location, List<Node>>();
 
         // Collect node prefs
-        for (final Node node : availableNodes.values())
+        for (final Node node : availableNodes)
         {
             List<Location> thisNodePrefs = new ArrayList<Location>(positions);
 
@@ -61,7 +62,7 @@ public class Point2PointNodeWrangler
         for (final Location position : positions)
         {
             List<Node> thisPositionPrefs = new ArrayList<Node>(
-                    availableNodes.values());
+                    availableNodes);
 
             // Sort all nodes by distance to the position
             Collections.sort(thisPositionPrefs, new Comparator<Node>()
@@ -83,7 +84,7 @@ public class Point2PointNodeWrangler
         }
 
         Map<Location, Node> locationAssignments = new HashMap<Location, Node>();
-        List<Node> freeNodes = new ArrayList<Node>(availableNodes.values());
+        List<Node> freeNodes = new ArrayList<Node>(availableNodes);
         while (freeNodes.size() > 0)
         {
             Node node = freeNodes.remove(0);

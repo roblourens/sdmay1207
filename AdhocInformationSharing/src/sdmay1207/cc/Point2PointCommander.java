@@ -1,5 +1,7 @@
 package sdmay1207.cc;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -88,13 +90,15 @@ public class Point2PointCommander implements CommandHandler
      */
     public void initiateP2PTask(Location p1, Location p2)
     {
-        Map<Integer, Node> availableNodes = nodeController.getNodesInNetwork();
+        Collection<Node> allNodes = nodeController.getNodesInNetwork().values();
+        Collection<Node> useableNodes = nodesWithLocations(allNodes);
+        
         List<Location> positions = wrangler.getNodePositionsBetweenPoints(p1,
-                p2, availableNodes.size());
+                p2, useableNodes.size());
 
         // assign nodes to positions
         Map<Node, Location> assignments = wrangler.assignNodesToPositions(
-                availableNodes, positions);
+                useableNodes, positions);
 
         int headNodeNum = ((Node) Utils.reverseMapLookup(assignments,
                 positions.get(0))).nodeNum;
@@ -111,6 +115,17 @@ public class Point2PointCommander implements CommandHandler
                     tailNodeNum);
             nodeController.sendCommand(command, n.nodeNum);
         }
+    }
+    
+    private Collection<Node> nodesWithLocations(Collection<Node> allNodes)
+    {
+        List<Node> nodes = new ArrayList<Node>();
+        
+        for (Node n : allNodes)
+            if (n.lastLocation != null)
+                nodes.add(n);
+        
+        return nodes;
     }
 
     private class StateCheckTask extends Repeater

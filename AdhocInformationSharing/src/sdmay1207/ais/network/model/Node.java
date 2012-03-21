@@ -63,6 +63,7 @@ public class Node
         sensors = hb.sensorOutput.keySet();
         
         String locationStr = hb.sensorOutput.get(SensorType.GPS);
-        lastLocation = new Location(locationStr);
+        if (locationStr != null)
+            lastLocation = new Location(locationStr);
     }
 }

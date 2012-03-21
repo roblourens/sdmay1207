@@ -32,7 +32,7 @@ public class NetworkRejoinMonitor extends TimedRepeater
     protected void runOnce()
     {
         Map<Integer, Node> nodes = nc.getNodesInNetwork();
-        
+
         if (lastNodes == null)
             return;
 
@@ -43,15 +43,18 @@ public class NetworkRejoinMonitor extends TimedRepeater
             // call back to listeners for the appropriate number of lost nodes
             if (numLostNodes == 1)
             {
+                System.out.println("Lost 1 node");
                 for (NetworkRejoinListener l : listeners)
                     l.lostSingleNode();
             } else if (nodes.size() == 0)
             {
+                System.out.println("Lost all nodes");
                 Location goTo = nodesCenterOfGravity(nodes.values());
                 for (NetworkRejoinListener l : listeners)
                     l.lostEntireNetwork(goTo);
             } else
             {
+                System.out.println("Split: lost " + numLostNodes + " nodes");
                 Collection<Node> lostNodes = new HashSet<Node>();
                 for (Node n : lastNodes.values())
                     if (!nodes.containsKey(n.nodeNum))
@@ -72,21 +75,28 @@ public class NetworkRejoinMonitor extends TimedRepeater
     }
 
     // this will not work around the prime meridian!
-    // e.g. longs of -170 and 180 
+    // e.g. longs of -170 and 180
     private Location nodesCenterOfGravity(Collection<Node> nodes)
     {
         double latSum = 0;
         double longSum = 0;
-        
+
         for (Node n : nodes)
         {
+            if (n.lastLocation == null)
+            {
+                System.out.println("Skipping node " + n.nodeNum
+                        + ", no location known");
+                continue;
+            }
+
             latSum += n.lastLocation.latitude;
             longSum += n.lastLocation.longitude;
         }
-        
-        double latAvg = latSum/nodes.size();
-        double longAvg = longSum/nodes.size();
-        
+
+        double latAvg = latSum / nodes.size();
+        double longAvg = longSum / nodes.size();
+
         return new Location(latAvg, longAvg);
     }
 
