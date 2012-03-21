@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import sdmay1207.ais.etc.Repeater;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Heartbeat;
-import sdmay1207.ais.network.model.NetworkCommand;
 import sdmay1207.ais.network.model.NetworkMessage;
 import sdmay1207.ais.network.model.Node;
 
@@ -32,7 +31,8 @@ public class NetworkController extends Observable
 
     public enum Event
     {
-        NodeJoined, NodeLeft, RecvdHeartbeat, RecvdData, RecvdCommand
+        NodeJoined, NodeLeft, RecvdHeartbeat, RecvdData, RecvdCommand,
+        RecvdTextMessage
     }
 
     /**
@@ -209,6 +209,9 @@ public class NetworkController extends Observable
             case Heartbeat:
                 event = new NetworkEvent(Event.RecvdHeartbeat, msg);
                 updateKnownNodes((Heartbeat) msg);
+                break;
+            case TextMessage:
+                event = new NetworkEvent(Event.RecvdTextMessage, msg);
                 break;
             }
 
