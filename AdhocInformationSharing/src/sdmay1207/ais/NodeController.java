@@ -42,7 +42,7 @@ public class NodeController implements Observer
     private Node me;
     private HeartbeatTask ht;
     private NetworkRejoinMonitor networkRejoinMonitor;
-    
+
     private boolean isRunning = false;
 
     // config
@@ -70,13 +70,20 @@ public class NodeController implements Observer
      */
     public void start(RoutingAlg routingAlg)
     {
-        networkController.start(nodeNumber, routingAlg);
+        // ensure that app is root on pc
+        if (!Device.isAndroidSystem())
+            if (!Device.sysCommand("whoami").trim().equals("root"))
+                throw new RuntimeException("Must be run as root!");
+
+        if (!networkController.start(nodeNumber, routingAlg))
+            throw new RuntimeException("Network/routing did not start properly");
+        
         ht = new HeartbeatTask(HEARTBEAT_FREQ);
         ht.start();
 
         networkRejoinMonitor = new NetworkRejoinMonitor(this);
         networkRejoinMonitor.start();
-        
+
         isRunning = true;
     }
 
@@ -89,10 +96,10 @@ public class NodeController implements Observer
 
         if (ht != null)
             ht.stop();
-        
+
         if (networkRejoinMonitor != null)
             networkRejoinMonitor.stop();
-        
+
         isRunning = false;
     }
 
@@ -157,7 +164,7 @@ public class NodeController implements Observer
     {
         return me;
     }
-    
+
     public boolean isRunning()
     {
         return isRunning;
