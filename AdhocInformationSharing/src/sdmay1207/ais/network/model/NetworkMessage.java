@@ -35,6 +35,9 @@ public abstract class NetworkMessage
         case Heartbeat:
             message = new Heartbeat(fromIP, remainingArgs);
             break;
+        case TextMessage:
+            message = new TextMessage(fromIP, remainingArgs);
+            break;
         default:
             System.err.println("Receieved unknown message type. Message: "
                     + strMessage);
@@ -99,6 +102,6 @@ public abstract class NetworkMessage
     // - "don't look for me"
     public static enum MessageType
     {
-        Command, Heartbeat, ShuttingDown
+        Command, Heartbeat, ShuttingDown, TextMessage
     }
 }
