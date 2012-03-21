@@ -127,6 +127,11 @@ public class NodeController implements Observer
 
         networkController.sendNetworkMessage(message, destNodeNum);
     }
+    
+    public void broadcastNetworkMessage(NetworkMessage message)
+    {
+        networkController.broadcastNetworkMessage(message);
+    }
 
     /**
      * Register to be notified when a command type is received

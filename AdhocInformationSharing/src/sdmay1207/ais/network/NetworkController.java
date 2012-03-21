@@ -99,6 +99,11 @@ public class NetworkController extends Observable
     {
         return networkInterface.sendData(destNodeNum, message);
     }
+    
+    public boolean broadcastNetworkMessage(NetworkMessage message)
+    {
+        return networkInterface.broadcastData(message);
+    }
 
     /**
      * Returns all known nodes. Depends on which nodes we've received a
