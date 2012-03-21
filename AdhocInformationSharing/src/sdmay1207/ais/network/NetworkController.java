@@ -57,16 +57,17 @@ public class NetworkController extends Observable
     /**
      * Turn on the adhoc network, start the routing system
      */
-    public void start(int nodeNumber, RoutingAlg routingAlg)
+    public boolean start(int nodeNumber, RoutingAlg routingAlg)
     {
         r = new Receiver();
         r.start();
 
         networkInterface = new NetworkInterface(r);
-        networkInterface.startNetwork(nodeNumber);
-        networkInterface.startRouting(routingAlg);
-        
-        isRunning = true;
+
+        isRunning = networkInterface.startNetwork(nodeNumber)
+                && networkInterface.startRouting(routingAlg);
+
+        return isRunning;
     }
 
     /**
@@ -79,7 +80,7 @@ public class NetworkController extends Observable
 
         if (r != null)
             r.stop();
-        
+
         isRunning = false;
     }
 
@@ -132,12 +133,12 @@ public class NetworkController extends Observable
 
         return neighborMap;
     }
-    
+
     public void transmitData(int nodeNum, byte[] data)
     {
         networkInterface.sendData(nodeNum, data);
     }
-    
+
     public boolean isRunning()
     {
         return isRunning;
@@ -223,7 +224,7 @@ public class NetworkController extends Observable
         {
             addEvent(new NetworkEvent(Event.NodeJoined, nodeNumber));
         }
-        
+
         /**
          * Add the event to the queue, then wake the notifer thread
          */

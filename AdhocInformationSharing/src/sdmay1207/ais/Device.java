@@ -38,6 +38,8 @@ public class Device
      */
     public static String sysCommand(String command)
     {
+        System.out.println(command);
+        
         if (isAndroidSystem())
             return runCommand(command) + "";
 
@@ -53,12 +55,15 @@ public class Device
                 result += line + "\n";
         } catch (IOException e1)
         {
+            e1.printStackTrace();
             return result;
         } catch (InterruptedException e2)
         {
+            e2.printStackTrace();
             return result;
         }
 
+        System.out.println("Result: " + result);
         return result;
     }
 
