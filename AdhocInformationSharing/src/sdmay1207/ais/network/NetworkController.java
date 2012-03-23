@@ -36,7 +36,7 @@ public class NetworkController extends Observable
     public enum Event
     {
         NodeJoined, NodeLeft, RecvdHeartbeat, RecvdData, RecvdCommand,
-        RecvdTextMessage
+        RecvdTextMessage, RecvdShuttingDownMessage
     }
 
     /**
@@ -178,8 +178,6 @@ public class NetworkController extends Observable
             connectedNodes.put(hb.from, knownNodes.get(hb.from));
     }
 
-    // TODO not really sure how to structure this- events being passed from
-    // wherever it's detected to where it needs to be handled
     /**
      * Receives data/events from the network, interprets it into the correct
      * message
@@ -234,6 +232,9 @@ public class NetworkController extends Observable
                 break;
             case TextMessage:
                 event = new NetworkEvent(Event.RecvdTextMessage, msg);
+                break;
+            case ShuttingDown:
+                event = new NetworkEvent(Event.RecvdShuttingDownMessage, msg);
                 break;
             }
 

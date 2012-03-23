@@ -15,6 +15,7 @@ import sdmay1207.ais.network.model.Heartbeat;
 import sdmay1207.ais.network.model.NetworkCommand;
 import sdmay1207.ais.network.model.NetworkMessage;
 import sdmay1207.ais.network.model.Node;
+import sdmay1207.ais.network.model.NetworkMessage.MessageType;
 import sdmay1207.ais.sensors.Sensor;
 import sdmay1207.ais.sensors.SensorInterface;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
@@ -132,6 +133,17 @@ public class NodeController implements Observer
     {
         networkController.broadcastNetworkMessage(message);
     }
+    
+    /**
+     * Called when the node is shutting down and doesn't want to be found by
+     * the network (battery dead, taking ball and going home, etc.)
+     */
+    public void broadcastShutdownAlert()
+    {
+        NetworkMessage msg = new NetworkMessage();
+        msg.messageType = MessageType.ShuttingDown;
+        networkController.broadcastNetworkMessage(msg);
+    }
 
     /**
      * Register to be notified when a command type is received
@@ -236,8 +248,6 @@ public class NodeController implements Observer
             Heartbeat hb = (Heartbeat) netEvent.data;
             System.out.println("Got heartbeat from " + hb.from + ": "
                     + hb.toString());
-            // do something useful with it- pass to GUI or something
-            // **or GUI has actually registered as the listener** this
             break;
         case NodeJoined:
             System.out.println("Node joined: " + netEvent.data);
@@ -258,6 +268,12 @@ public class NodeController implements Observer
             break;
         case RecvdData:
             System.out.println("Received data: " + netEvent.data);
+            break;
+        case RecvdTextMessage:
+            System.out.println("Received text message: " + netEvent.data);
+            break;
+        case RecvdShuttingDownMessage:
+            System.out.println("Received shutting down alert: " + netEvent.data);
             break;
         }
     }

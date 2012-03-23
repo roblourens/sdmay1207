@@ -3,7 +3,7 @@ package sdmay1207.ais.network.model;
 import sdmay1207.ais.Config;
 import sdmay1207.ais.etc.Utils;
 
-public abstract class NetworkMessage
+public class NetworkMessage
 {
     // ms
     public long timestamp;
@@ -37,6 +37,9 @@ public abstract class NetworkMessage
             break;
         case TextMessage:
             message = new TextMessage(fromIP, remainingArgs);
+            break;
+        case ShuttingDown:
+            message = new NetworkMessage(fromIP, remainingArgs);
             break;
         default:
             System.err.println("Receieved unknown message type. Message: "
