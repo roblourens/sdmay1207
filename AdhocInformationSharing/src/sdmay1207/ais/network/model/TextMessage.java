@@ -16,6 +16,7 @@ public class TextMessage extends NetworkMessage
     public TextMessage(String msg)
     {
         this.message = msg;
+        messageType = MessageType.TextMessage;
     }
 
     public TextMessage(String fromIP, String[] commandArgs)
