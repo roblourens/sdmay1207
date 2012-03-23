@@ -103,6 +103,10 @@ public class NetworkInterface
 
         // bring the interface down
         Device.sysCommand("ifconfig " + Device.wlanInterfaceName() + " down");
+        
+        // try to start normal wifi up again on PC
+        if (!Device.isAndroidSystem())
+            Device.sysCommand("sudo start network-manager");
     }
 
     // any reason to implement these two? It was in the design doc but I'm not
