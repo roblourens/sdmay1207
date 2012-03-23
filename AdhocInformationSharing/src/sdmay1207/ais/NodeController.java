@@ -58,6 +58,7 @@ public class NodeController implements Observer
     {
         Device.setDataDir(dataDir);
         this.nodeNumber = nodeNumber;
+        NetworkMessage.nodeNumMe = nodeNumber;
 
         me = new Node(nodeNumber);
         networkController = new NetworkController();

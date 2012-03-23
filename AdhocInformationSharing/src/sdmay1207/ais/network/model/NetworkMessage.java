@@ -14,6 +14,8 @@ public class NetworkMessage
 
     // Extra data found in strMessage that wasn't used
     public String[] data;
+    
+    public static int nodeNumMe = 0;
 
     /**
      * Builds a NetworkMessage of the correct type
@@ -93,6 +95,7 @@ public class NetworkMessage
     public NetworkMessage()
     {
         timestamp = System.currentTimeMillis();
+        from = nodeNumMe;
     }
 
     public String toString()
