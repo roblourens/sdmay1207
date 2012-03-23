@@ -11,6 +11,7 @@ import sdmay1207.ais.NodeController;
 import sdmay1207.ais.etc.Repeater.TimedRepeater;
 import sdmay1207.ais.network.NetworkController.Event;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
+import sdmay1207.ais.network.model.NetworkMessage;
 import sdmay1207.ais.network.model.Node;
 import sdmay1207.ais.sensors.GPS.Location;
 
@@ -19,6 +20,8 @@ public class NetworkRejoinMonitor extends TimedRepeater implements Observer
     private NodeController nc;
 
     private Collection<Node> lostNodes = new HashSet<Node>();
+
+    private Collection<Integer> ignoreNums = new HashSet<Integer>();
 
     private List<NetworkRejoinListener> listeners = new ArrayList<NetworkRejoinListener>();
 
@@ -39,7 +42,7 @@ public class NetworkRejoinMonitor extends TimedRepeater implements Observer
             System.out.println(n.nodeNum);
 
         System.out.println(" ");
-        
+
         int numLostNodes = lostNodes.size();
         if (numLostNodes > 0)
         {
@@ -68,6 +71,7 @@ public class NetworkRejoinMonitor extends TimedRepeater implements Observer
         }
 
         lostNodes.clear();
+        ignoreNums.clear();
     }
 
     public void addListener(NetworkRejoinListener l)
@@ -109,7 +113,19 @@ public class NetworkRejoinMonitor extends TimedRepeater implements Observer
         if (netEvent.event == Event.NodeLeft)
         {
             System.out.println("NRM lost node " + netEvent.data);
-            lostNodes.add(nc.getKnownNodes().get(netEvent.data));
+
+            if (!ignoreNums.contains(netEvent.data))
+                lostNodes.add(nc.getKnownNodes().get(netEvent.data));
+            else
+                System.out.println("Ignoring loss of node " + netEvent.data);
+        } else if (netEvent.event == Event.RecvdShuttingDownMessage)
+        {
+            NetworkMessage msg = (NetworkMessage) netEvent.data;
+            System.out.println("Ignoring impending node loss: " + msg.from);
+            ignoreNums.add(msg.from);
+        } else if (netEvent.event == Event.NodeJoined)
+        {
+            ignoreNums.remove(netEvent.data);
         }
     }
 
