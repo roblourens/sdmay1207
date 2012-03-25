@@ -30,5 +30,7 @@ public class FriendsActivity extends Activity {
 				}
 
 	        });
+	        
+	        //Add code to get node heartbeat here or you can make a function to do it
     }
 }
