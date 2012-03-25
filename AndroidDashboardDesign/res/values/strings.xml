@@ -7,4 +7,15 @@
     <string name="iphint">Enter IP to send stream to</string>
     <string name="streamButton">Stream!</string>
 
+    <string name="connect">Connect</string>
+	<string name="dest_node_number">Destination Node Number:</string>
+	<string name="send_Hello">Send Hello</string>
+	<string name="send_Text">Send Text</string>
+	<string name="send_GPS">Send GPS</string>	
+	
+	<string name="msgHint">This is for the received Messages</string>
+	<string name="nodeHint">Dest Node</string>
+	
+	<string name="node_Number">Node Number:</string>	
+    
 </resources>

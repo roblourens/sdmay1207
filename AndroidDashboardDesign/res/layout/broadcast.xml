@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+	android:orientation="vertical"
+    android:padding="10dip" 
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+<!--    
+    <TextView 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dip"
+        android:text="Friend:"
+    />
+    
+    <EditText android:id="@+id/friendUserName"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:singleLine="true"
+        android:editable="false" />
+--> 
+    <TextView   android:layout_width="fill_parent"
+       			android:layout_height="wrap_content"
+        		android:layout_marginBottom="10dip"
+        		android:text="@string/dest_node_number"/>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <EditText
+            android:id="@+id/nodeNumber"
+            android:hint="@string/nodeHint"
+            android:layout_width="59dp"
+            android:layout_height="fill_parent"
+            android:gravity="top"
+            android:inputType="number" >
+
+        </EditText>
+ 		<EditText
+ 	        android:id="@+id/msgText"
+ 	        android:layout_width="0dip"
+ 	        android:layout_height="wrap_content"
+ 	        android:layout_weight="1"
+ 	        android:inputType="text"
+ 	        android:hint="@string/msgHint"
+ 	        android:gravity="top" >
+ 	    </EditText>
+       
+    </LinearLayout>
+
+ 	<LinearLayout
+ 	    android:layout_width="fill_parent"
+ 	    android:layout_height="wrap_content"
+ 	    android:orientation="horizontal" >
+		
+		<Button
+		    android:id="@+id/helloButton"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="@string/send_Hello" />
+
+ 	    <Button
+ 	        android:id="@+id/sendButton"
+ 	        android:layout_width="105dp"
+ 	        android:layout_height="wrap_content"
+ 	        android:text="@string/send_Text" />
+
+ 		<Button
+ 	        android:id="@+id/gpsButton"
+ 	        android:layout_width="fill_parent"
+ 	        android:layout_height="wrap_content"
+ 	        android:text="@string/send_GPS" />
+ 	</LinearLayout>
+
+    <EditText
+        android:id="@+id/receivedMsg"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:clickable="true"
+        android:editable="false"
+        android:gravity="top"
+        android:hint="@string/msgHint"
+        android:inputType="none"
+        android:scrollbarSize="10dp"
+        android:scrollbars="vertical" />
+
+</LinearLayout>
+
+
