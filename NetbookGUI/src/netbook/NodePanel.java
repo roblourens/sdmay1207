@@ -97,7 +97,7 @@ public class NodePanel extends JPanel implements ActionListener{
 
 	private String getBatteryStatus() {
 		String batteryLine = "BATTERY STATUS: ";
-		if(heartbeat != null){
+		if(heartbeat != null && heartbeat.sensorOutput.get(SensorType.Battery) != null){
 			BatteryStatus bs= new BatteryStatus(heartbeat.sensorOutput.get(SensorType.Battery));
 			return batteryLine+bs.toString();
 		}
@@ -106,7 +106,7 @@ public class NodePanel extends JPanel implements ActionListener{
 
 	private String getCompassReading() {
 		String compassLine = "COMPASS READING: ";
-		if(heartbeat != null){
+		if(heartbeat != null && heartbeat.sensorOutput.get(SensorType.Compass) != null){
 			CompassReading cr = new CompassReading(heartbeat.sensorOutput.get(SensorType.Compass));
 			return compassLine+cr.getReading()+"";
 		}
@@ -115,7 +115,7 @@ public class NodePanel extends JPanel implements ActionListener{
 
 	private String getGPSReading() {	
 		String gpsLine = "GPS READING (Lat, Long): ";
-		if(heartbeat != null){
+		if(heartbeat != null && heartbeat.sensorOutput.get(SensorType.GPS) != null){
 			Location loc = new Location(heartbeat.sensorOutput.get(SensorType.GPS));
 			return gpsLine + loc.toString();
 		}

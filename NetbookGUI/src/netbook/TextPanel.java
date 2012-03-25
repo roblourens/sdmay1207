@@ -26,9 +26,12 @@ public class TextPanel extends JPanel implements ActionListener {
 	
 	int nodeNum;
 	
-	public TextPanel(int nodeNum){
+	NetbookGUI parent;
+	
+	public TextPanel(NetbookGUI parent, int nodeNum){
 		
 		this.nodeNum = nodeNum;
+		this.parent = parent;
 		
 		regFont = new Font("Serif", Font.PLAIN, 12);
 		defaultMsgText = "Enter Message Here";
@@ -76,15 +79,18 @@ public class TextPanel extends JPanel implements ActionListener {
 		textArea.append("> "+msg+"\n");
 	}
 	
+	
 	@Override
 	public void actionPerformed(ActionEvent action) {
 		if(action.getSource() == sendBtn){
 			int nodeDest = Integer.parseInt(nodeDestField.getText());
 			addMessage(nodeNum, nodeDest, msgField.getText());
+			parent.sendMessage(nodeDest, msgField.getText());
 			msgField.setText(defaultMsgText);
 		
 		} else if(action.getSource() == sendToAllBtn){
 			addMessage(nodeNum, 255, msgField.getText());
+			parent.sendMessageToAll(msgField.getText());
 			msgField.setText(defaultMsgText);
 		}
 	}

@@ -22,8 +22,8 @@ public class MainPanel extends JPanel {
 		
 	JButton startStop;
 	JButton receiveBtn;
-	JButton cameraView;
-	JButton mapView;
+	JButton camView;
+	//JButton mapView;
 	JButton nodeView;
 	JButton nodeInfo;
 	
@@ -38,8 +38,8 @@ public class MainPanel extends JPanel {
 	Font textFont;
 
 
-	public MainPanel(ActionListener listener, int nodeNumber, Map<Integer, Node> map){
-		this.listener = listener;
+	public MainPanel(NetbookGUI parent, int nodeNumber, Map<Integer, Node> map){
+		this.listener = (ActionListener) parent;
 			
 		btnColor = new Color(45, 100, 54);
 		btnFont = new Font("Serif", Font.PLAIN, 18);
@@ -48,7 +48,7 @@ public class MainPanel extends JPanel {
 		
 	    JPanel selfPanel = createSelfPanel(nodeNumber);
 	    JPanel controlPanel = createControlPanel();
-	    JPanel textPanel = createTextPanel(nodeNumber);
+	    JPanel textPanel = createTextPanel(parent, nodeNumber);
 	   
 	    this.setLayout(new BorderLayout());
 	    this.add(selfPanel, BorderLayout.SOUTH);
@@ -58,8 +58,8 @@ public class MainPanel extends JPanel {
 		this.setBackground(Color.GRAY);
 	}
 
-	private JPanel createTextPanel(int nodeNum) {
-		textPanel = new TextPanel(nodeNum);
+	private JPanel createTextPanel(NetbookGUI parent, int nodeNum) {
+		textPanel = new TextPanel(parent, nodeNum);
 		return textPanel;
 	}
 
@@ -71,10 +71,10 @@ public class MainPanel extends JPanel {
 	    startStop.setBackground(btnColor);
 	    startStop.addActionListener(listener);
 	    
-	    mapView = new JButton("Map View");
-	    mapView.setBackground(btnColor);
-	    mapView.setFont(btnFont);
-	    mapView.addActionListener(listener);
+	    //mapView = new JButton("Map View");
+	    //mapView.setBackground(btnColor);
+	    //mapView.setFont(btnFont);
+	    //mapView.addActionListener(listener);
 	    
 	    nodeView = new JButton("Node List View");
 	    nodeView.setBackground(btnColor);
@@ -82,17 +82,17 @@ public class MainPanel extends JPanel {
 	    nodeView.addActionListener(listener);
 	    
 	    
-	    cameraView = new JButton("Get Camera Footage");
-	    cameraView.setBackground(btnColor);
-	    cameraView.setFont(btnFont);
-	    cameraView.addActionListener(listener);
+	    camView = new JButton("Get Camera Footage");
+	    camView.setBackground(btnColor);
+	    camView.setFont(btnFont);
+	    camView.addActionListener(listener);
 	    
 
 	    //retPanel.setLayout(new GridLayout(4,1));
 	    retPanel.add(startStop);
-	    retPanel.add(mapView);
+	   // retPanel.add(mapView);
 	    retPanel.add(nodeView);
-	    retPanel.add(cameraView);
+	    retPanel.add(camView);
 	    
 		return retPanel;
 	}
