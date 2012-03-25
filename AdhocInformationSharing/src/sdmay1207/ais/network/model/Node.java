@@ -21,7 +21,7 @@ public class Node
     public NetworkEvent lastEvent;
 
     public Heartbeat lastHeartbeat;
-    
+
     public Location lastLocation;
 
     public Node(int nodeNum)
@@ -35,15 +35,17 @@ public class Node
         hb.from = nodeNum;
         return hb;
     }
-    
+
     public void addSensorType(SensorType st)
     {
         sensors.add(st);
     }
-    
+
     /**
      * Updates this Node data with information from the given heartbeat
-     * @param hb the most recently received heartbeat from this node
+     * 
+     * @param hb
+     *            the most recently received heartbeat from this node
      */
     public void update(Heartbeat hb)
     {
@@ -52,18 +54,23 @@ public class Node
         {
             System.err.println("Wrong nodeNum");
             return;
-        }
-        else if (lastHeartbeat != null && lastHeartbeat.timestamp > hb.timestamp)
+        } else if (lastHeartbeat != null
+                && lastHeartbeat.timestamp > hb.timestamp)
         {
             System.err.println("Can't update with older heartbeat");
             return;
         }
-        
+
         lastHeartbeat = hb;
         sensors = hb.sensorOutput.keySet();
-        
+
         String locationStr = hb.sensorOutput.get(SensorType.GPS);
         if (locationStr != null)
             lastLocation = new Location(locationStr);
+    }
+
+    public String toString()
+    {
+        return "" + nodeNum;
     }
 }
