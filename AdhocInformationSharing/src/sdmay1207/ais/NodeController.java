@@ -9,6 +9,7 @@ import java.util.Observer;
 
 import sdmay1207.ais.etc.Repeater.TimedRepeater;
 import sdmay1207.ais.network.NetworkController;
+import sdmay1207.ais.network.NetworkController.Event;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Heartbeat;
@@ -80,7 +81,7 @@ public class NodeController implements Observer
 
         if (!networkController.start(nodeNumber, routingAlg))
             throw new RuntimeException("Network/routing did not start properly");
-        
+
         ht = new HeartbeatTask(HEARTBEAT_FREQ);
         ht.start();
 
@@ -129,15 +130,15 @@ public class NodeController implements Observer
 
         networkController.sendNetworkMessage(message, destNodeNum);
     }
-    
+
     public void broadcastNetworkMessage(NetworkMessage message)
     {
         networkController.broadcastNetworkMessage(message);
     }
-    
+
     /**
-     * Called when the node is shutting down and doesn't want to be found by
-     * the network (battery dead, taking ball and going home, etc.)
+     * Called when the node is shutting down and doesn't want to be found by the
+     * network (battery dead, taking ball and going home, etc.)
      */
     public void broadcastShutdownAlert()
     {
@@ -175,7 +176,7 @@ public class NodeController implements Observer
 
         return nodes;
     }
-    
+
     /**
      * Returns a map of ALL known nodes (including this)
      */
@@ -188,7 +189,7 @@ public class NodeController implements Observer
 
         return nodes;
     }
-    
+
     /**
      * Access to the current node object
      */
@@ -226,9 +227,13 @@ public class NodeController implements Observer
                         .getReading();
                 if (reading != null)
                     hb.sensorOutput.put(sType, reading.toString());
+
             }
+            networkController.r.addEvent(new NetworkEvent(Event.SentHeartbeat,
+                    hb));
 
             networkController.sendHeartbeat(hb);
+
         }
     }
 
@@ -274,8 +279,11 @@ public class NodeController implements Observer
             System.out.println("Received text message: " + netEvent.data);
             break;
         case RecvdShuttingDownMessage:
-            System.out.println("Received shutting down alert: " + netEvent.data);
+            System.out
+                    .println("Received shutting down alert: " + netEvent.data);
             break;
+        case SentHeartbeat:
+            System.out.println("Sent hearbeat: " + netEvent.data);
         }
     }
 

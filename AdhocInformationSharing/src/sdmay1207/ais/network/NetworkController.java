@@ -22,7 +22,7 @@ import sdmay1207.ais.network.model.Node;
 public class NetworkController extends Observable
 {
     public NetworkInterface networkInterface;
-    private Receiver r;
+    public Receiver r;
     private boolean isRunning = false;
 
     // Note: node objects between knownNodes/connectedNodes are the same
@@ -36,7 +36,7 @@ public class NetworkController extends Observable
     public enum Event
     {
         NodeJoined, NodeLeft, RecvdHeartbeat, RecvdData, RecvdCommand,
-        RecvdTextMessage, RecvdShuttingDownMessage
+        RecvdTextMessage, RecvdShuttingDownMessage, SentHeartbeat
     }
 
     /**
@@ -256,7 +256,7 @@ public class NetworkController extends Observable
         /**
          * Add the event to the queue, then wake the notifer thread
          */
-        private void addEvent(NetworkEvent event)
+        public void addEvent(NetworkEvent event)
         {
             receivedEvents.add(event);
             synchronized (receivedEvents)
