@@ -1,92 +1,146 @@
 package com.androidhive.dashboard;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
-import org.osmdroid.LocationListenerProxy;
-import org.osmdroid.ResourceProxy;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.MyLocationOverlay;
+import org.osmdroid.views.overlay.ItemizedIconOverlay.OnItemGestureListener;
+import org.osmdroid.views.overlay.ItemizedOverlay;
+import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.OverlayItem;
-import org.osmdroid.views.overlay.PathOverlay;
-import org.osmdroid.views.overlay.ScaleBarOverlay;
-import org.osmdroid.views.overlay.SimpleLocationOverlay;
 
+import sdmay1207.ais.NodeController;
+import sdmay1207.ais.network.NetworkController.NetworkEvent;
+import sdmay1207.ais.network.model.Node;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
-import android.location.Location;
-import android.location.LocationManager;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
 import androidhive.dashboard.R;
 
-public class PlacesActivity extends Activity {
+public class PlacesActivity extends Activity implements Observer
+{
     /** Called when the activity is first created. */
-	private List<OverlayItem> wayPointItems = new ArrayList<OverlayItem>();
-	MapView mapView;
-	
-	MyLocationOverlay mlay;
-	PathOverlay pathOverlay;
-	SimpleLocationOverlay myLocationOverlay;
-	ResourceProxy rp;
-	
+    MapView mapView;
+
+    private NodeController nc;
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
-        LocationManager locmanager =  (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        String provider= LocationManager.GPS_PROVIDER;
-        Location location= locmanager.getLastKnownLocation(provider);
-        
-       
         setContentView(R.layout.places_layout);
 
-       mapView= (MapView) findViewById(R.id.map);
-       
+        mapView = (MapView) findViewById(R.id.map);
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setClickable(true);
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
         mapView.getController().setZoom(15);
-        
-        mapView.getController().setCenter(new GeoPoint( 42.0347222, -93.6197222));
-        
-        createOverlays();
+        mapView.getController()
+                .setCenter(new GeoPoint(42.0347222, -93.6197222));
+
+        nc = ((DashboardApplication) getApplication()).nc;
+        nc.addNetworkObserver(this);
+
+        // Set button listeners
+        final Context c = this;
+        ((Button) findViewById(R.id.showNodeListButton))
+                .setOnClickListener(new OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        startActivity(new Intent(c, NodeListActivity.class));
+                    }
+                });
+
+        ((Button) findViewById(R.id.initP2PButton))
+                .setOnClickListener(new OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        // go to P2P activity
+                    }
+                });
+
+        ((Button) findViewById(R.id.stopButton))
+                .setOnClickListener(new OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        nc.stop();
+                        finish();
+                    }
+                });
+
+        updateMapObjects();
     }
-    private void createOverlays() {
-		pathOverlay = new PathOverlay(Color.BLUE, this);
-		pathOverlay.addPoint(new GeoPoint( 42.0347222, -93.6197222));
-		pathOverlay.addPoint(new GeoPoint( 42.0357221, -93.6197222));
-		pathOverlay.addPoint(new GeoPoint( 42.0347222, -93.6207221));
-		//pathOverlay.addPoint(new GeoPoint( 42.0347222, -93.6197222));
-		mapView.getOverlays().add(pathOverlay);
-		
-		PathOverlay mpathOverlay = new PathOverlay(Color.RED, this);
-		mpathOverlay.addPoint(new GeoPoint( 42.0347222, -93.6197222));
-		mpathOverlay.addPoint(new GeoPoint( 42.0337221, -93.6197222));
-		mpathOverlay.addPoint(new GeoPoint( 42.0347222, -93.6187221));
-		//pathOverlay.addPoint(new GeoPoint( 42.0347222, -93.6197222));
-		mapView.getOverlays().add(mpathOverlay);
-		
-		mlay= new MyLocationOverlay(this,mapView);
-		mlay.enableCompass();
-		mlay.enableMyLocation();
-		LocationListenerProxy llp= mlay.mLocationListener;
-		//llp.startListening(pListener, pUpdateTime, pUpdateDistance)
-		mapView.getOverlays().add(mlay);
-		if(mlay.getMyLocation()!=null)
-		{
-			System.out.println("H"+mlay.getMyLocation().getLatitudeE6());
-			mapView.getController().setCenter(new GeoPoint( mlay.getMyLocation().getLatitudeE6(), mlay.getMyLocation().getLongitudeE6()));
-		}
-		
-		myLocationOverlay = new SimpleLocationOverlay(this);
-		myLocationOverlay.setLocation(new GeoPoint( 42.0347222, -93.6197222));
-		mapView.getOverlays().add(myLocationOverlay);
-		
-		ScaleBarOverlay mScaleBarOverlay = new ScaleBarOverlay(this);
-        mapView.getOverlays().add(mScaleBarOverlay);
+
+    private void updateMapObjects()
+    {
+        mapView.getOverlays().clear();
+
+        Collection<Node> nodes = nc.getNodesInNetwork().values();
+        List<OverlayItem> items = new ArrayList<OverlayItem>();
+        for (Node n : nodes)
+            items.add(new OverlayItem(""+n.nodeNum, "title", "desc", new GeoPoint(n.lastLocation.latitude,
+                    n.lastLocation.longitude)));
+
+        final Context c = this;
+        ItemizedOverlay<OverlayItem> overlay = new ItemizedOverlayWithFocus<OverlayItem>(this, items,
+                new OnItemGestureListener<OverlayItem>(){
+                    public boolean onItemLongPress(int arg0, OverlayItem arg1)
+                    {
+                        return false;
+                    }
+
+                    public boolean onItemSingleTapUp(int i, OverlayItem item)
+                    {
+                        int nodeNum = Integer.parseInt(item.getUid());
+                        Intent intent = new Intent(c, NodeDetailsActivity.class);
+                        intent.putExtra(NodeDetailsActivity.NODE_NUM_KEY, nodeNum);
+                        startActivity(intent);
+                        
+                        System.out.println("tapped node # " + item.getUid());
+                        return true;
+                    }
+                });
+
+        mapView.getOverlays().add(overlay);
         mapView.postInvalidate();
-		}
+    }
+    
+    private void updateTextMessageView(String message)
+    {
+        ((TextView) findViewById(R.id.recvdMessages)).setText(message);
+    }
+
+    public void update(Observable observable, Object obj)
+    {
+        NetworkEvent netEvent = (NetworkEvent) obj;
+        switch (netEvent.event)
+        {
+        case RecvdHeartbeat:
+            updateMapObjects();
+            break;
+        case NodeJoined:
+            updateMapObjects();
+            break;
+        case NodeLeft:
+            updateMapObjects();
+            break;
+        case RecvdTextMessage:
+            updateTextMessageView(netEvent.data.toString());
+            break;
+        }
+    }
 }

@@ -10,6 +10,8 @@ import sdmay1207.ais.sensors.SensorInterface.SensorType;
 public class Heartbeat extends NetworkMessage
 {
     public Map<SensorType, String> sensorOutput = new HashMap<SensorType, String>();
+    
+    public String extraData;
 
     /**
      * Constructor to build a Heartbeat model object from received data
@@ -26,10 +28,16 @@ public class Heartbeat extends NetworkMessage
         
         for (String s : data)
         {
-            SensorType st = SensorType.values()[s.charAt(0) - '0'];
-            String sensorReading = s.substring(1);
-
-            sensorOutput.put(st, sensorReading);
+            char code = s.charAt(0);
+            if (code == 'x')
+                extraData = s.substring(1);
+            else
+            {
+                SensorType st = SensorType.values()[code - '0'];
+                String sensorReading = s.substring(1);
+    
+                sensorOutput.put(st, sensorReading);
+            }
         }
     }
 
@@ -64,6 +72,9 @@ public class Heartbeat extends NetworkMessage
 
         if (!sensorOutputStr.equals(""))
             result += ";" + sensorOutputStr;
+        
+        if (extraData != null && !extraData.equals(""))
+            result += ";" + "x" + extraData;
 
         return result;
     }

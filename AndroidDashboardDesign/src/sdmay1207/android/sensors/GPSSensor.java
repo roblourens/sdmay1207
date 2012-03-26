@@ -18,7 +18,8 @@ public class GPSSensor extends GPS implements LocationListener
     {
         locManager = (LocationManager) c
                 .getSystemService(Context.LOCATION_SERVICE);
-        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
+        locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0,
+                this);
     }
 
     /*

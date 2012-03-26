@@ -233,7 +233,7 @@ public class NodeController implements Observer
                     hb));
 
             networkController.sendHeartbeat(hb);
-
+            me.update(hb);
         }
     }
 
