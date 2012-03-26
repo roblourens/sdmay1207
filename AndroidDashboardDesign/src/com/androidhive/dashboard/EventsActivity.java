@@ -29,7 +29,7 @@ public class EventsActivity extends Activity
                     // @Override
                     public void onClick(View v)
                     {
-                        Device.sysCommand("su -c \"/data/data/android.tether/bin/tether stop 1\"");
+                        Device.doAndroidHardStop();
                         nc.start(RoutingAlg.AODV);
                     }
                 });
@@ -41,7 +41,7 @@ public class EventsActivity extends Activity
                     public void onClick(View v)
                     {
                         nc.stop();
-                        Device.sysCommand("su -c \"/data/data/android.tether/bin/tether stop 1\"");
+                        Device.doAndroidHardStop();
                     }
                 });
     }

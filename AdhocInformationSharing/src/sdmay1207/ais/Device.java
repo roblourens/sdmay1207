@@ -103,4 +103,20 @@ public class Device
         } else
             return "tiwlan0";
     }
+    
+    public static String doAndroidHardStop()
+    {
+        String basePath;
+        if (new File("/data/data/android.tether").exists())
+            basePath = "/data/data/android.tether";
+        else if (new File("/data/data/com.googlecode.android.wifi.tether").exists())
+            basePath = "/data/data/com.googlecode.android.wifi.tether";
+        else
+        {
+            System.err.println("Something is wrong - is the wifi tether installed?");
+            return "fail";
+        }
+        
+        return Device.sysCommand("su -c \""+basePath+"/bin/tether stop 1");
+    }
 }
