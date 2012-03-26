@@ -29,11 +29,22 @@ public class Point2PointCommander implements CommandHandler
     private LocationGraph graph;
     private P2PState curState;
     private Location curDest;
+    private Location rallyPoint;
+    private long timeout;
     private GoToLocCommand curCommand;
 
+    // inactive: no command given
+    // enRoute: to assigned point
+    // searching: for 2 neighbors
+    // waiting: for streaming start message
+    // ready: only head node here - connected to tail node and ready for
+    // streaming
+    // active: currently streaming/routing/receiving the stream
+    // enRouteToRallyPoint: done and going home, or gave up after timeout
     public enum P2PState
     {
-        inactive, enRoute, searching, waiting, active, enRouteToRallyPoint
+        inactive, enRoute, searching, waiting, ready, active,
+        enRouteToRallyPoint
     }
 
     public Point2PointCommander(Point2PointGUI gui,
@@ -70,12 +81,25 @@ public class Point2PointCommander implements CommandHandler
             GoToLocCommand locCommand = new GoToLocCommand(command);
             curCommand = locCommand;
 
-            // Tell the GUI to go to the location
-            gui.goToLocation(locCommand.loc);
             curDest = locCommand.loc;
+            rallyPoint = locCommand.rallyPoint;
+            timeout = locCommand.timeout;
+
+            // Tell the GUI to go to the location
+            gui.goToLocation(curDest, rallyPoint, locCommand.headNodeNum,
+                    locCommand.tailNodeNum, timeout);
 
             // Start checking whether we are there yet
             new StateCheckTask().start();
+        } else if (command.commandType
+                .equals(StartStreamCommand.START_STREAM_COMMAND_TYPE))
+        {
+            // don't care what state we're in now, go to start streaming state
+            changeState(P2PState.active);
+        } else if (command.commandType
+                .equals(StopStreamCommand.STOP_STREAM_COMMAND_TYPE))
+        {
+            changeState(P2PState.enRouteToRallyPoint);
         }
     }
 
@@ -87,12 +111,18 @@ public class Point2PointCommander implements CommandHandler
      *            start location (video here)
      * @param p2
      *            end location
+     * @param rallyPoint
+     *            location to go after streaming, or upon giving up after
+     *            timeout
+     * @param timeoutMS
+     *            timeout time in milliseconds
      */
-    public void initiateP2PTask(Location p1, Location p2)
+    public void initiateP2PTask(Location p1, Location p2, Location rallyPoint,
+            long timeoutMS)
     {
         Collection<Node> allNodes = nodeController.getNodesInNetwork().values();
         Collection<Node> useableNodes = nodesWithLocations(allNodes);
-        
+
         List<Location> positions = wrangler.getNodePositionsBetweenPoints(p1,
                 p2, useableNodes.size());
 
@@ -105,27 +135,48 @@ public class Point2PointCommander implements CommandHandler
         int tailNodeNum = ((Node) Utils.reverseMapLookup(assignments,
                 positions.get(positions.size() - 1))).nodeNum;
 
+        long timeoutTime = System.currentTimeMillis() + timeoutMS;
         // send position assignments
         // this will also send a command to this node, putting it into the
         // command received loop like all the others
         for (Node n : assignments.keySet())
         {
             Location loc = assignments.get(n);
-            GoToLocCommand command = new GoToLocCommand(loc, headNodeNum,
-                    tailNodeNum);
+            GoToLocCommand command = new GoToLocCommand(loc, rallyPoint,
+                    headNodeNum, tailNodeNum, timeoutTime);
             nodeController.sendNetworkMessage(command, n.nodeNum);
         }
     }
     
+    // should only be called by head node when streaming will start
+    public void streamingStarted()
+    {
+        StartStreamCommand command = new StartStreamCommand();
+        nodeController.broadcastNetworkMessage(command);
+    }
+    
+    // should only be called by head node when streaming will stop
+    public void streamingStopped()
+    {
+        StopStreamCommand command = new StopStreamCommand();
+        nodeController.broadcastNetworkMessage(command);
+    }
+
     private Collection<Node> nodesWithLocations(Collection<Node> allNodes)
     {
         List<Node> nodes = new ArrayList<Node>();
-        
+
         for (Node n : allNodes)
             if (n.lastLocation != null)
                 nodes.add(n);
-        
+
         return nodes;
+    }
+
+    private void changeState(P2PState newState)
+    {
+        gui.stateChanged(newState);
+        curState = newState;
     }
 
     private class StateCheckTask extends Repeater
@@ -133,7 +184,9 @@ public class Point2PointCommander implements CommandHandler
         @Override
         protected void runOnce()
         {
-            if (curState == P2PState.enRoute)
+            if (System.currentTimeMillis() >= timeout && curState != P2PState.active)
+                changeState(P2PState.enRouteToRallyPoint);
+            else if (curState == P2PState.enRoute)
             {
                 Object currentLocationReading = nodeController
                         .getSensorReading(SensorType.GPS);
@@ -153,12 +206,12 @@ public class Point2PointCommander implements CommandHandler
                 }
             } else if (curState == P2PState.searching)
             {
+                // don't care if the user leaves this area. They know where it
+                // is.
+
                 // check for 2 connected neighbors, or check for specific nodes?
                 Map<Integer, Node> nodes = nodeController.getNodesInNetwork();
 
-                // left location?
-
-                // TODO more here
                 if (nodes.size() > 2)
                     changeState(P2PState.waiting);
             } else if (curState == P2PState.waiting)
@@ -166,31 +219,27 @@ public class Point2PointCommander implements CommandHandler
                 // check for head and tail both in the network
                 // or some kind of signal from head
 
+                Map<Integer, Node> nodes = nodeController.getNodesInNetwork();
                 if (isHeadNode())
                 {
-                    Map<Integer, Node> nodes = nodeController
-                            .getNodesInNetwork();
                     if (nodes.containsKey(curCommand.tailNodeNum))
-                    {
-                        changeState(P2PState.active);
-                        // start sending vide or something
-                    }
+                        changeState(P2PState.ready);
+                } else
+                {
+                    if (nodes.size() <= 2)
+                        changeState(P2PState.searching);
                 }
             } else if (curState == P2PState.active)
             {
                 // wait for something to go horribly wrong, or the end
+                
+                // what happens when the connection is lost while transmitting?
 
                 if (isHeadNode())
                 {
                     // check for end, depending on how ending video stream works
                 }
             }
-        }
-
-        private void changeState(P2PState newState)
-        {
-            gui.stateChanged(newState);
-            curState = newState;
         }
 
         private boolean isHeadNode()
@@ -204,15 +253,20 @@ public class Point2PointCommander implements CommandHandler
         public static final String GO_TO_LOC_COMMAND_TYPE = "p2p_GoToLocation";
 
         public Location loc;
+        public Location rallyPoint;
         public int headNodeNum;
         public int tailNodeNum;
+        public long timeout;
 
-        public GoToLocCommand(Location loc, int headNodeNum, int tailNodeNum)
+        public GoToLocCommand(Location loc, Location rallyPoint,
+                int headNodeNum, int tailNodeNum, long timeout)
         {
             super(GO_TO_LOC_COMMAND_TYPE);
             this.loc = loc;
+            this.rallyPoint = rallyPoint;
             this.headNodeNum = headNodeNum;
             this.tailNodeNum = tailNodeNum;
+            this.timeout = timeout;
         }
 
         public GoToLocCommand(NetworkCommand command)
@@ -221,14 +275,57 @@ public class Point2PointCommander implements CommandHandler
 
             String[] args = command.commandData.toString().split(";");
             this.loc = new Location(args[0]);
-            this.headNodeNum = Integer.parseInt(args[1]);
-            this.tailNodeNum = Integer.parseInt(args[2]);
+            this.rallyPoint = new Location(args[1]);
+            this.headNodeNum = Integer.parseInt(args[2]);
+            this.tailNodeNum = Integer.parseInt(args[3]);
+            this.timeout = Long.parseLong(args[4]);
         }
 
         public String toString()
         {
             return Utils.join(";", super.toString(), loc.toString(),
-                    headNodeNum + "", tailNodeNum + "");
+                    rallyPoint.toString(), headNodeNum + "", tailNodeNum + "",
+                    timeout + "");
+        }
+    }
+
+    private class StartStreamCommand extends NetworkCommand
+    {
+        public static final String START_STREAM_COMMAND_TYPE = "p2p_startStream";
+
+        public StartStreamCommand()
+        {
+            super(START_STREAM_COMMAND_TYPE);
+        }
+
+        public StartStreamCommand(NetworkCommand command)
+        {
+            super(START_STREAM_COMMAND_TYPE);
+        }
+
+        public String toString()
+        {
+            return Utils.join(";", super.toString());
+        }
+    }
+
+    private class StopStreamCommand extends NetworkCommand
+    {
+        public static final String STOP_STREAM_COMMAND_TYPE = "p2p_stopStream";
+
+        public StopStreamCommand()
+        {
+            super(STOP_STREAM_COMMAND_TYPE);
+        }
+
+        public StopStreamCommand(NetworkCommand command)
+        {
+            super(STOP_STREAM_COMMAND_TYPE);
+        }
+
+        public String toString()
+        {
+            return Utils.join(";", super.toString());
         }
     }
 
@@ -258,7 +355,8 @@ public class Point2PointCommander implements CommandHandler
 
     public interface Point2PointGUI
     {
-        public void goToLocation(Location loc);
+        public void goToLocation(Location loc, Location rallyPoint,
+                int headNodeNum, int tailNodeNum, long timeout);
 
         // called on each state change
         public void stateChanged(P2PState newState);
