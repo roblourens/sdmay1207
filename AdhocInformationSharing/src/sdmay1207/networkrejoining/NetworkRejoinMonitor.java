@@ -21,6 +21,8 @@ public class NetworkRejoinMonitor extends TimedRepeater implements Observer
 
     private Collection<Node> lostNodes = new HashSet<Node>();
 
+    // Numbers to ignore during this cycle, because they are shutting down on
+    // purpose
     private Collection<Integer> ignoreNums = new HashSet<Integer>();
 
     private List<NetworkRejoinListener> listeners = new ArrayList<NetworkRejoinListener>();
@@ -29,7 +31,7 @@ public class NetworkRejoinMonitor extends TimedRepeater implements Observer
     {
         // routes expire after 3000 atm, this should work for detecting when all
         // nodes are lost?
-        super(4000);
+        super(5000);
 
         this.nc = nc;
         nc.addNetworkObserver(this);
@@ -40,8 +42,6 @@ public class NetworkRejoinMonitor extends TimedRepeater implements Observer
     {
         for (Node n : lostNodes)
             System.out.println(n.nodeNum);
-
-        System.out.println(" ");
 
         int numLostNodes = lostNodes.size();
         if (numLostNodes > 0)
@@ -112,11 +112,17 @@ public class NetworkRejoinMonitor extends TimedRepeater implements Observer
         NetworkEvent netEvent = (NetworkEvent) obj;
         if (netEvent.event == Event.NodeLeft)
         {
-            System.out.println("NRM lost node " + netEvent.data);
+            System.out.println("NRM got lost node msg: " + netEvent.data);
 
             if (!ignoreNums.contains(netEvent.data))
-                lostNodes.add(nc.getKnownNodes().get(netEvent.data));
-            else
+            {
+                Node lostNode = nc.getKnownNodes().get(netEvent.data);
+                if (lostNode != null && !lostNodes.contains(lostNode))
+                    lostNodes.add(lostNode);
+                else
+                    System.err
+                            .println("Strange... NRM can't find that lost node");
+            } else
                 System.out.println("Ignoring loss of node " + netEvent.data);
         } else if (netEvent.event == Event.RecvdShuttingDownMessage)
         {
@@ -125,7 +131,13 @@ public class NetworkRejoinMonitor extends TimedRepeater implements Observer
             ignoreNums.add(msg.from);
         } else if (netEvent.event == Event.NodeJoined)
         {
+            // don't ignore it anymore
             ignoreNums.remove(netEvent.data);
+
+            // if it left and rejoined within this cycle, remove from lost list
+            Node joinedNode = nc.getKnownNodes().get(netEvent.data);
+            if (lostNodes.contains(joinedNode))
+                lostNodes.remove(joinedNode);
         }
     }
 
