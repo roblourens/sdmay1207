@@ -20,6 +20,7 @@ import sdmay1207.ais.network.model.NetworkMessage.MessageType;
 import sdmay1207.ais.sensors.Sensor;
 import sdmay1207.ais.sensors.SensorInterface;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
+import sdmay1207.cc.Point2PointCommander;
 import sdmay1207.networkrejoining.NetworkRejoinMonitor;
 
 /**
@@ -45,6 +46,7 @@ public class NodeController implements Observer
     private Node me;
     private HeartbeatTask ht;
     private NetworkRejoinMonitor networkRejoinMonitor;
+    public Point2PointCommander p2pCmdr;
 
     private boolean isRunning = false;
 
@@ -65,6 +67,8 @@ public class NodeController implements Observer
         networkController = new NetworkController();
         networkController.addObserver(this);
 
+        p2pCmdr = new Point2PointCommander(this);
+
         if (dataDir == null || dataDir.equals(""))
             dataDir = DEFAULT_DATA_DIR;
     }
@@ -74,6 +78,9 @@ public class NodeController implements Observer
      */
     public void start(RoutingAlg routingAlg)
     {
+        if (isRunning)
+            return;
+
         // ensure that app is root on pc
         if (!Device.isAndroidSystem())
             if (!Device.sysCommand("whoami").trim().equals("root"))
@@ -229,6 +236,7 @@ public class NodeController implements Observer
                     hb.sensorOutput.put(sType, reading.toString());
 
             }
+            hb.taskState = p2pCmdr.curState;
             networkController.r.addEvent(new NetworkEvent(Event.SentHeartbeat,
                     hb));
 

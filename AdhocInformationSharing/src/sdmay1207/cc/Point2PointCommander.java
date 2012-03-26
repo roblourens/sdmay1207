@@ -27,11 +27,14 @@ public class Point2PointCommander implements CommandHandler
 
     // data
     private LocationGraph graph;
-    private P2PState curState;
+    public P2PState curState = P2PState.inactive;
     private Location curDest;
     private Location rallyPoint;
-    private long timeout;
+    private long enRouteTimeoutTime = Long.MAX_VALUE;
+    private long streamLossTimeoutTime = Long.MAX_VALUE;
     private GoToLocCommand curCommand;
+    
+    private static final long STREAM_LOSS_TIMEOUT = 20000; // ms
 
     // inactive: no command given
     // enRoute: to assigned point
@@ -47,10 +50,8 @@ public class Point2PointCommander implements CommandHandler
         enRouteToRallyPoint
     }
 
-    public Point2PointCommander(Point2PointGUI gui,
-            NodeController nodeController)
+    public Point2PointCommander(NodeController nodeController)
     {
-        this.gui = gui;
         this.nodeController = nodeController;
 
         // Read cached maps from file
@@ -68,6 +69,12 @@ public class Point2PointCommander implements CommandHandler
             return;
         }
     }
+    
+    // This must be called before use!
+    public void setGUI(Point2PointGUI gui)
+    {
+        this.gui = gui;
+    }
 
     // CommandHandler callback
     public void commandReceived(NetworkCommand command)
@@ -83,11 +90,11 @@ public class Point2PointCommander implements CommandHandler
 
             curDest = locCommand.loc;
             rallyPoint = locCommand.rallyPoint;
-            timeout = locCommand.timeout;
+            enRouteTimeoutTime = locCommand.timeout;
 
             // Tell the GUI to go to the location
             gui.goToLocation(curDest, rallyPoint, locCommand.headNodeNum,
-                    locCommand.tailNodeNum, timeout);
+                    locCommand.tailNodeNum, enRouteTimeoutTime);
 
             // Start checking whether we are there yet
             new StateCheckTask().start();
@@ -184,7 +191,9 @@ public class Point2PointCommander implements CommandHandler
         @Override
         protected void runOnce()
         {
-            if (System.currentTimeMillis() >= timeout && curState != P2PState.active)
+            Map<Integer, Node> nodes = nodeController.getNodesInNetwork();
+            
+            if (System.currentTimeMillis() >= enRouteTimeoutTime && curState != P2PState.active)
                 changeState(P2PState.enRouteToRallyPoint);
             else if (curState == P2PState.enRoute)
             {
@@ -209,17 +218,12 @@ public class Point2PointCommander implements CommandHandler
                 // don't care if the user leaves this area. They know where it
                 // is.
 
-                // check for 2 connected neighbors, or check for specific nodes?
-                Map<Integer, Node> nodes = nodeController.getNodesInNetwork();
-
+                // check for 2 connected neighbors
                 if (nodes.size() > 2)
                     changeState(P2PState.waiting);
             } else if (curState == P2PState.waiting)
             {
                 // check for head and tail both in the network
-                // or some kind of signal from head
-
-                Map<Integer, Node> nodes = nodeController.getNodesInNetwork();
                 if (isHeadNode())
                 {
                     if (nodes.containsKey(curCommand.tailNodeNum))
@@ -234,10 +238,9 @@ public class Point2PointCommander implements CommandHandler
                 // wait for something to go horribly wrong, or the end
                 
                 // what happens when the connection is lost while transmitting?
-
-                if (isHeadNode())
+                
+                if (!nodes.containsKey(curCommand.tailNodeNum))
                 {
-                    // check for end, depending on how ending video stream works
                 }
             }
         }
@@ -378,7 +381,7 @@ public class Point2PointCommander implements CommandHandler
         Location p2 = new Location(42.0228070, -93.6638790);
 
         System.out.println("Result: "
-                + new Point2PointCommander(null, null).wrangler
+                + new Point2PointCommander(null).wrangler
                         .getNodePositionsBetweenPoints(p1, p2, 15));
     }
 }

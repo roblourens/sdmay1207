@@ -6,12 +6,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
+import sdmay1207.cc.Point2PointCommander.P2PState;
 
 public class Heartbeat extends NetworkMessage
 {
     public Map<SensorType, String> sensorOutput = new HashMap<SensorType, String>();
     
-    public String extraData;
+    public P2PState taskState;
 
     /**
      * Constructor to build a Heartbeat model object from received data
@@ -29,8 +30,8 @@ public class Heartbeat extends NetworkMessage
         for (String s : data)
         {
             char code = s.charAt(0);
-            if (code == 'x')
-                extraData = s.substring(1);
+            if (code == 't')
+                taskState = P2PState.values()[Integer.parseInt(s.substring(1))];
             else
             {
                 SensorType st = SensorType.values()[code - '0'];
@@ -73,8 +74,8 @@ public class Heartbeat extends NetworkMessage
         if (!sensorOutputStr.equals(""))
             result += ";" + sensorOutputStr;
         
-        if (extraData != null && !extraData.equals(""))
-            result += ";" + "x" + extraData;
+        if (taskState != null)
+            result += ";" + "t" + taskState.ordinal();
 
         return result;
     }
