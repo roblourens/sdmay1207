@@ -33,7 +33,7 @@ public class Point2PointCommander implements CommandHandler
     private long enRouteTimeoutTime = Long.MAX_VALUE;
     private long streamLossTimeoutTime = Long.MAX_VALUE;
     private GoToLocCommand curCommand;
-    
+
     private static final long STREAM_LOSS_TIMEOUT = 20000; // ms
 
     // inactive: no command given
@@ -69,7 +69,7 @@ public class Point2PointCommander implements CommandHandler
             return;
         }
     }
-    
+
     // This must be called before use!
     public void setGUI(Point2PointGUI gui)
     {
@@ -154,14 +154,14 @@ public class Point2PointCommander implements CommandHandler
             nodeController.sendNetworkMessage(command, n.nodeNum);
         }
     }
-    
+
     // should only be called by head node when streaming will start
     public void streamingStarted()
     {
         StartStreamCommand command = new StartStreamCommand();
         nodeController.broadcastNetworkMessage(command);
     }
-    
+
     // should only be called by head node when streaming will stop
     public void streamingStopped()
     {
@@ -192,8 +192,9 @@ public class Point2PointCommander implements CommandHandler
         protected void runOnce()
         {
             Map<Integer, Node> nodes = nodeController.getNodesInNetwork();
-            
-            if (System.currentTimeMillis() >= enRouteTimeoutTime && curState != P2PState.active)
+
+            if (System.currentTimeMillis() >= enRouteTimeoutTime
+                    && curState != P2PState.active)
                 changeState(P2PState.enRouteToRallyPoint);
             else if (curState == P2PState.enRoute)
             {
@@ -235,12 +236,29 @@ public class Point2PointCommander implements CommandHandler
                 }
             } else if (curState == P2PState.active)
             {
-                // wait for something to go horribly wrong, or the end
-                
-                // what happens when the connection is lost while transmitting?
-                
-                if (!nodes.containsKey(curCommand.tailNodeNum))
+                // lost the head or tail earlier, ran out of time - leave
+                if (System.currentTimeMillis() >= streamLossTimeoutTime)
+                    changeState(P2PState.enRouteToRallyPoint);
+
+                // if we're in this timeout mode, look for head and tail
+                else if (streamLossTimeoutTime < Long.MAX_VALUE)
                 {
+                    if (nodes.containsKey(curCommand.tailNodeNum)
+                            && nodes.containsKey(curCommand.headNodeNum))
+                    {
+                        // found them - reset the timeout
+                        streamLossTimeoutTime = Long.MAX_VALUE;
+                    }
+                }
+
+                // if we're just streaming, check for lost head and tail
+                else if (!nodes.containsKey(curCommand.tailNodeNum)
+                        || !nodes.containsKey(curCommand.headNodeNum))
+                {
+                    // lost the connection to head or tail - start waiting for
+                    // timeout
+                    streamLossTimeoutTime = System.currentTimeMillis()
+                            + STREAM_LOSS_TIMEOUT;
                 }
             }
         }
@@ -301,11 +319,6 @@ public class Point2PointCommander implements CommandHandler
             super(START_STREAM_COMMAND_TYPE);
         }
 
-        public StartStreamCommand(NetworkCommand command)
-        {
-            super(START_STREAM_COMMAND_TYPE);
-        }
-
         public String toString()
         {
             return Utils.join(";", super.toString());
@@ -317,11 +330,6 @@ public class Point2PointCommander implements CommandHandler
         public static final String STOP_STREAM_COMMAND_TYPE = "p2p_stopStream";
 
         public StopStreamCommand()
-        {
-            super(STOP_STREAM_COMMAND_TYPE);
-        }
-
-        public StopStreamCommand(NetworkCommand command)
         {
             super(STOP_STREAM_COMMAND_TYPE);
         }
