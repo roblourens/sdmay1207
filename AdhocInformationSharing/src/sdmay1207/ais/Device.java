@@ -117,6 +117,6 @@ public class Device
             return "fail";
         }
         
-        return Device.sysCommand("su -c \""+basePath+"/bin/tether stop 1");
+        return Device.sysCommand("su -c \""+basePath+"/bin/tether stop 1\"");
     }
 }
