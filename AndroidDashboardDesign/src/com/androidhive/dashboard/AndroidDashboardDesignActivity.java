@@ -44,7 +44,7 @@ public class AndroidDashboardDesignActivity extends Activity {
 			
 			public void onClick(View view) {
 				// Launching News Feed Screen
-				Intent i = new Intent(getApplicationContext(), NewsFeedActivity.class);
+				Intent i = new Intent(getApplicationContext(), NodeDetailsActivity.class);
 				startActivity(i);
 			}
 		});
@@ -54,7 +54,7 @@ public class AndroidDashboardDesignActivity extends Activity {
 			
 			public void onClick(View view) {
 				// Launching News Feed Screen
-				Intent i = new Intent(getApplicationContext(), FriendsActivity.class);
+				Intent i = new Intent(getApplicationContext(), NodeListActivity.class);
 				startActivity(i);
 			}
 		});

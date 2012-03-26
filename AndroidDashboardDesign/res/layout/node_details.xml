@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/nodeDetailsTitle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Node (#)"
+        android:textSize="25dp" />
+
+    <TextView
+        android:id="@+id/battery"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="(Battery level)"
+        android:textSize="15dp" />
+
+    <TextView
+        android:id="@+id/compass"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="(Compass reading)"
+        android:textSize="15dp" />
+
+    <Button
+        android:id="@+id/sendTextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:text="Send Text Message"
+        android:textSize="15dp" />
+
+</LinearLayout>

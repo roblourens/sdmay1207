@@ -39,6 +39,7 @@ public class GPSActivity extends Activity implements LocationListener {
 
 	@Override  
 	public void onLocationChanged(Location location) {
+	    System.out.println("Location changed");
 	}
 
 	@Override
