@@ -47,7 +47,7 @@ public class PlacesActivity extends Activity implements Observer
         mapView.setMultiTouchControls(true);
         mapView.getController().setZoom(15);
         mapView.getController()
-                .setCenter(new GeoPoint(42.0347222, -93.6197222));
+                .setCenter(new GeoPoint(42.024443, -93.656141));
 
         nc = ((DashboardApplication) getApplication()).nc;
         nc.addNetworkObserver(this);
@@ -92,8 +92,11 @@ public class PlacesActivity extends Activity implements Observer
         Collection<Node> nodes = nc.getNodesInNetwork().values();
         List<OverlayItem> items = new ArrayList<OverlayItem>();
         for (Node n : nodes)
-            items.add(new OverlayItem(""+n.nodeNum, "title", "desc", new GeoPoint(n.lastLocation.latitude,
-                    n.lastLocation.longitude)));
+        {
+            if (n.lastLocation != null)
+                items.add(new OverlayItem(""+n.nodeNum, "title", "desc", new GeoPoint(n.lastLocation.latitude,
+                        n.lastLocation.longitude)));
+        }
 
         final Context c = this;
         ItemizedOverlay<OverlayItem> overlay = new ItemizedOverlayWithFocus<OverlayItem>(this, items,
@@ -119,9 +122,13 @@ public class PlacesActivity extends Activity implements Observer
         mapView.postInvalidate();
     }
     
-    private void updateTextMessageView(String message)
+    private void updateTextMessageView(final String message)
     {
-        ((TextView) findViewById(R.id.recvdMessages)).setText(message);
+        runOnUiThread(new Runnable() {
+            public void run() {
+                ((TextView) findViewById(R.id.recvdMessages)).setText(message);
+            };
+        });
     }
 
     public void update(Observable observable, Object obj)
