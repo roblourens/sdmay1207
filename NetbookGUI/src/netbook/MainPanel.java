@@ -5,14 +5,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionListener;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-
-import sdmay1207.ais.network.model.Node;
 
 public class MainPanel extends JPanel {
 
@@ -38,7 +35,7 @@ public class MainPanel extends JPanel {
 	Font textFont;
 
 
-	public MainPanel(NetbookGUI parent, int nodeNumber, Map<Integer, Node> map){
+	public MainPanel(NetbookGUI parent, int nodeNumber){
 		this.listener = (ActionListener) parent;
 			
 		btnColor = new Color(45, 100, 54);
@@ -49,7 +46,7 @@ public class MainPanel extends JPanel {
 	    JPanel selfPanel = createSelfPanel(nodeNumber);
 	    JPanel controlPanel = createControlPanel();
 	    JPanel textPanel = createTextPanel(parent, nodeNumber);
-	   
+
 	    this.setLayout(new BorderLayout());
 	    this.add(selfPanel, BorderLayout.SOUTH);
 	    this.add(controlPanel, BorderLayout.NORTH);
@@ -121,6 +118,10 @@ public class MainPanel extends JPanel {
 	
 	public void displayMessage(int srcNode, int destNode, String msg){
 		textPanel.addMessage(srcNode, destNode, msg);
+	}
+
+	public void updateNodeNum(int nodeNumber) {
+		nodeNum.setText("Node Number: "+nodeNumber);
 	}
 
 }

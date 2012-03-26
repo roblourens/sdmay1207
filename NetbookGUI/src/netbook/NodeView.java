@@ -28,11 +28,12 @@ public class NodeView extends JSplitPane{
 	DefaultListModel listModel;
 	NetbookGUI parent;
 	
+	NodePanel[] nodes;
 	
 	JButton backBtn;
 	
 	
-	public NodeView(final NetbookGUI parent, Map<Integer, Node> nodes){
+	public NodeView(final NetbookGUI parent){
 		this.parent = parent;
 		
 		listModel = new DefaultListModel();
@@ -43,14 +44,14 @@ public class NodeView extends JSplitPane{
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 1) {
                 	System.out.println("Node Clicked:"+nodeList.getSelectedValue());
-                   String val = (String) nodeList.getSelectedValue();
-                   int nodeNum = Integer.parseInt(val.split(" ")[1]);
-                   parent.openNode(nodeNum);
+                	String val = (String) nodeList.getSelectedValue();
+                	int nodeNum = Integer.parseInt(val.split(" ")[1]);
+                	openNode(nodeNum);
                 }
             }
         });
-		
-		getNodeList(nodes);
+	
+		nodes = new NodePanel[255];
 		
 		tabs = new JTabbedPane();
 		tabs.setBackground(Color.GREEN);
@@ -61,6 +62,14 @@ public class NodeView extends JSplitPane{
 		this.setRightComponent(tabs);
 		this.setLeftComponent(createListPanel(nodeList));
 
+	}
+	
+	public void createNodes(Map<Integer, Node> nodeMap){	
+		for(int key : nodeMap.keySet()){
+			listModel.addElement("Node "+key);
+			nodes[key] = new NodePanel(key, this);
+			nodes[key].setConnection(true);
+		}
 	}
 
 	private JPanel createListPanel(JList nodeList) {
@@ -76,52 +85,54 @@ public class NodeView extends JSplitPane{
 		return retPanel;		
 	}
 
-	public void openNode(Heartbeat heartbeat, int nodeNum){
+	public void openNode(int nodeNum){
         int index = tabs.indexOfTab("Node "+nodeNum);
         if(index >= 0){
      	  tabs.setSelectedIndex(index); 
-        } else {
-        	JPanel nodePanel = new NodePanel(heartbeat, nodeNum, this);
-        	tabs.add("Node "+nodeNum, nodePanel);
+        } else if(nodes[nodeNum]!=null){
+        	tabs.add("Node "+nodeNum, nodes[nodeNum]);
         	tabs.setSelectedIndex(tabs.indexOfTab("Node "+nodeNum));
         }
 	}
 	
 	
-	private void getNodeList(Map<Integer, Node> nodes){
-		//int count = 0;
-		//String[] nodeStr = new String[nodes.size()];
-		//for(int i=0; i < 255 && count < nodes.size(); i++){
-		//	if(nodes.containsKey(i)){
-		//		nodeStr[count] = "Node "+i;
-		//		count+= 1;
-		//	}
-		//}
-		for(int key : nodes.keySet()){
-			listModel.addElement("Node "+key);
-		}
-	}
 
-	public void closeTab(int nodeNum) {
+	public void closeNode(int nodeNum) {
 		tabs.remove(tabs.indexOfTab("Node "+nodeNum));
 	}
 
 	public void heartbeatUpdate(Heartbeat hb) {
 		int nodeNum = hb.from;
-		int index = tabs.indexOfTab("Node "+nodeNum);
+				
+		if(nodes[nodeNum]!=null){
+			nodes[nodeNum].newHeartbeat(hb);
+			nodes[nodeNum].setConnection(true);
+		} else {
+			nodes[nodeNum] = new NodePanel(nodeNum,this);
+			nodes[nodeNum].setConnection(true);
+			nodes[nodeNum].newHeartbeat(hb);
+		}
+	}
+	
+	public void addNode(int nodeNum){
+		String id = "Node "+nodeNum;
 		
-		if(index >= 0){
-			NodePanel node = (NodePanel) tabs.getComponentAt(index);
-			node.newHeartbeat(hb);
+		if(!listModel.contains(id)){
+			listModel.addElement(id);
 		}
 		
+		if(nodes[nodeNum]==null){
+			nodes[nodeNum] = new NodePanel(nodeNum, this);
+		}
+		
+		nodes[nodeNum].setConnection(true);
 	}
 	
-	public void addNode(int data){
-		listModel.addElement("Node "+data);
-	}
-	
-	public void removeNode(int data){
-		listModel.removeElement("Node "+data);
+	public void removeNode(int nodeNum){
+		//listModel.removeElement("Node "+data);
+		//NodelistModel.getElementAt(listModel.indexOf("Node"+data));
+		if(nodes[nodeNum]!=null){
+			nodes[nodeNum].setConnection(false);
+		}
 	}
 }

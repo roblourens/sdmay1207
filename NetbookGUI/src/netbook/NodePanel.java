@@ -26,22 +26,26 @@ public class NodePanel extends JPanel implements ActionListener{
 	int nodeNum;
 	Heartbeat heartbeat;
 	NodeView parent;
+	Boolean connected;
 	
 	JLabel nodeInfo;
 	JLabel latLong;
 	JLabel batteryStatus;
 	JLabel compassRead;
 	JLabel tasking;
+	JLabel connectStatus;
 	
 	JButton closeBtn;
 	
 	Font titleFont;
 	Font regularFont;
 	
-	public NodePanel(Heartbeat heartbeat, int nodeNum, NodeView parent){
+	public NodePanel(int nodeNum, NodeView parent){
 		this.parent = parent;
-		this.heartbeat = heartbeat;
+		//this.heartbeat = heartbeat;
 		this.nodeNum = nodeNum;
+		
+		connected = false;
 			
 		titleFont = new Font("Serif", Font.PLAIN, 18);
 		regularFont = new Font("Serif", Font.PLAIN, 12);
@@ -66,13 +70,16 @@ public class NodePanel extends JPanel implements ActionListener{
 		tasking.setFont(regularFont);
 		tasking.setForeground(Color.WHITE);
 		
+		connectStatus = new JLabel(getConnection());
+		connectStatus.setFont(regularFont);
+		connectStatus.setForeground(Color.WHITE);
+		
 		closeBtn = new JButton("Close");
 		closeBtn.setFont(regularFont);
 		closeBtn.setBackground(Color.WHITE);
 		closeBtn.addActionListener(this);
 			
 		this.setBackground(Color.BLACK);
-		//this.setLayout(new GridLayout(0,1));
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));	
 		this.add(nodeInfo);
 		this.add(closeBtn);
@@ -87,6 +94,9 @@ public class NodePanel extends JPanel implements ActionListener{
 
 		this.add(Box.createRigidArea(new Dimension(0,10)));
 		this.add(tasking);
+		
+		this.add(Box.createRigidArea(new Dimension(0,10)));
+		this.add(connectStatus);
 	}
 
 	
@@ -99,7 +109,7 @@ public class NodePanel extends JPanel implements ActionListener{
 		String batteryLine = "BATTERY STATUS: ";
 		if(heartbeat != null && heartbeat.sensorOutput.get(SensorType.Battery) != null){
 			BatteryStatus bs= new BatteryStatus(heartbeat.sensorOutput.get(SensorType.Battery));
-			return batteryLine+bs.toString();
+			return batteryLine+bs.toString()+"%";
 		}
 		return batteryLine+"No data";
 	}
@@ -121,13 +131,24 @@ public class NodePanel extends JPanel implements ActionListener{
 		}
 		return gpsLine + "No data";
 	}
-
 	
+	public String getConnection(){
+		String connectionLine = "CONNECTION: ";
+		if(connected) return connectionLine + "Connected";
+		else return connectionLine + "Disconnected";
+	}
+	
+	public void setConnection(boolean connected){
+		this.connected = connected;
+		connectStatus.setText(getConnection());
+	}
+	
+
 	
 	@Override
 	public void actionPerformed(ActionEvent action) {
 		if(action.getSource() == closeBtn){
-			parent.closeTab(nodeNum);
+			parent.closeNode(nodeNum);
 		}
 	}
 

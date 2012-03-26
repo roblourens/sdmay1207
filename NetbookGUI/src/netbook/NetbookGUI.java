@@ -9,7 +9,6 @@ import java.io.File;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -33,56 +32,34 @@ public class NetbookGUI extends JFrame implements ActionListener, Runnable, Obse
 	NodeController nc;
 	NodeView nodeView;
 	MainPanel mainPanel;
-	MapView mapView;
+	ConnectView conView;
 	CameraView camView;
 	JPanel views;
 	
 	final String NODEVIEW = "Node View";
 	final String MAINVIEW = "Main View";
-	final String MAPVIEW  = "Map View";
+	final String CONVIEW  = "Connect View";
 	final String CAMVIEW  = "Camnera View";
 	
-	String spdFile = "dataDir/sdmay1207.spd";
+	final String DATADIR = "dataDir";
+	String spdFile = DATADIR+"/sdmay1207.spd";
+	boolean networkRunning;
 
 	
 	public NetbookGUI(){
-		
-		// Establish networking
-		Random r = new Random();
-		nodeNum = r.nextInt(245) + 10;
-		
-		final String dataDir = "dataDir";
-		nc = new NodeController(nodeNum, dataDir);
-		nc.addNetworkObserver(this);
-		/*
-		nodes = new ConcurrentHashMap<Integer, Node>();
-		nodes.put(1, new Node(1));
-		nodes.put(45, new Node(45));
-		nodes.put(25, new Node(25));
-		nodes.put(12, new Node(12));
-		nodes.put(100, new Node(100));
-		nodes.put(15, new Node(15));
-		nodes.put(74, new Node(74));		
-		nodes.put(13, new Node(13));
-		nodes.put(102, new Node(102));
-		nodes.put(82, new Node(82));
-		nodes.put(73, new Node(73));
-		nodes.put(nodeNum, new Node(nodeNum));
-		*/
-		nodes = nc.getNodesInNetwork();
-		
-		nc.addSensor(new BatterySensor());
-				
+
+		networkRunning = false;
+						
 		// Create the GUI Frame
-		mainPanel = new MainPanel(this, nodeNum, nodes);
-		nodeView = new NodeView(this, nodes);
-		//mapView = new MapView(this);
+		mainPanel = new MainPanel(this, nodeNum);
+		nodeView = new NodeView(this);
+		conView = new ConnectView(this);
 		camView = new CameraView(this);
 		
 		views = new JPanel(new CardLayout());
+		views.add(conView, CONVIEW);
 		views.add(mainPanel, MAINVIEW);
 		views.add(nodeView, NODEVIEW);
-		//views.add(mapView, MAPVIEW);
 		views.add(camView, CAMVIEW);
 		
 		this.getContentPane().add(views);		
@@ -92,6 +69,7 @@ public class NetbookGUI extends JFrame implements ActionListener, Runnable, Obse
 		addWindowListener(new java.awt.event.WindowAdapter() {
 		    public void windowClosing(WindowEvent winEvt) {
 		    	System.out.println("Exiting");
+		    	stopNetwork();
 		    	System.exit(0); 
 		    }
 		});
@@ -104,47 +82,49 @@ public class NetbookGUI extends JFrame implements ActionListener, Runnable, Obse
 
 
 
-
-
-	public void start() {
-	   /* if ( runner == null ) {
-	        runner = new Thread( this );
-	        runner.start();
-	    }*/
-		nc.start(RoutingAlg.AODV);
-	}
-	
-	public void stop() {
-		//if ( runner != null && runner.isAlive()) runner.interrupt();
-	    //runner = null;
-		nc.stop();
-	}
-	
-	@Override
-	public void run() {
-		while(runner != null){
-			
-		}
+	public void createNetwork(){
+		nc = new NodeController(nodeNum, DATADIR);
 		
+		nc.addNetworkObserver(this);
+		nodes = nc.getNodesInNetwork();
+		
+		nc.addSensor(new BatterySensor());	
+		startNetwork();
 	}
 
+	public void startNetwork() {
+		nc.start(RoutingAlg.AODV);
+		networkRunning = true;
+	}
 	
+	public void stopNetwork() {
+		nc.stop();
+		networkRunning = false;
+	}
+	
+
 	
 	@Override
 	public void actionPerformed(ActionEvent action) {
-		if(action.getSource()== mainPanel.startStop){
+		if(action.getSource()== conView.connect){
+			nodeNum = conView.getNodeNum();
+			if(nodeNum >= 0){
+				createNetwork();
+				nodeView.createNodes(nc.getNodesInNetwork());
+				mainPanel.updateNodeNum(nodeNum);
+				((CardLayout) views.getLayout()).show(views, MAINVIEW);
+				System.out.println("Connect Clicked");
+			} 			
+			
+		} else if(action.getSource()== mainPanel.startStop){
 			if(mainPanel.startStop.getText().equals("Start")){
-				start();
+				startNetwork();
 				mainPanel.startStop.setText("Stop");
 			} else {
-				stop();
+				stopNetwork();
 				mainPanel.startStop.setText("Start");
 			}		
 			System.out.println("Start/Stop Clicked");
-			
-		//} else if(action.getSource() == mainPanel.mapView){				// Map View
-		//	((CardLayout) views.getLayout()).show(views, MAPVIEW);
-		//	System.out.println("Map View Clicked");
 			
 		} else if(action.getSource() == mainPanel.nodeView){			// Node View
 			((CardLayout) views.getLayout()).show(views, NODEVIEW);
@@ -157,7 +137,7 @@ public class NetbookGUI extends JFrame implements ActionListener, Runnable, Obse
 				
 		} else if(action.getSource() == mainPanel.nodeInfo){			// Node Info 
 			((CardLayout) views.getLayout()).show(views, NODEVIEW);
-			openNode(nodeNum);			
+			nodeView.openNode(nodeNum);			
 			System.out.println("Node Info Clicked");
 		
 		} else if(action.getSource() == camView.playBtn){			// Play Button 
@@ -176,18 +156,13 @@ public class NetbookGUI extends JFrame implements ActionListener, Runnable, Obse
 		}
 	}
 
-	
-	
-	public void openNode(int nodeNumber){
-		Heartbeat hb = nc.getNodesInNetwork().get(nodeNumber).getHeartbeat();
-		nodeView.openNode(hb, nodeNumber);
-	}
-	
+		
 	@Override
     public void update(Observable observable, Object obj){
         NetworkEvent netEvent = (NetworkEvent) obj;
         switch (netEvent.event){
 	        case RecvdHeartbeat:
+	        case SentHeartbeat: 
 	            Heartbeat hb = (Heartbeat) netEvent.data;
 	            System.out.println("Got heartbeat from " + hb.from + ": "
 	                    + hb.toString());
@@ -195,7 +170,7 @@ public class NetbookGUI extends JFrame implements ActionListener, Runnable, Obse
 	            	nodeView.heartbeatUpdate(hb);
 	            }
 	            break;
-	            
+	        	
 	        case NodeJoined:
 	            System.out.println("Node joined: " + netEvent.data);
 	            mainPanel.displayMessage("Node joined: " + netEvent.data);
@@ -211,7 +186,8 @@ public class NetbookGUI extends JFrame implements ActionListener, Runnable, Obse
 	        case RecvdTextMessage:
 	        	System.out.println("Received TExt message");
 	        	TextMessage tm = (TextMessage) netEvent.data;
-	        	mainPanel.displayMessage(tm.from, nodeNum, tm.message);
+	        	mainPanel.displayMessage(tm.from, nodeNum, tm.message);        	
+	        	
         }
     }
 	
@@ -231,12 +207,16 @@ public class NetbookGUI extends JFrame implements ActionListener, Runnable, Obse
 	
 	
 	
+	@Override
+	public void run() {
+	}
 	
 	public static void main(String[] args) {
 		NetbookGUI gui = new NetbookGUI();
-		gui.start();
+		//gui.start();
 		gui.setVisible(true);
 	}
+
 
 
 

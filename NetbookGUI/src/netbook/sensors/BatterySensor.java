@@ -29,6 +29,7 @@ public class BatterySensor extends Battery{
     	   int percentSign = output.indexOf("%");
     	   int space = output.substring(0, percentSign).lastIndexOf(' ');
     	   percent = Integer.parseInt(output.substring(space+1,percentSign));
+    	   
            
            return new BatteryStatus(percent, charging);
         } catch(IOException e){
