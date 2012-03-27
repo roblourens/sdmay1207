@@ -28,7 +28,17 @@
     <EditText
         android:id="@+id/textToSend"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:gravity="top|left" />
+        android:layout_height="wrap_content"
+        android:layout_weight="0.10"
+        android:gravity="top|left"
+        android:text="Message to be Sent" />
+
+    <EditText
+        android:id="@+id/textSent"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.84"
+        android:gravity="top|left"
+        android:text="Message Sent" />
 
 </LinearLayout>

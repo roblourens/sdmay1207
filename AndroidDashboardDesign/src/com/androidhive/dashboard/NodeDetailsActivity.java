@@ -66,14 +66,17 @@ public class NodeDetailsActivity extends Activity implements Observer
                         .setText("Node " + displayedNode.nodeNum);
 
                 // Set battery level
+                if(displayedNode.lastHeartbeat!=null)
+                {
                 String batterySensorStr = displayedNode.lastHeartbeat.sensorOutput
                         .get(SensorType.Battery);
+                
                 String batteryStr = batterySensorStr == null ? "No battery"
                         : new BatteryStatus(batterySensorStr).toString();
 
                 ((TextView) findViewById(R.id.battery)).setText("Battery: "
                         + batteryStr);
-
+                
                 // Set compass reading
                 String compassSensorStr = displayedNode.lastHeartbeat.sensorOutput
                         .get(SensorType.Compass);
@@ -82,6 +85,25 @@ public class NodeDetailsActivity extends Activity implements Observer
                 
                 ((TextView) findViewById(R.id.compass)).setText("Compass: "
                         + compassStr);
+                
+
+             // Set GPS reading
+                Double lat = displayedNode.lastLocation.latitude;
+                String latStr = lat == null ? "No Latitute"
+                        : lat.toString();
+                
+                ((TextView) findViewById(R.id.lat)).setText("Latitude: "
+                        + latStr);
+                
+                Double lon = displayedNode.lastLocation.longitude;
+                String lonStr = lat == null ? "No Longitude"
+                        : lon.toString();
+                
+                ((TextView) findViewById(R.id.lon)).setText("longitude: "
+                        + lonStr);
+                }
+
+                
             }
         });
     }

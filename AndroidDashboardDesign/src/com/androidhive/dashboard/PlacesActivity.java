@@ -69,6 +69,11 @@ public class PlacesActivity extends Activity implements Observer
                     public void onClick(View v)
                     {
                         // go to P2P activity
+                    	TextView msg= ((TextView) findViewById(R.id.recvdMessages));
+                    	msg.invalidate();
+                    	msg.setHeight(100);
+                    	msg.postInvalidate();
+
                     }
                 });
 
@@ -88,16 +93,19 @@ public class PlacesActivity extends Activity implements Observer
     private void updateMapObjects()
     {
         mapView.getOverlays().clear();
-
+        int me= 0;
         Collection<Node> nodes = nc.getNodesInNetwork().values();
         List<OverlayItem> items = new ArrayList<OverlayItem>();
         for (Node n : nodes)
         {
             if (n.lastLocation != null)
+            {
                 items.add(new OverlayItem(""+n.nodeNum, "title", "desc", new GeoPoint(n.lastLocation.latitude,
                         n.lastLocation.longitude)));
+            }
+            
         }
-
+       
         final Context c = this;
         ItemizedOverlay<OverlayItem> overlay = new ItemizedOverlayWithFocus<OverlayItem>(this, items,
                 new OnItemGestureListener<OverlayItem>(){
@@ -117,7 +125,7 @@ public class PlacesActivity extends Activity implements Observer
                         return true;
                     }
                 });
-
+       
         mapView.getOverlays().add(overlay);
         mapView.postInvalidate();
     }
@@ -126,7 +134,9 @@ public class PlacesActivity extends Activity implements Observer
     {
         runOnUiThread(new Runnable() {
             public void run() {
-                ((TextView) findViewById(R.id.recvdMessages)).setText(message);
+            	TextView msg= ((TextView) findViewById(R.id.recvdMessages));
+            	msg.setText(message);
+            	//msg.setHeight(10);
             };
         });
     }

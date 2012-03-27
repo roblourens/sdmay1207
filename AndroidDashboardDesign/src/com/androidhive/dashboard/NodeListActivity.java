@@ -43,7 +43,10 @@ public class NodeListActivity extends ListActivity implements Observer
         for (Node n : nc.getKnownNodes().values())
         {
             nodes.add(n);
-            nodeStrs.add("Node " + n);
+            if(n.nodeNum==nc.getMe().nodeNum)
+            	nodeStrs.add("Node "+ n+"(Me)");
+            else
+            	nodeStrs.add("Node " + n);
         }
 
         runOnUiThread(new Runnable()
