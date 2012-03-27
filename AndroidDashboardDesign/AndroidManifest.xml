@@ -29,7 +29,8 @@
         android:theme="@android:style/Theme.Black.NoTitleBar" >
         <activity
             android:name="com.androidhive.dashboard.AndroidDashboardDesignActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -38,7 +39,9 @@
         </activity>
 
         <!-- News Feed Activity -->
-        <activity android:name="com.androidhive.dashboard.NodeDetailsActivity" >
+        <activity
+            android:name="com.androidhive.dashboard.NodeDetailsActivity"
+            android:screenOrientation="portrait" >
         </activity>
 
         <!-- Friends Activity -->
@@ -52,8 +55,8 @@
         </activity>
         <activity
             android:name="com.androidhive.dashboard.SendTextActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" >
         </activity>
 
         <!-- Messages Activity -->
@@ -61,7 +64,13 @@
         </activity>
 
         <!-- Places Activity -->
-        <activity android:name="com.androidhive.dashboard.PlacesActivity" >
+        <activity
+            android:name="com.androidhive.dashboard.PlacesActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name="com.androidhive.dashboard.P2PSetupActivity"
+            android:screenOrientation="portrait" >
         </activity>
 
         <!-- Events Activity -->
