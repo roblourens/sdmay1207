@@ -1,10 +1,15 @@
 package sdmay1207.cc;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.xml.sax.InputSource;
+
+import sdmay1207.ais.Device;
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.NodeController.CommandHandler;
 import sdmay1207.ais.etc.Repeater;
@@ -57,9 +62,11 @@ public class Point2PointCommander implements CommandHandler
         // Read cached maps from file
         try
         {
-            // osm = OSMParser.parse(Device.getDataDir() + "/map.osm");
-            OSM osm = OSMParser
-                    .parse("/Users/rob/Documents/ISU/senior design/ames.osm");
+            File mapFile = new File(Device.getDataDir(), "ISU_map.osm");
+            System.out.println("opening from " + mapFile.toString());
+            System.out.println(mapFile.exists());
+            InputSource is = new InputSource(new FileInputStream(mapFile));
+            OSM osm = OSMParser.parse(is);
             graph = getRegionGraph(osm);
             wrangler = new Point2PointNodeWrangler(graph);
         } catch (Exception e)

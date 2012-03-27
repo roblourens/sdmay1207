@@ -42,7 +42,7 @@ public class NodeController implements Observer
 
     // other components
     public NetworkController networkController;
-    private SensorInterface sensorInterface = new SensorInterface();
+    public SensorInterface sensorInterface = new SensorInterface();
     private Node me;
     private HeartbeatTask ht;
     private NetworkRejoinMonitor networkRejoinMonitor;
@@ -55,7 +55,7 @@ public class NodeController implements Observer
 
     // static config
     private static final long HEARTBEAT_FREQ = 5000; // ms
-    private static final String DEFAULT_DATA_DIR = "~/sdmay1207";
+    private static final String DEFAULT_DATA_DIR = "~/sdmay1207/";
 
     public NodeController(int nodeNumber, String dataDir)
     {
@@ -71,6 +71,9 @@ public class NodeController implements Observer
 
         if (dataDir == null || dataDir.equals(""))
             dataDir = DEFAULT_DATA_DIR;
+        
+        Device.setDataDir(dataDir);
+        System.out.println("Starting with data directory " + dataDir);
     }
 
     /**

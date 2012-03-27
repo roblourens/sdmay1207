@@ -1,19 +1,23 @@
 package br.zuq.osm.parser;
 
-import br.zuq.osm.parser.model.OSM;
-import br.zuq.osm.parser.model.OSMNode;
-import br.zuq.osm.parser.model.Relation;
-import br.zuq.osm.parser.model.Way;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import br.zuq.osm.parser.model.OSM;
+import br.zuq.osm.parser.model.OSMNode;
+import br.zuq.osm.parser.model.Relation;
+import br.zuq.osm.parser.model.Way;
 
 /**
  *
@@ -24,7 +28,7 @@ public class OSMParser {
     /**
      * @param args the command line arguments
      */
-    public static OSM parse(String path) throws Exception {
+    public static OSM parse(InputSource is) throws Exception {
 
         Document doc;
         DocumentBuilder builder;
@@ -35,7 +39,7 @@ public class OSMParser {
         Map<String, OSMNode> nodes = new LinkedHashMap<String, OSMNode>();
 
         builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        doc = builder.parse(path);
+        doc = builder.parse(is);
 
         nodesList = doc.getChildNodes().item(0).getChildNodes();
 
