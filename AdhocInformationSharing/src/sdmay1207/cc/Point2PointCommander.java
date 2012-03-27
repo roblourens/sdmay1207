@@ -3,6 +3,7 @@ package sdmay1207.cc;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -55,16 +56,15 @@ public class Point2PointCommander implements CommandHandler
         enRouteToRallyPoint
     }
 
-    public Point2PointCommander(NodeController nodeController)
+    public Point2PointCommander(NodeController nodeController, String mapPath)
     {
         this.nodeController = nodeController;
 
         // Read cached maps from file
         try
         {
-            File mapFile = new File(Device.getDataDir(), "ISU_map.osm");
+            File mapFile = new File(mapPath);
             System.out.println("opening from " + mapFile.toString());
-            System.out.println(mapFile.exists());
             InputSource is = new InputSource(new FileInputStream(mapFile));
             OSM osm = OSMParser.parse(is);
             graph = getRegionGraph(osm);
@@ -75,6 +75,12 @@ public class Point2PointCommander implements CommandHandler
             e.printStackTrace();
             return;
         }
+    }
+
+    public Point2PointCommander(NodeController nodeController)
+    {
+        this(nodeController, new File(Device.getDataDir(), "ISU_map.osm")
+                .toString());
     }
 
     // This must be called before use!
@@ -357,6 +363,9 @@ public class Point2PointCommander implements CommandHandler
         {
             for (int i = 0; i < way.nodes.size() - 1; i++)
             {
+                if (!way.isHighway())
+                    continue;
+                
                 OSMNode node1 = way.nodes.get(i);
                 OSMNode node2 = way.nodes.get(i + 1);
 
@@ -392,11 +401,15 @@ public class Point2PointCommander implements CommandHandler
         // Location p2 = new Location(42.050498, -93.614815);
         // Location p2 = new Location(42.051201, -93.618004);
 
-        Location p1 = new Location(42.0228962, -93.6714000);
-        Location p2 = new Location(42.0228070, -93.6638790);
+        // Location p1 = new Location(42.0228962, -93.6714000);
+        // Location p2 = new Location(42.0228070, -93.6638790);
+        Location p1 = new Location(42.025578, -93.650336);
+        Location p2 = new Location(42.026630, -93.654971);
 
-        System.out.println("Result: "
-                + new Point2PointCommander(null).wrangler
-                        .getNodePositionsBetweenPoints(p1, p2, 15));
+        System.out
+                .println("Result: "
+                        + new Point2PointCommander(null,
+                                "/Users/rob/Documents/ISU/senior design/ISU_map.osm").wrangler
+                                .getNodePositionsBetweenPoints(p1, p2, 15));
     }
 }

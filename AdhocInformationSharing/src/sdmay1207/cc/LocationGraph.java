@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import sdmay1207.ais.etc.Utils;
+import sdmay1207.ais.network.model.Node;
 import sdmay1207.ais.sensors.GPS.Location;
 
 public class LocationGraph
@@ -77,8 +77,17 @@ public class LocationGraph
         return vertices.get(p);
     }
 
-    // This is a crappy solution but it's probably fast enough for us
+    /**
+     * Same as bestNodeForLocation, but only if the node is within delta of the point
+     */
     public LocationNode getApproxNodeForLocation(Location p)
+    {
+        LocationNode n = getBestNodeForLocation(p);
+        return n.withinDeltaOf(p) ? n : null; 
+    }
+    
+    // This is a crappy solution but it's probably fast enough for us
+    public LocationNode getBestNodeForLocation(Location p)
     {
         // Only necessary if we might have nodes within DELTA*2 of each other
         LocationNode best = null;
@@ -87,13 +96,10 @@ public class LocationGraph
         for (LocationNode node : vertices.values())
         {
             double dist = node.distanceTo(p);
-            if (dist <= RealWorldLocation.DELTA)
+            if (best == null || dist < bestDist)
             {
-                if (best == null || dist < bestDist)
-                {
-                    best = node;
-                    bestDist = dist;
-                }
+                best = node;
+                bestDist = dist;
             }
         }
 

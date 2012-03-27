@@ -19,7 +19,7 @@ public class Point2PointNodeWrangler
     
     // Consider this to be the furthest that a connection can be made with
     // roughly a line of sight, in meters
-    private static final int MAX_LINE_OF_SIGHT_DIST = 5;
+    private static final int MAX_LINE_OF_SIGHT_DIST = 150;
     
     public Point2PointNodeWrangler(LocationGraph graph)
     {
@@ -125,8 +125,8 @@ public class Point2PointNodeWrangler
         LocationAStarSearch search = new LocationAStarSearch(
                 SearchMode.distanceOnly);
 
-        LocationNode ln1 = graph.getApproxNodeForLocation(p1);
-        LocationNode ln2 = graph.getApproxNodeForLocation(p2);
+        LocationNode ln1 = graph.getBestNodeForLocation(p1);
+        LocationNode ln2 = graph.getBestNodeForLocation(p2);
         List<Location> positions = search.findPath(ln1, ln2);
 
         // Add the exact start/end points if they are not too close to the first
@@ -171,6 +171,7 @@ public class Point2PointNodeWrangler
             Location l1 = positions.get(i);
             Location l2 = positions.get(i + 1);
 
+            
             if (l1.distanceTo(l2) > MAX_LINE_OF_SIGHT_DIST)
             {
                 // enough nodes to cover this gap?
