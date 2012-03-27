@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/setupTitle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="text here"
+        android:textSize="20dp" />
+
+    <org.osmdroid.views.MapView
+        android:id="@+id/setupMap"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/setupTitle"
+        android:padding="15dip" />
+
+    <Button
+        android:id="@+id/setupOkButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/setupTitle"
+        android:text="OK" />
+
+    <Button
+        android:id="@+id/setupCurLocButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/setupTitle"
+        android:layout_toLeftOf="@id/setupOkButton"
+        android:text="Use current location" />
+
+</RelativeLayout>

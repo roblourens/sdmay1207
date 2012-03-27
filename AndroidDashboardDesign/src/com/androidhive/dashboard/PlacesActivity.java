@@ -68,12 +68,7 @@ public class PlacesActivity extends Activity implements Observer
                 {
                     public void onClick(View v)
                     {
-                        // go to P2P activity
-                    	TextView msg= ((TextView) findViewById(R.id.recvdMessages));
-                    	msg.invalidate();
-                    	msg.setHeight(100);
-                    	msg.postInvalidate();
-
+                        startActivity(new Intent(c, P2PSetupActivity.class));
                     }
                 });
 
