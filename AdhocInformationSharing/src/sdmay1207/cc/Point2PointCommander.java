@@ -2,6 +2,7 @@ package sdmay1207.cc;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,8 +31,10 @@ public class Point2PointCommander implements CommandHandler
     private NodeController nodeController;
     private Point2PointGUI gui;
     private Point2PointNodeWrangler wrangler;
+    private OSM osm;
 
     // data
+    private String mapPath;
     private LocationGraph graph;
     public P2PState curState = P2PState.inactive;
     private Location curDest;
@@ -59,22 +62,7 @@ public class Point2PointCommander implements CommandHandler
     public Point2PointCommander(NodeController nodeController, String mapPath)
     {
         this.nodeController = nodeController;
-
-        // Read cached maps from file
-        try
-        {
-            File mapFile = new File(mapPath);
-            System.out.println("opening from " + mapFile.toString());
-            InputSource is = new InputSource(new FileInputStream(mapFile));
-            OSM osm = OSMParser.parse(is);
-            graph = getRegionGraph(osm);
-            wrangler = new Point2PointNodeWrangler(graph);
-        } catch (Exception e)
-        {
-            System.err.println("XML parsing fail");
-            e.printStackTrace();
-            return;
-        }
+        this.mapPath = mapPath;
     }
 
     public Point2PointCommander(NodeController nodeController)
@@ -140,6 +128,27 @@ public class Point2PointCommander implements CommandHandler
     public void initiateP2PTask(Location p1, Location p2, Location rallyPoint,
             long timeoutMS)
     {
+        // setup
+        if (osm == null)
+        {
+            // Read cached maps from file
+            try
+            {
+                File mapFile = new File(mapPath);
+                System.out.println("opening from " + mapFile.toString());
+                InputSource is = new InputSource(new FileInputStream(mapFile));
+                osm = OSMParser.parse(is);
+                graph = getRegionGraph(osm);
+                wrangler = new Point2PointNodeWrangler(graph);
+            } catch (Exception e)
+            {
+                System.err.println("XML parsing fail");
+                e.printStackTrace();
+                return;
+            }
+
+        }
+
         Collection<Node> allNodes = nodeController.getNodesInNetwork().values();
         Collection<Node> useableNodes = nodesWithLocations(allNodes);
 
@@ -365,7 +374,7 @@ public class Point2PointCommander implements CommandHandler
             {
                 if (!way.isHighway())
                     continue;
-                
+
                 OSMNode node1 = way.nodes.get(i);
                 OSMNode node2 = way.nodes.get(i + 1);
 
