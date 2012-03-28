@@ -12,7 +12,6 @@ import sdmay1207.ais.NodeController;
 import sdmay1207.ais.sensors.GPS.Location;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
 import android.app.Activity;
-import android.gesture.GestureOverlayView.OnGestureListener;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;

@@ -1,5 +1,9 @@
 package sdmay1207.ais.network;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
@@ -155,6 +159,9 @@ public class NetworkController extends Observable
 
     public void transmitData(int nodeNum, byte[] data)
     {
+        System.out.println("sending");
+        System.out.println(data[0]);
+        System.out.println(data[1]);
         networkInterface.sendData(nodeNum, data);
     }
 
@@ -173,7 +180,7 @@ public class NetworkController extends Observable
             knownNodes.put(hb.from, new Node(hb.from));
 
         knownNodes.get(hb.from).update(hb);
-        
+
         if (!connectedNodes.containsKey(hb.from))
             connectedNodes.put(hb.from, knownNodes.get(hb.from));
     }
@@ -188,10 +195,24 @@ public class NetworkController extends Observable
     public class Receiver extends Repeater
     {
         private Queue<NetworkEvent> receivedEvents;
+        private DatagramSocket localSock;
+
+        private final int CAM_STREAM_PORT = 7674;
+        private final InetAddress CAM_STREAM_ADDR;
 
         public Receiver()
         {
             receivedEvents = new ConcurrentLinkedQueue<NetworkEvent>();
+            try
+            {
+                CAM_STREAM_ADDR = InetAddress.getByName("localhost");
+                localSock = new DatagramSocket(CAM_STREAM_PORT, CAM_STREAM_ADDR);
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+                throw new RuntimeException(
+                        "Could not set up camera stream socket");
+            }
         }
 
         @Override
@@ -218,6 +239,17 @@ public class NetworkController extends Observable
 
         public void addMessage(String fromIP, byte[] data)
         {
+            System.out.println("recvd");
+            System.out.println(data[0]);
+            System.out.println(data[1]);
+            // is camera data?
+            if ((data[0] == -128 && data[1] == -54)
+                    || (data[0] == -17 && data[1] == -65))
+            {
+                handleCameraStreamPacket(data);
+                return;
+            }
+
             NetworkMessage msg = NetworkMessage.getMessage(fromIP, data);
             NetworkEvent event = null;
 
@@ -262,6 +294,19 @@ public class NetworkController extends Observable
             synchronized (receivedEvents)
             {
                 receivedEvents.notify();
+            }
+        }
+
+        public void handleCameraStreamPacket(byte[] data)
+        {
+            try
+            {
+                localSock.send(new DatagramPacket(data, data.length,
+                        CAM_STREAM_ADDR, CAM_STREAM_PORT));
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+                System.err.println("Problem sending camera data");
             }
         }
     }

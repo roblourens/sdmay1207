@@ -1,5 +1,6 @@
 package sdmay1207.ais;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,8 +16,8 @@ import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Heartbeat;
 import sdmay1207.ais.network.model.NetworkCommand;
 import sdmay1207.ais.network.model.NetworkMessage;
-import sdmay1207.ais.network.model.Node;
 import sdmay1207.ais.network.model.NetworkMessage.MessageType;
+import sdmay1207.ais.network.model.Node;
 import sdmay1207.ais.sensors.Sensor;
 import sdmay1207.ais.sensors.SensorInterface;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
@@ -55,13 +56,18 @@ public class NodeController implements Observer
 
     // static config
     private static final long HEARTBEAT_FREQ = 5000; // ms
-    private static final String DEFAULT_DATA_DIR = "~/sdmay1207/";
+    private static final String DEFAULT_DATA_DIR = "/usr/sdmay1207";
 
     public NodeController(int nodeNumber, String dataDir)
     {
-        Device.setDataDir(dataDir);
         this.nodeNumber = nodeNumber;
         NetworkMessage.nodeNumMe = nodeNumber;
+        
+        if (dataDir == null || dataDir.equals(""))
+            dataDir = DEFAULT_DATA_DIR;
+        
+        System.out.println("Starting with data directory " + dataDir);
+        Device.setDataDir(dataDir);
 
         me = new Node(nodeNumber);
         networkController = new NetworkController();
@@ -69,11 +75,6 @@ public class NodeController implements Observer
 
         p2pCmdr = new Point2PointCommander(this);
 
-        if (dataDir == null || dataDir.equals(""))
-            dataDir = DEFAULT_DATA_DIR;
-        
-        Device.setDataDir(dataDir);
-        System.out.println("Starting with data directory " + dataDir);
     }
 
     /**

@@ -80,7 +80,8 @@
         </activity>
 
         <!-- Photos Activity -->
-        <activity android:name="com.androidhive.dashboard.PhotosActivity" >
+        <activity android:name="com.androidhive.dashboard.PhotosActivity"
+            android:screenOrientation="portrait" >
         </activity>
     </application>
 
