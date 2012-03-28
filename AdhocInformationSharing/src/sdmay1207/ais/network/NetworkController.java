@@ -159,9 +159,6 @@ public class NetworkController extends Observable
 
     public void transmitData(int nodeNum, byte[] data)
     {
-        System.out.println("sending");
-        System.out.println(data[0]);
-        System.out.println(data[1]);
         networkInterface.sendData(nodeNum, data);
     }
 
@@ -197,7 +194,7 @@ public class NetworkController extends Observable
         private Queue<NetworkEvent> receivedEvents;
         private DatagramSocket localSock;
 
-        private final int CAM_STREAM_PORT = 7674;
+        private final int CAM_STREAM_PORT = 7476;
         private final InetAddress CAM_STREAM_ADDR;
 
         public Receiver()
@@ -205,8 +202,8 @@ public class NetworkController extends Observable
             receivedEvents = new ConcurrentLinkedQueue<NetworkEvent>();
             try
             {
-                CAM_STREAM_ADDR = InetAddress.getByName("localhost");
-                localSock = new DatagramSocket(CAM_STREAM_PORT, CAM_STREAM_ADDR);
+                CAM_STREAM_ADDR = InetAddress.getByName("127.0.0.1");
+                localSock = new DatagramSocket();
             } catch (Exception e)
             {
                 e.printStackTrace();
@@ -239,12 +236,8 @@ public class NetworkController extends Observable
 
         public void addMessage(String fromIP, byte[] data)
         {
-            System.out.println("recvd");
-            System.out.println(data[0]);
-            System.out.println(data[1]);
             // is camera data?
-            if ((data[0] == -128 && data[1] == -54)
-                    || (data[0] == -17 && data[1] == -65))
+            if (data[0] == -128 && (data[1] == 74 || data[1] == -54))
             {
                 handleCameraStreamPacket(data);
                 return;

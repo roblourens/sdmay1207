@@ -37,7 +37,13 @@ public class UserDataPacket implements Packet{
 	
 	@Override
 	public byte[] toBytes() {
-		return toString().getBytes();
+	    String header = pduType+";"+sourceAddress+";"+destAddress+";";
+	    byte[] headerBytes = header.getBytes();
+	    byte[] bytes = new byte[headerBytes.length+data.length];
+	    System.arraycopy(headerBytes, 0, bytes, 0, headerBytes.length);
+	    System.arraycopy(data, 0, bytes, headerBytes.length, data.length);
+		
+	    return bytes;
 	}
 
 	@Override
@@ -47,7 +53,8 @@ public class UserDataPacket implements Packet{
 	
 	@Override
 	public void parseBytes(byte[] rawPdu) throws BadPduFormatException {
-		String[] s = new String(rawPdu).split(";",4);
+		String rawStr = new String(rawPdu);
+		String[] s = rawStr.split(";",4);
 		if(s.length != 4){
 			throw new BadPduFormatException(	"UserDataPacket: could not split " +
 												"the expected # of arguments from rawPdu. " +
@@ -62,7 +69,17 @@ public class UserDataPacket implements Packet{
 			}
 			sourceAddress = Integer.parseInt(s[1]);
 			destAddress = Integer.parseInt(s[2]);
-			data = s[3].getBytes();
+			
+			// find index of 3rd ;
+			int found = 0;
+			int i;
+			for (i=0; found < 3; i++)
+			{
+			    if (rawStr.charAt(i) == ';')
+			        found++;
+			}
+			data = new byte[rawPdu.length-i];
+			System.arraycopy(rawPdu, i, data, 0, data.length);
 		} catch (NumberFormatException e) {
 			throw new BadPduFormatException(	"UserDataPacket: falied in parsing " +
 												"arguments to the desired types"	);
