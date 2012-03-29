@@ -40,8 +40,8 @@ public class OSMParser {
 
         builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         doc = builder.parse(is);
-
-        nodesList = doc.getChildNodes().item(0).getChildNodes();
+        
+        nodesList = doc.getElementsByTagName("osm").item(0).getChildNodes();
 
         OSM osm = new OSM();
         for (int i = 0; i < nodesList.getLength(); i++) {
