@@ -84,6 +84,13 @@ public class PlacesActivity extends Activity implements Observer
 
         updateMapObjects();
     }
+    
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        mapView.getTileProvider().clearTileCache();
+    }
 
     private void updateMapObjects()
     {

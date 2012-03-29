@@ -86,6 +86,15 @@ public class P2PSetupActivity extends Activity
             }
         });
     }
+    
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        
+        mapView.getTileProvider().clearTileCache();
+        //mapView.destroyDrawingCache(); //?
+    }
 
     @Override
     public void onBackPressed()
