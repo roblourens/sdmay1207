@@ -16,16 +16,16 @@ import sdmay1207.cc.LocationGraph.LocationNode;
 public class Point2PointNodeWrangler
 {
     private LocationGraph graph;
-    
+
     // Consider this to be the furthest that a connection can be made with
     // roughly a line of sight, in meters
     private static final int MAX_LINE_OF_SIGHT_DIST = 150;
-    
+
     public Point2PointNodeWrangler(LocationGraph graph)
     {
         this.graph = graph;
     }
-    
+
     public Map<Node, Location> assignNodesToPositions(
             Collection<Node> availableNodes, List<Location> positions)
     {
@@ -61,8 +61,7 @@ public class Point2PointNodeWrangler
         // Collect position prefs
         for (final Location position : positions)
         {
-            List<Node> thisPositionPrefs = new ArrayList<Node>(
-                    availableNodes);
+            List<Node> thisPositionPrefs = new ArrayList<Node>(availableNodes);
 
             // Sort all nodes by distance to the position
             Collections.sort(thisPositionPrefs, new Comparator<Node>()
@@ -118,7 +117,7 @@ public class Point2PointNodeWrangler
 
         return assignments;
     }
-    
+
     public List<Location> getPathBetweenPoints(Location p1, Location p2)
     {
         // Setup the search algorithm to perform a shortest-path A* search
@@ -136,7 +135,7 @@ public class Point2PointNodeWrangler
 
         if (!ln2.withinDeltaOf(p2))
             positions.add(p2);
-        
+
         return positions;
     }
 
@@ -171,7 +170,6 @@ public class Point2PointNodeWrangler
             Location l1 = positions.get(i);
             Location l2 = positions.get(i + 1);
 
-            
             if (l1.distanceTo(l2) > MAX_LINE_OF_SIGHT_DIST)
             {
                 // enough nodes to cover this gap?
@@ -195,7 +193,7 @@ public class Point2PointNodeWrangler
             double maxGap = Double.MIN_VALUE;
             int maxGapStart = -1;
 
-            for (int i = 0; i < positions.size()-1; i++)
+            for (int i = 0; i < positions.size() - 1; i++)
             {
                 Location l1 = positions.get(i);
                 Location l2 = positions.get(i + 1);

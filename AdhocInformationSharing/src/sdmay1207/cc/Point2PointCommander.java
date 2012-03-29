@@ -148,21 +148,29 @@ public class Point2PointCommander implements CommandHandler
      *            timeout time in milliseconds
      */
     public void initiateP2PTask(Location p1, Location p2, Location rallyPoint,
-            long timeoutMS)
+            long timeoutMS) throws TooFewNodesException
     {
         System.out.println("Starting P2P task from " + p1 + " to " + p2);
         setupIfNeeded();
 
+        // Get nodes with GPS
         Collection<Node> allNodes = nodeController.getNodesInNetwork().values();
         Collection<Node> useableNodes = nodesWithLocations(allNodes);
 
+        // Get positions in shortest path
         List<Location> positions = wrangler.getNodePositionsBetweenPoints(p1,
                 p2, useableNodes.size());
+
+        // Do we have enough nodes to cover it?
+        if (positions == null)
+            throw new TooFewNodesException();
 
         // assign nodes to positions
         Map<Node, Location> assignments = wrangler.assignNodesToPositions(
                 useableNodes, positions);
 
+        // Figure out the node nums assigned to head (with video) and tail
+        // (receiving)
         int headNodeNum = ((Node) Utils.reverseMapLookup(assignments,
                 positions.get(0))).nodeNum;
         int tailNodeNum = ((Node) Utils.reverseMapLookup(assignments,
@@ -402,6 +410,11 @@ public class Point2PointCommander implements CommandHandler
         public void stateChanged(P2PState newState);
     }
 
+    public class TooFewNodesException extends Exception
+    {
+
+    }
+
     public static void main(String[] args)
     {
         // Location p1 = new Location(42.024676, -93.646598);
@@ -418,7 +431,8 @@ public class Point2PointCommander implements CommandHandler
         // Location p2 = new Location(42.0228070, -93.6638790);
         Location p1 = new Location(42.029818, -93.655056);
         Location p2 = new Location(42.021848, -93.639178);
-//03-28 18:32:29.077: I/System.out(1054): Starting P2P task from 42.023283,-93.654627 to 42.028511,-93.647847
+        // 03-28 18:32:29.077: I/System.out(1054): Starting P2P task from
+        // 42.023283,-93.654627 to 42.028511,-93.647847
 
         Point2PointCommander p2p = new Point2PointCommander(null,
                 "/Users/rob/Documents/ISU/senior design/ISU_map.osm");
