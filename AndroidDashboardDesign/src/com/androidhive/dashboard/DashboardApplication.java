@@ -40,7 +40,8 @@ public class DashboardApplication extends Application
                                               // ones
 
         String filename = "ISU_map.osm";
-        String dataDir = getApplicationContext().getFilesDir().getParent();
+        String dataRoot = getApplicationContext().getFilesDir().getParent();
+        File dataDir = new File(dataRoot, "/files");
         if (!new File(dataDir, filename).exists())
         {
             try
@@ -63,7 +64,7 @@ public class DashboardApplication extends Application
         }
 
         nc = new NodeController(nodeNumber,
-                new File(dataDir, "/files").toString());
+                dataDir.toString());
         nc.addSensor(new BatterySensor(this));
         nc.addSensor(new CompassSensor(this));
         nc.addSensor(new GPSSensor(this));
