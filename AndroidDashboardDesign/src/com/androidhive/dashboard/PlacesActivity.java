@@ -85,6 +85,7 @@ public class PlacesActivity extends Activity implements Observer
         updateMapObjects();
     }
     
+    // http://code.google.com/p/osmdroid/issues/detail?id=267
     @Override
     protected void onPause()
     {
