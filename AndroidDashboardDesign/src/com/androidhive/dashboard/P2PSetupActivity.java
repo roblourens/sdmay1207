@@ -11,8 +11,10 @@ import org.osmdroid.views.overlay.SimpleLocationOverlay;
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.sensors.GPS.Location;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
+import sdmay1207.cc.Point2PointCommander.TooFewNodesException;
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -41,9 +43,7 @@ public class P2PSetupActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.p2psetup);
 
-        // set title
-        ((TextView) findViewById(R.id.setupTitle))
-                .setText("Tap to set the point to retrieve video from");
+        setupForPoint(0);
 
         // setup mapview
         mapView = (MapView) findViewById(R.id.setupMap);
@@ -87,30 +87,79 @@ public class P2PSetupActivity extends Activity
         });
     }
 
-    private void settingNextPoint()
+    @Override
+    public void onBackPressed()
     {
         if (settingPoint == 0)
-        {
-            ((TextView) P2PSetupActivity.this.findViewById(R.id.setupTitle))
-                    .setText("Tap to set the point to send video to");
+            finish();
 
-            settingPoint = 1;
-        } else if (settingPoint == 1)
-        {
-            ((TextView) P2PSetupActivity.this.findViewById(R.id.setupTitle))
-                    .setText("Tap to set the point to rally at in case of failure");
+        // remove this point and overlay
+        selectedLocations[settingPoint] = null;
+        syncOverlays();
 
-            settingPoint = 2;
-        } else if (settingPoint == 2)
+        // reset UI
+        settingPoint--;
+        setupForPoint(settingPoint);
+    }
+
+    /**
+     * Setup the UI for the point number, and complete on the last one
+     * 
+     * @param p
+     *            Number of the point to setup for
+     */
+    private void setupForPoint(int p)
+    {
+        switch (p)
         {
+        case 0:
+            ((TextView) findViewById(R.id.setupTitle))
+                    .setText("Tap the point to retrieve video from");
+            break;
+        case 1:
+            ((TextView) P2PSetupActivity.this.findViewById(R.id.setupTitle))
+                    .setText("Tap the point to send video to");
+            break;
+        case 2:
+            ((TextView) P2PSetupActivity.this.findViewById(R.id.setupTitle))
+                    .setText("Tap the rally point");
+            break;
+        default:
+            break;
+        }
+    }
+
+    private void settingNextPoint()
+    {
+        if (settingPoint == 2)
+        {
+            try
+            {
+                nc.p2pCmdr.initiateP2PTask(selectedLocations[0],
+                        selectedLocations[1], selectedLocations[2], 1000000);
+                log("p2p initiated, finishing");
+                finish();
+            } catch (TooFewNodesException tfne)
+            {
+                Toast.makeText(
+                        this,
+                        "Sorry, there are not enough nodes in the network to connect those two points.",
+                        4).show();
+                log("p2p too few nodes");
+                return;
+            }
+
             Toast.makeText(
                     this,
                     "Initializing point-to-point task! Sending commands to all nodes in the network.",
-                    3);
+                    3).show();
 
             System.out.println(Arrays.toString(selectedLocations));
-            nc.p2pCmdr.initiateP2PTask(selectedLocations[0],
-                    selectedLocations[1], selectedLocations[2], 1000000);
+        }
+        else
+        {
+            settingPoint++;
+            setupForPoint(settingPoint);
         }
     }
 
@@ -136,15 +185,21 @@ public class P2PSetupActivity extends Activity
     {
         public boolean onSingleTapUp(MotionEvent e)
         {
-            IGeoPoint igp = mapView.getProjection().fromPixels(
-                    e.getX(), e.getY());
-            Location loc = new Location(igp.getLatitudeE6()
-                    / Math.pow(10, 6), igp.getLongitudeE6()
-                    / Math.pow(10, 6));
-            selectedLocations[settingPoint] = loc;
+            IGeoPoint igp = mapView.getProjection().fromPixels(e.getX(),
+                    e.getY());
+            Location loc = new Location(igp.getLatitudeE6() / Math.pow(10, 6),
+                    igp.getLongitudeE6() / Math.pow(10, 6));
+
+            if (settingPoint < 4)
+                selectedLocations[settingPoint] = loc;
 
             syncOverlays();
             return super.onSingleTapUp(e);
         };
+    }
+    
+    private void log(String msg)
+    {
+        Log.d("P2PSetupActivity", msg);
     }
 }
