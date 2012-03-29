@@ -38,7 +38,7 @@ public class PlacesActivity extends Activity implements Observer
     private NodeController nc;
     private DashboardApplication da;
 
-    private final int MAX_LINES_OF_NOTIFICATION_TEXT = 3;
+    private final int MAX_LINES_OF_NOTIFICATION_TEXT = 4;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -178,13 +178,12 @@ public class PlacesActivity extends Activity implements Observer
             {
                 notificationView.setText("");
                 for (int i = 0; i < da.nm.notifications.size()
-                        && notificationView.getLineCount() < MAX_LINES_OF_NOTIFICATION_TEXT; i++)
+                        && i < MAX_LINES_OF_NOTIFICATION_TEXT; i++)
                 {
                     String newText = "";
                     if (i != 0)
                         newText = "\n";
 
-                    System.out.println(notificationView.getLineCount());
                     Notification n = da.nm.notifications.get(i);
                     newText += "+ " + n.shortDisplayString();
                     notificationView.setText(notificationView.getText()
