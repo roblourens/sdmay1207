@@ -111,24 +111,8 @@ public class Point2PointCommander implements CommandHandler
         }
     }
 
-    /**
-     * Called when the user wants to capture video at one location and transmit
-     * it through the network to another location
-     * 
-     * @param p1
-     *            start location (video here)
-     * @param p2
-     *            end location
-     * @param rallyPoint
-     *            location to go after streaming, or upon giving up after
-     *            timeout
-     * @param timeoutMS
-     *            timeout time in milliseconds
-     */
-    public void initiateP2PTask(Location p1, Location p2, Location rallyPoint,
-            long timeoutMS)
+    public void setupIfNeeded()
     {
-        // setup
         if (osm == null)
         {
             // Read cached maps from file
@@ -146,8 +130,28 @@ public class Point2PointCommander implements CommandHandler
                 e.printStackTrace();
                 return;
             }
-
         }
+    }
+
+    /**
+     * Called when the user wants to capture video at one location and transmit
+     * it through the network to another location
+     * 
+     * @param p1
+     *            start location (video here)
+     * @param p2
+     *            end location
+     * @param rallyPoint
+     *            location to go after streaming, or upon giving up after
+     *            timeout
+     * @param timeoutMS
+     *            timeout time in milliseconds
+     */
+    public void initiateP2PTask(Location p1, Location p2, Location rallyPoint,
+            long timeoutMS)
+    {
+        System.out.println("Starting P2P task from " + p1 + " to " + p2);
+        setupIfNeeded();
 
         Collection<Node> allNodes = nodeController.getNodesInNetwork().values();
         Collection<Node> useableNodes = nodesWithLocations(allNodes);
@@ -412,13 +416,15 @@ public class Point2PointCommander implements CommandHandler
 
         // Location p1 = new Location(42.0228962, -93.6714000);
         // Location p2 = new Location(42.0228070, -93.6638790);
-        Location p1 = new Location(42.025578, -93.650336);
-        Location p2 = new Location(42.026630, -93.654971);
+        Location p1 = new Location(42.029818, -93.655056);
+        Location p2 = new Location(42.021848, -93.639178);
+//03-28 18:32:29.077: I/System.out(1054): Starting P2P task from 42.023283,-93.654627 to 42.028511,-93.647847
 
-        System.out
-                .println("Result: "
-                        + new Point2PointCommander(null,
-                                "/Users/rob/Documents/ISU/senior design/ISU_map.osm").wrangler
-                                .getNodePositionsBetweenPoints(p1, p2, 15));
+        Point2PointCommander p2p = new Point2PointCommander(null,
+                "/Users/rob/Documents/ISU/senior design/ISU_map.osm");
+        p2p.setupIfNeeded();
+
+        System.out.println("Result: "
+                + p2p.wrangler.getNodePositionsBetweenPoints(p1, p2, 150));
     }
 }

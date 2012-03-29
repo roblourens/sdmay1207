@@ -195,7 +195,7 @@ public class Point2PointNodeWrangler
             double maxGap = Double.MIN_VALUE;
             int maxGapStart = -1;
 
-            for (int i = 0; i < positions.size(); i++)
+            for (int i = 0; i < positions.size()-1; i++)
             {
                 Location l1 = positions.get(i);
                 Location l2 = positions.get(i + 1);
@@ -212,6 +212,7 @@ public class Point2PointNodeWrangler
             Location split = new Location((gap1.latitude + gap2.latitude) / 2,
                     (gap1.longitude + gap2.longitude) / 2);
             positions.add(maxGapStart, split);
+            extraNodes--;
         }
 
         return positions;
