@@ -92,8 +92,7 @@ public class Point2PointCommander implements CommandHandler
             enRouteTimeoutTime = locCommand.timeout;
 
             // Tell the GUI to go to the location
-            gui.goToLocation(curDest, rallyPoint, locCommand.headNodeNum,
-                    locCommand.tailNodeNum, enRouteTimeoutTime);
+            gui.p2pInitiated(locCommand);
 
             // Start checking whether we are there yet
             new StateCheckTask().start();
@@ -301,7 +300,7 @@ public class Point2PointCommander implements CommandHandler
         }
     }
 
-    private class GoToLocCommand extends NetworkCommand
+    public class GoToLocCommand extends NetworkCommand
     {
         public static final String GO_TO_LOC_COMMAND_TYPE = "p2p_GoToLocation";
 
@@ -407,8 +406,7 @@ public class Point2PointCommander implements CommandHandler
 
     public interface Point2PointGUI
     {
-        public void goToLocation(Location loc, Location rallyPoint,
-                int headNodeNum, int tailNodeNum, long timeout);
+        public void p2pInitiated(GoToLocCommand command);
 
         // called on each state change
         public void stateChanged(P2PState newState);

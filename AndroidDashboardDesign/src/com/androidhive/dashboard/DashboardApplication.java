@@ -11,6 +11,8 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
 
+import org.osmdroid.views.overlay.OverlayManager;
+
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.network.NetworkController.Event;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
@@ -19,6 +21,9 @@ import sdmay1207.ais.sensors.GPS.Location;
 import sdmay1207.android.sensors.BatterySensor;
 import sdmay1207.android.sensors.CompassSensor;
 import sdmay1207.android.sensors.GPSSensor;
+import sdmay1207.cc.Point2PointCommander.GoToLocCommand;
+import sdmay1207.cc.Point2PointCommander.P2PState;
+import sdmay1207.cc.Point2PointCommander.Point2PointGUI;
 import sdmay1207.networkrejoining.NetworkRejoinMonitor.NetworkRejoinListener;
 import android.app.Application;
 import android.util.Log;
@@ -63,8 +68,7 @@ public class DashboardApplication extends Application
             }
         }
 
-        nc = new NodeController(nodeNumber,
-                dataDir.toString());
+        nc = new NodeController(nodeNumber, dataDir.toString());
         nc.addSensor(new BatterySensor(this));
         nc.addSensor(new CompassSensor(this));
         nc.addSensor(new GPSSensor(this));
@@ -75,12 +79,12 @@ public class DashboardApplication extends Application
     }
 
     public class NotificationManager extends Observable implements Observer,
-            NetworkRejoinListener
+            NetworkRejoinListener, Point2PointGUI
     {
         public List<Notification> notifications = new ArrayList<Notification>();
 
         private Event[] eventsToBeNotifiedAbout = new Event[] {
-                Event.NodeJoined, Event.NodeLeft, Event.RecvdCommand,
+                Event.NodeJoined, Event.NodeLeft,
                 Event.RecvdShuttingDownMessage, Event.RecvdTextMessage };
 
         public NotificationManager()
@@ -140,14 +144,113 @@ public class DashboardApplication extends Application
                 }
             });
         }
+
+        public void p2pInitiated(final GoToLocCommand command)
+        {
+            addNotification(new Notification()
+            {
+                @Override
+                public String shortDisplayString()
+                {
+                    return "Node " + command.from
+                            + " has initiated a point-to-point task. Go to "
+                            + command.loc + " to relay video.";
+                }
+                
+                @Override
+                public void addOverlay(OverlayManager om)
+                {
+                    super.addOverlay(om);
+                    // add point and path here to command.loc
+                }
+            });
+        }
+
+        public void stateChanged(P2PState newState)
+        {
+            System.out.println("Entered " + newState.name() + " state");
+            switch (newState)
+            {
+            // enRoute is pretty much covered above
+            case searching:
+                addNotification(new Notification()
+                {
+                    @Override
+                    public String shortDisplayString()
+                    {
+                        return "You have reached your assigned area, now try to join up with neighbors";
+                    }
+                });
+                break;
+            case waiting:
+                addNotification(new Notification()
+                {
+                    @Override
+                    public String shortDisplayString()
+                    {
+                        return "You've joined up with neighbors, now wait for the head and tail nodes to join";
+                    }
+                });
+                break;
+            case ready:
+                addNotification(new Notification()
+                {
+                    @Override
+                    public String shortDisplayString()
+                    {
+                        return "Tail node is ready - start streaming whenever you want";
+                    }
+                });
+                break;
+            case enRouteToRallyPoint:
+                addNotification(new Notification()
+                {
+                    @Override
+                    public String shortDisplayString()
+                    {
+                        return "Connecting to head and tail timed out - return to rally point";
+                    }
+                });
+                break;
+            case active:
+                addNotification(new Notification()
+                {
+                    @Override
+                    public String shortDisplayString()
+                    {
+                        return "Now streaming";
+                    }
+                });
+                break;
+            case inactive:
+                addNotification(new Notification()
+                {
+                    @Override
+                    public String shortDisplayString()
+                    {
+                        return "The point-to-point task has finished";
+                    }
+                });
+                break;
+            }
+        }
     }
 
-    // complicated - we could just use strings here but we might want to add
-    // some extra behavior for a notification later - String of extra details,
-    // timestamps, whatever, so I figure set up a simple object for now
+    /*
+     * complicated - this whole system could almost be replaced with a list of asdfasdf
+     * Strings but we might want to add some extra behavior for a notification
+     * later - String of extra details, timestamps, locations, overlay
+     * icons/colors linked to notification types, whatever, so I figure set up a
+     * simple object for now
+     */
     public abstract class Notification
     {
         public abstract String shortDisplayString();
+
+        public void addOverlay(OverlayManager om)
+        {
+
+        }
     }
 
     public class NetworkEventNotification extends Notification
