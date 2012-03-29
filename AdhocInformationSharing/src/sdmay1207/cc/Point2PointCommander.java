@@ -2,9 +2,7 @@ package sdmay1207.cc;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -334,6 +332,12 @@ public class Point2PointCommander implements CommandHandler
             this.headNodeNum = Integer.parseInt(args[2]);
             this.tailNodeNum = Integer.parseInt(args[3]);
             this.timeout = Long.parseLong(args[4]);
+        }
+
+        @Override
+        public String description()
+        {
+            return "GoToLocCommand from " + from + ": Go to position " + loc;
         }
 
         public String toString()

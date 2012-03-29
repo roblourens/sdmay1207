@@ -97,6 +97,11 @@ public class NetworkMessage
         timestamp = System.currentTimeMillis();
         from = nodeNumMe;
     }
+    
+    public String description()
+    {
+        return toString();
+    }
 
     public String toString()
     {

@@ -1,6 +1,5 @@
 package sdmay1207.ais;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,10 +61,10 @@ public class NodeController implements Observer
     {
         this.nodeNumber = nodeNumber;
         NetworkMessage.nodeNumMe = nodeNumber;
-        
+
         if (dataDir == null || dataDir.equals(""))
             dataDir = DEFAULT_DATA_DIR;
-        
+
         System.out.println("Starting with data directory " + dataDir);
         Device.setDataDir(dataDir);
 
@@ -253,6 +252,11 @@ public class NodeController implements Observer
     public void addNetworkObserver(Observer obs)
     {
         networkController.addObserver(obs);
+    }
+
+    public void removeNetworkObserver(Observer obs)
+    {
+        networkController.deleteObserver(obs);
     }
 
     // event received from the NetworkController

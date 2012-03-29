@@ -33,6 +33,12 @@ public class TextMessage extends NetworkMessage
         
         message = data[0];
     }
+    
+    @Override
+    public String description()
+    {
+        return "Text message from " + from + ": " + message;
+    }
 
     public String toString()
     {
