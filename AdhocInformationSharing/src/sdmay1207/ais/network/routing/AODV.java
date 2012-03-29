@@ -92,7 +92,7 @@ public class AODV implements RoutingImpl, Observer
             if (type != ObserverConst.DATA_RECEIVED)
                 System.err.println("Unknown PacketToObserver type");
             else
-                receiver.addMessage(subnet + source,
+                receiver.addMessageData(subnet + source,
                         (byte[]) pkt.getContainedData());
         } else
         {

@@ -137,9 +137,9 @@ public class NodeController implements Observer
     public void sendNetworkMessage(NetworkMessage message, int destNodeNum)
     {
         if (destNodeNum == me.nodeNum)
-            this.update(null, message);
-
-        networkController.sendNetworkMessage(message, destNodeNum);
+            networkController.r.addMessage(message);
+        else
+            networkController.sendNetworkMessage(message, destNodeNum);
     }
 
     public void broadcastNetworkMessage(NetworkMessage message)

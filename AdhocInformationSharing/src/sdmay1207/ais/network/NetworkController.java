@@ -234,7 +234,7 @@ public class NetworkController extends Observable
             notifyObservers(event);
         }
 
-        public void addMessage(String fromIP, byte[] data)
+        public void addMessageData(String fromIP, byte[] data)
         {
             // is camera data?
             if (data[0] == -128 && (data[1] == 74 || data[1] == -54))
@@ -244,6 +244,11 @@ public class NetworkController extends Observable
             }
 
             NetworkMessage msg = NetworkMessage.getMessage(fromIP, data);
+            addMessage(msg);
+        }
+        
+        public void addMessage(NetworkMessage msg)
+        {
             NetworkEvent event = null;
 
             switch (msg.messageType)

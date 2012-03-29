@@ -269,7 +269,7 @@ public class BATMAN implements RoutingImpl
                 // toString returns hostname / ip
                 String fromIP = fromAddress.split("/")[1];
                 if (exclude != Utils.getNodeNumberFromIP(fromIP))
-                    receiver.addMessage(fromIP, receivedPacket.getData());
+                    receiver.addMessageData(fromIP, receivedPacket.getData());
             } catch (IOException e)
             {
                 e.printStackTrace();
