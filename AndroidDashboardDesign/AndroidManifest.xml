@@ -72,6 +72,10 @@
             android:name="com.androidhive.dashboard.P2PSetupActivity"
             android:screenOrientation="portrait" >
         </activity>
+                <activity
+            android:name="com.androidhive.dashboard.NotificationActivity"
+            android:screenOrientation="portrait" >
+        </activity>
 
         <!-- Events Activity -->
         <activity

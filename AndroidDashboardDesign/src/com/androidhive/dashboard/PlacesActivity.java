@@ -27,12 +27,18 @@ import android.widget.Button;
 import android.widget.TextView;
 import androidhive.dashboard.R;
 
+import com.androidhive.dashboard.DashboardApplication.Notification;
+
 public class PlacesActivity extends Activity implements Observer
 {
     /** Called when the activity is first created. */
-    MapView mapView;
+    private MapView mapView;
+    private TextView notificationView;
 
     private NodeController nc;
+    private DashboardApplication da;
+
+    private final int MAX_LINES_OF_NOTIFICATION_TEXT = 3;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -46,20 +52,22 @@ public class PlacesActivity extends Activity implements Observer
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
         mapView.getController().setZoom(15);
-        mapView.getController()
-                .setCenter(new GeoPoint(42.024443, -93.656141));
+        mapView.getController().setCenter(new GeoPoint(42.024443, -93.656141));
 
-        nc = ((DashboardApplication) getApplication()).nc;
-        nc.addNetworkObserver(this);
+        da = ((DashboardApplication) getApplication());
+        nc = da.nc;
+
+        notificationView = ((TextView) findViewById(R.id.notifications));
+        notificationView.setLines(MAX_LINES_OF_NOTIFICATION_TEXT);
 
         // Set button listeners
-        final Context c = this;
         ((Button) findViewById(R.id.showNodeListButton))
                 .setOnClickListener(new OnClickListener()
                 {
                     public void onClick(View v)
                     {
-                        startActivity(new Intent(c, NodeListActivity.class));
+                        startActivity(new Intent(PlacesActivity.this,
+                                NodeListActivity.class));
                     }
                 });
 
@@ -68,7 +76,8 @@ public class PlacesActivity extends Activity implements Observer
                 {
                     public void onClick(View v)
                     {
-                        startActivity(new Intent(c, P2PSetupActivity.class));
+                        startActivity(new Intent(PlacesActivity.this,
+                                P2PSetupActivity.class));
                     }
                 });
 
@@ -82,36 +91,60 @@ public class PlacesActivity extends Activity implements Observer
                     }
                 });
 
-        updateMapObjects();
+        notificationView.setOnClickListener(new OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                startActivity(new Intent(PlacesActivity.this,
+                        NotificationActivity.class));
+            }
+        });
     }
-    
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        
+        updateMapObjects();
+        updateNotificationView();
+
+        // make sure we are observing when added
+        da.nm.addObserver(this);
+        nc.addNetworkObserver(this);
+    }
+
     // http://code.google.com/p/osmdroid/issues/detail?id=267
     @Override
     protected void onPause()
     {
         super.onPause();
         mapView.getTileProvider().clearTileCache();
+
+        // make sure refs are removed when we might die
+        da.nm.deleteObserver(this);
+        nc.removeNetworkObserver(this);
     }
 
     private void updateMapObjects()
     {
         mapView.getOverlays().clear();
-        int me= 0;
         Collection<Node> nodes = nc.getNodesInNetwork().values();
         List<OverlayItem> items = new ArrayList<OverlayItem>();
         for (Node n : nodes)
         {
             if (n.lastLocation != null)
             {
-                items.add(new OverlayItem(""+n.nodeNum, "title", "desc", new GeoPoint(n.lastLocation.latitude,
-                        n.lastLocation.longitude)));
+                items.add(new OverlayItem("" + n.nodeNum, "title", "desc",
+                        new GeoPoint(n.lastLocation.latitude,
+                                n.lastLocation.longitude)));
             }
-            
         }
-       
+
         final Context c = this;
-        ItemizedOverlay<OverlayItem> overlay = new ItemizedOverlayWithFocus<OverlayItem>(this, items,
-                new OnItemGestureListener<OverlayItem>(){
+        ItemizedOverlay<OverlayItem> overlay = new ItemizedOverlayWithFocus<OverlayItem>(
+                this, items, new OnItemGestureListener<OverlayItem>()
+                {
                     public boolean onItemLongPress(int arg0, OverlayItem arg1)
                     {
                         return false;
@@ -121,31 +154,54 @@ public class PlacesActivity extends Activity implements Observer
                     {
                         int nodeNum = Integer.parseInt(item.getUid());
                         Intent intent = new Intent(c, NodeDetailsActivity.class);
-                        intent.putExtra(NodeDetailsActivity.NODE_NUM_KEY, nodeNum);
+                        intent.putExtra(NodeDetailsActivity.NODE_NUM_KEY,
+                                nodeNum);
                         startActivity(intent);
-                        
+
                         System.out.println("tapped node # " + item.getUid());
                         return true;
                     }
                 });
-       
+
         mapView.getOverlays().add(overlay);
         mapView.postInvalidate();
     }
-    
-    private void updateTextMessageView(final String message)
+
+    // don't need to know what the new one is, just that there is a new
+    // Notification.
+    // display as many as we can, pulling from the NotificationManager
+    private void updateNotificationView()
     {
-        runOnUiThread(new Runnable() {
-            public void run() {
-            	TextView msg= ((TextView) findViewById(R.id.recvdMessages));
-            	msg.setText(message);
-            	//msg.setHeight(10);
+        runOnUiThread(new Runnable()
+        {
+            public void run()
+            {
+                notificationView.setText("");
+                for (int i = 0; i < da.nm.notifications.size()
+                        && notificationView.getLineCount() < MAX_LINES_OF_NOTIFICATION_TEXT; i++)
+                {
+                    String newText = "";
+                    if (i != 0)
+                        newText = "\n";
+
+                    System.out.println(notificationView.getLineCount());
+                    Notification n = da.nm.notifications.get(i);
+                    newText += "+ " + n.shortDisplayString();
+                    notificationView.setText(notificationView.getText()
+                            + newText);
+                }
             };
         });
     }
 
     public void update(Observable observable, Object obj)
     {
+        if (observable == da.nm)
+        {
+            updateNotificationView();
+            return;
+        }
+
         NetworkEvent netEvent = (NetworkEvent) obj;
         switch (netEvent.event)
         {
@@ -157,9 +213,6 @@ public class PlacesActivity extends Activity implements Observer
             break;
         case NodeLeft:
             updateMapObjects();
-            break;
-        case RecvdTextMessage:
-            updateTextMessageView(netEvent.data.toString());
             break;
         }
     }

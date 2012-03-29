@@ -34,7 +34,6 @@ public class NodeDetailsActivity extends Activity implements Observer
         setContentView(R.layout.node_details);
 
         nc = ((DashboardApplication) getApplication()).nc;
-        nc.addNetworkObserver(this);
 
         final int nodeNum = getIntent().getIntExtra(NODE_NUM_KEY, 0);
         displayedNode = nc.getKnownNodes().get(nodeNum);
@@ -55,6 +54,22 @@ public class NodeDetailsActivity extends Activity implements Observer
                 });
     }
 
+    // make sure that observer has always been added and removed - see Activity
+    // lifecycle
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        nc.addNetworkObserver(this);
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        nc.removeNetworkObserver(this);
+    }
+
     private void updateInterfaceWithHeartbeat(Heartbeat hb)
     {
         runOnUiThread(new Runnable()
@@ -66,44 +81,42 @@ public class NodeDetailsActivity extends Activity implements Observer
                         .setText("Node " + displayedNode.nodeNum);
 
                 // Set battery level
-                if(displayedNode.lastHeartbeat!=null)
+                if (displayedNode.lastHeartbeat != null)
                 {
-                String batterySensorStr = displayedNode.lastHeartbeat.sensorOutput
-                        .get(SensorType.Battery);
-                
-                String batteryStr = batterySensorStr == null ? "No battery"
-                        : new BatteryStatus(batterySensorStr).toString();
+                    String batterySensorStr = displayedNode.lastHeartbeat.sensorOutput
+                            .get(SensorType.Battery);
 
-                ((TextView) findViewById(R.id.battery)).setText("Battery: "
-                        + batteryStr);
-                
-                // Set compass reading
-                String compassSensorStr = displayedNode.lastHeartbeat.sensorOutput
-                        .get(SensorType.Compass);
-                String compassStr = compassSensorStr == null ? "No compass"
-                        : new CompassReading(compassSensorStr).toString();
-                
-                ((TextView) findViewById(R.id.compass)).setText("Compass: "
-                        + compassStr);
-                
+                    String batteryStr = batterySensorStr == null ? "No battery"
+                            : new BatteryStatus(batterySensorStr).toString();
 
-             // Set GPS reading
-                Double lat = displayedNode.lastLocation.latitude;
-                String latStr = lat == null ? "No Latitute"
-                        : lat.toString();
-                
-                ((TextView) findViewById(R.id.lat)).setText("Latitude: "
-                        + latStr);
-                
-                Double lon = displayedNode.lastLocation.longitude;
-                String lonStr = lat == null ? "No Longitude"
-                        : lon.toString();
-                
-                ((TextView) findViewById(R.id.lon)).setText("longitude: "
-                        + lonStr);
+                    ((TextView) findViewById(R.id.battery)).setText("Battery: "
+                            + batteryStr);
+
+                    // Set compass reading
+                    String compassSensorStr = displayedNode.lastHeartbeat.sensorOutput
+                            .get(SensorType.Compass);
+                    String compassStr = compassSensorStr == null ? "No compass"
+                            : new CompassReading(compassSensorStr).toString();
+
+                    ((TextView) findViewById(R.id.compass)).setText("Compass: "
+                            + compassStr);
+
+                    // Set GPS reading
+                    Double lat = displayedNode.lastLocation.latitude;
+                    String latStr = lat == null ? "No Latitute" : lat
+                            .toString();
+
+                    ((TextView) findViewById(R.id.lat)).setText("Latitude: "
+                            + latStr);
+
+                    Double lon = displayedNode.lastLocation.longitude;
+                    String lonStr = lat == null ? "No Longitude" : lon
+                            .toString();
+
+                    ((TextView) findViewById(R.id.lon)).setText("longitude: "
+                            + lonStr);
                 }
 
-                
             }
         });
     }

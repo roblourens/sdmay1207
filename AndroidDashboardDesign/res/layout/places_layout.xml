@@ -5,11 +5,11 @@
     android:layout_height="fill_parent" >
 
     <TextView
-        android:id="@+id/recvdMessages"
+        android:id="@+id/notifications"
         android:layout_width="fill_parent"
-        android:layout_height="50dp"
-        android:text="msgs go here"
-        android:textSize="15dp" />
+        android:layout_height="90dp"
+        android:text=""
+        android:textSize="16dp" />
 
     <RelativeLayout
         android:layout_width="fill_parent"

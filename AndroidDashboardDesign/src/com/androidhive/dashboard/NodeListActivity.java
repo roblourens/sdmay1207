@@ -53,7 +53,6 @@ public class NodeListActivity extends ListActivity implements Observer
         {
             public void run()
             {
-                System.out.println("Notifying list adapter");
                 listAdapter.notifyDataSetChanged();
             }
         });

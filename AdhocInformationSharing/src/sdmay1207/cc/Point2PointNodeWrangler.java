@@ -152,6 +152,7 @@ public class Point2PointNodeWrangler
             Location p2, int n)
     {
         List<Location> positions = getPathBetweenPoints(p1, p2);
+        //positions = removeRedundantPositions(positions);
 
         // Not enough nodes to cover all corners - if we eventually consider
         // known obstacles, this is one place it would be useful
@@ -213,6 +214,25 @@ public class Point2PointNodeWrangler
             extraNodes--;
         }
 
+        return positions;
+    }
+
+    private final int REASONABLE_LARGE_DIST = 120; // m
+
+    // Looks at the nodes 3 at a time. If the group is close to a straight line,
+    // and the distance between the two on the end is less than
+    // REASONABLE_LARGE_DIST, then the middle is removed
+    private List<Location> removeRedundantPositions(List<Location> positions)
+    {
+        for (int i=0; i<positions.size()-2; i++)
+        {
+            Location p0 = positions.get(i);
+            Location p1 = positions.get(i+1);
+            Location p2 = positions.get(i+2);
+            
+            
+        }
+        
         return positions;
     }
 }
