@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import org.osmdroid.DefaultResourceProxyImpl;
 import org.osmdroid.ResourceProxy;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedIconOverlay.OnItemGestureListener;
 import org.osmdroid.views.overlay.ItemizedOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
@@ -44,7 +46,8 @@ public class PlacesActivity extends Activity implements Observer
     boolean networkClicks=false;
     MyLocationOverlay my;
     private DashboardApplication da;
-
+    private ResourceProxy resProxy;
+    private ItemizedOverlay<OverlayItem> locationOverlay;
 
     private final int MAX_LINES_OF_NOTIFICATION_TEXT = 4;
 
@@ -53,10 +56,14 @@ public class PlacesActivity extends Activity implements Observer
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.places_layout);
+        
+        resProxy = new DefaultResourceProxyImpl(getApplicationContext());
+
 
         mapView = (MapView) findViewById(R.id.map);
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setClickable(true);
+        mapView.setKeepScreenOn(true);
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
         mapView.getController().setZoom(15);
@@ -97,16 +104,17 @@ public class PlacesActivity extends Activity implements Observer
                     {
                     	if(!networkClicks)
                     	{
-                    		Device.doAndroidHardStop();
+                    		//Device.doAndroidHardStop();
                             nc.start(RoutingAlg.AODV);
                             ((Button) findViewById(R.id.stopButton)).setText("Stop");
                             networkClicks=true;
+                            mapView.postInvalidate();
                     	}
                     	else
                     	{
                     		nc.stop();
                     		((Button) findViewById(R.id.stopButton)).setText("Start");
-                        	Device.doAndroidHardStop();
+                        	//Device.doAndroidHardStop();
                         	
                         }
                         //finish();
@@ -158,13 +166,15 @@ public class PlacesActivity extends Activity implements Observer
         {
             if (n.lastLocation != null)
             {
-                items.add(new OverlayItem("" + n.nodeNum, "title", "desc",
+            	OverlayItem o1=new OverlayItem("" + n.nodeNum, "title", "desc",
                         new GeoPoint(n.lastLocation.latitude,
-                                n.lastLocation.longitude)));
+                                n.lastLocation.longitude));
+                o1.setMarker(getResources().getDrawable(R.drawable.ic_launcher));
+            	items.add(o1);
             }
         }
 
-        ItemizedOverlay<OverlayItem> overlay = new ItemizedOverlayWithFocus<OverlayItem>(
+        ItemizedOverlay<OverlayItem> overlay = new ItemizedIconOverlay<OverlayItem>(
                 this, items, new OnItemGestureListener<OverlayItem>()
                 {
                     public boolean onItemLongPress(int arg0, OverlayItem arg1)
@@ -184,13 +194,6 @@ public class PlacesActivity extends Activity implements Observer
                         return true;
                     }
                 });
-        mapView.setKeepScreenOn(true);
-       my= new MyLocationOverlay(this, mapView);
-        my.enableCompass();
-        //my.enableMyLocation();
-        
-        //mapView.getOverlays().add(my);
-    
         mapView.getOverlays().add(overlay);
         mapView.postInvalidate();
     }
