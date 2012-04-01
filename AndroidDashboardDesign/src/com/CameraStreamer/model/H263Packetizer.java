@@ -2,14 +2,13 @@ package com.CameraStreamer.model;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.net.SocketException;
-
-import com.androidhive.dashboard.PhotosActivity;
 
 import sdmay1207.ais.network.NetworkController;
 import android.os.SystemClock;
 import android.util.Log;
+
+import com.androidhive.dashboard.PhotosActivity;
 
 public class H263Packetizer extends Thread implements Runnable
 {

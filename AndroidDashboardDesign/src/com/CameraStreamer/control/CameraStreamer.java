@@ -2,7 +2,6 @@ package com.CameraStreamer.control;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 
 import sdmay1207.ais.network.NetworkController;
 import android.hardware.Camera;
@@ -32,8 +31,9 @@ public class CameraStreamer extends MediaRecorder
     Camera cam = null;
 
     // Sets up camera and streamer
-    public void setup(SurfaceHolder holder, int destNodeNum, int resX, int resY,
-            int fps, NetworkController netController) throws IOException
+    public void setup(SurfaceHolder holder, int destNodeNum, int resX,
+            int resY, int fps, NetworkController netController)
+            throws IOException
     {
         // Open Camera
         cam = Camera.open();
@@ -76,8 +76,8 @@ public class CameraStreamer extends MediaRecorder
         // Step 7: Setup packetizer streamer
         try
         {
-            vstream = new H263Packetizer(getInputStream(),
-                    destNodeNum, netController);
+            vstream = new H263Packetizer(getInputStream(), destNodeNum,
+                    netController);
         } catch (IOException e)
         {
             Log.e(PhotosActivity.LOG_TAG, "Unknown host");
