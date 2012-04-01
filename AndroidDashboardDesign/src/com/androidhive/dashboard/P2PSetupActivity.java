@@ -60,7 +60,8 @@ public class P2PSetupActivity extends Activity
                 {
                     public void onClick(View v)
                     {
-                        settingNextPoint();
+                        if (selectedLocations[settingPoint] != null)
+                            settingNextPoint();
                     }
                 });
 

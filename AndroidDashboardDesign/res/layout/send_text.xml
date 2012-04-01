@@ -31,14 +31,14 @@
         android:layout_height="wrap_content"
         android:layout_weight="0.10"
         android:gravity="top|left"
-        android:text="Message to be Sent" />
+        android:hint="Message to be Sent" />
 
     <TextView
         android:id="@+id/textSent"
-        android:background="#ffffff"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.84"
+        android:background="#ffffff"
         android:gravity="top|left"
         android:text="Message Sent" />
 

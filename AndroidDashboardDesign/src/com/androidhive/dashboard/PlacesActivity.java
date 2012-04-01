@@ -14,7 +14,6 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedIconOverlay.OnItemGestureListener;
 import org.osmdroid.views.overlay.ItemizedOverlay;
-import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.MyLocationOverlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
@@ -26,11 +25,9 @@ import sdmay1207.ais.network.model.Node;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import androidhive.dashboard.R;
 
@@ -43,7 +40,7 @@ public class PlacesActivity extends Activity implements Observer
     private TextView notificationView;
 
     private NodeController nc;
-    boolean networkClicks=false;
+    boolean networkClicks = false;
     MyLocationOverlay my;
     private DashboardApplication da;
     private ResourceProxy resProxy;
@@ -56,9 +53,8 @@ public class PlacesActivity extends Activity implements Observer
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.places_layout);
-        
-        resProxy = new DefaultResourceProxyImpl(getApplicationContext());
 
+        resProxy = new DefaultResourceProxyImpl(getApplicationContext());
 
         mapView = (MapView) findViewById(R.id.map);
         mapView.setTileSource(TileSourceFactory.MAPNIK);
@@ -93,7 +89,6 @@ public class PlacesActivity extends Activity implements Observer
                         startActivity(new Intent(PlacesActivity.this,
                                 P2PSetupActivity.class));
 
-
                     }
                 });
 
@@ -102,22 +97,22 @@ public class PlacesActivity extends Activity implements Observer
                 {
                     public void onClick(View v)
                     {
-                    	if(!networkClicks)
-                    	{
-                    		//Device.doAndroidHardStop();
+                        if (!networkClicks)
+                        {
+                            Device.doAndroidHardStop();
                             nc.start(RoutingAlg.AODV);
-                            ((Button) findViewById(R.id.stopButton)).setText("Stop");
-                            networkClicks=true;
+                            ((Button) findViewById(R.id.stopButton))
+                                    .setText("Stop");
+                            networkClicks = true;
                             mapView.postInvalidate();
-                    	}
-                    	else
-                    	{
-                    		nc.stop();
-                    		((Button) findViewById(R.id.stopButton)).setText("Start");
-                        	//Device.doAndroidHardStop();
-                        	
+                        } else
+                        {
+                            nc.stop();
+                            ((Button) findViewById(R.id.stopButton))
+                                    .setText("Start");
+                            Device.doAndroidHardStop();
+
                         }
-                        //finish();
                     }
                 });
 
@@ -166,11 +161,11 @@ public class PlacesActivity extends Activity implements Observer
         {
             if (n.lastLocation != null)
             {
-            	OverlayItem o1=new OverlayItem("" + n.nodeNum, "title", "desc",
-                        new GeoPoint(n.lastLocation.latitude,
+                OverlayItem o1 = new OverlayItem("" + n.nodeNum, "title",
+                        "desc", new GeoPoint(n.lastLocation.latitude,
                                 n.lastLocation.longitude));
                 o1.setMarker(getResources().getDrawable(R.drawable.ic_launcher));
-            	items.add(o1);
+                items.add(o1);
             }
         }
 
@@ -185,7 +180,8 @@ public class PlacesActivity extends Activity implements Observer
                     public boolean onItemSingleTapUp(int i, OverlayItem item)
                     {
                         int nodeNum = Integer.parseInt(item.getUid());
-                        Intent intent = new Intent(PlacesActivity.this, NodeDetailsActivity.class);
+                        Intent intent = new Intent(PlacesActivity.this,
+                                NodeDetailsActivity.class);
                         intent.putExtra(NodeDetailsActivity.NODE_NUM_KEY,
                                 nodeNum);
                         startActivity(intent);
@@ -228,6 +224,8 @@ public class PlacesActivity extends Activity implements Observer
     {
         if (observable == da.nm)
         {
+            System.out.println("isTextMessage: "
+                    + ((Notification) obj).isTextMessage());
             updateNotificationView();
             return;
         }

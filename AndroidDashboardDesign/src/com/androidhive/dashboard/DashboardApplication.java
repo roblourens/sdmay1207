@@ -156,7 +156,7 @@ public class DashboardApplication extends Application
                             + " has initiated a point-to-point task. Go to "
                             + command.loc + " to relay video.";
                 }
-                
+
                 @Override
                 public void addOverlay(OverlayManager om)
                 {
@@ -237,11 +237,11 @@ public class DashboardApplication extends Application
     }
 
     /*
-     * complicated - this whole system could almost be replaced with a list of asdfasdf
-     * Strings but we might want to add some extra behavior for a notification
-     * later - String of extra details, timestamps, locations, overlay
-     * icons/colors linked to notification types, whatever, so I figure set up a
-     * simple object for now
+     * complicated - this whole system could almost be replaced with a list of
+     * asdfasdf Strings but we might want to add some extra behavior for a
+     * notification later - String of extra details, timestamps, locations,
+     * overlay icons/colors linked to notification types, whatever, so I figure
+     * set up a simple object for now
      */
     public abstract class Notification
     {
@@ -250,6 +250,11 @@ public class DashboardApplication extends Application
         public void addOverlay(OverlayManager om)
         {
 
+        }
+
+        public boolean isTextMessage()
+        {
+            return (this instanceof NetworkEventNotification && ((NetworkEventNotification) this).netEvent.event == Event.RecvdTextMessage);
         }
     }
 
