@@ -18,7 +18,6 @@ import sdmay1207.ais.NodeController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.model.Node;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -105,7 +104,7 @@ public class PlacesActivity extends Activity implements Observer
     protected void onResume()
     {
         super.onResume();
-        
+
         updateMapObjects();
         updateNotificationView();
 
@@ -119,6 +118,7 @@ public class PlacesActivity extends Activity implements Observer
     protected void onPause()
     {
         super.onPause();
+        System.out.println("onPause");
         mapView.getTileProvider().clearTileCache();
 
         // make sure refs are removed when we might die
@@ -141,7 +141,6 @@ public class PlacesActivity extends Activity implements Observer
             }
         }
 
-        final Context c = this;
         ItemizedOverlay<OverlayItem> overlay = new ItemizedOverlayWithFocus<OverlayItem>(
                 this, items, new OnItemGestureListener<OverlayItem>()
                 {
@@ -153,7 +152,7 @@ public class PlacesActivity extends Activity implements Observer
                     public boolean onItemSingleTapUp(int i, OverlayItem item)
                     {
                         int nodeNum = Integer.parseInt(item.getUid());
-                        Intent intent = new Intent(c, NodeDetailsActivity.class);
+                        Intent intent = new Intent(PlacesActivity.this, NodeDetailsActivity.class);
                         intent.putExtra(NodeDetailsActivity.NODE_NUM_KEY,
                                 nodeNum);
                         startActivity(intent);
