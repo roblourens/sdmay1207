@@ -56,17 +56,17 @@ public class NodeDetailsActivity extends Activity implements Observer
                         startActivity(i);
                     }
                 });
-        
+
         ((Button) findViewById(R.id.sendCamButton))
-        		.setOnClickListener(new OnClickListener()
-		        {
-		            public void onClick(View v)
-		            {
-		                Intent i = new Intent(c, PhotosActivity.class);
-		                i.putExtra(NODE_NUM_KEY, nodeNum);
-		                startActivity(i);
-		            }
-		        });
+                .setOnClickListener(new OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        Intent i = new Intent(c, PhotosActivity.class);
+                        i.putExtra(NODE_NUM_KEY, nodeNum);
+                        startActivity(i);
+                    }
+                });
     }
 
     // make sure that observer has always been added and removed - see Activity
@@ -117,23 +117,24 @@ public class NodeDetailsActivity extends Activity implements Observer
                             + compassStr);
 
                     // Set GPS reading
-                    Double lat = displayedNode.lastLocation.latitude;
-                    String latStr = lat == null ? "No Latitute" : lat
-                            .toString();
+                    String latStr;
+                    String lonStr;
+                    if (displayedNode.lastLocation == null)
+                        latStr = lonStr = "No Location";
+                    else
+                    {
+                        latStr = displayedNode.lastLocation.latitude + "";
+                        lonStr = displayedNode.lastLocation.longitude + "";
+                    }
 
                     ((TextView) findViewById(R.id.lat)).setText("Latitude: "
                             + latStr);
 
-                    Double lon = displayedNode.lastLocation.longitude;
-                    String lonStr = lat == null ? "No Longitude" : lon
-                            .toString();
-
                     ((TextView) findViewById(R.id.lon)).setText("longitude: "
                             + lonStr);
-                }
-                else
+                } else
                 {
-                	//GPSSensor mGPS= new GPSSensor();
+                    // GPSSensor mGPS= new GPSSensor();
                 }
 
             }

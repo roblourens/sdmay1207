@@ -187,9 +187,9 @@ public class PlacesActivity extends Activity implements Observer
         mapView.setKeepScreenOn(true);
        my= new MyLocationOverlay(this, mapView);
         my.enableCompass();
-        my.enableMyLocation();
+        //my.enableMyLocation();
         
-        mapView.getOverlays().add(my);
+        //mapView.getOverlays().add(my);
     
         mapView.getOverlays().add(overlay);
         mapView.postInvalidate();
