@@ -6,23 +6,29 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import org.osmdroid.ResourceProxy;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay.OnItemGestureListener;
 import org.osmdroid.views.overlay.ItemizedOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
+import org.osmdroid.views.overlay.MyLocationOverlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
+import sdmay1207.ais.Device;
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
+import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Node;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import androidhive.dashboard.R;
 
@@ -35,7 +41,10 @@ public class PlacesActivity extends Activity implements Observer
     private TextView notificationView;
 
     private NodeController nc;
+    boolean networkClicks=false;
+    MyLocationOverlay my;
     private DashboardApplication da;
+
 
     private final int MAX_LINES_OF_NOTIFICATION_TEXT = 4;
 
@@ -55,7 +64,6 @@ public class PlacesActivity extends Activity implements Observer
 
         da = ((DashboardApplication) getApplication());
         nc = da.nc;
-
         notificationView = ((TextView) findViewById(R.id.notifications));
         notificationView.setLines(MAX_LINES_OF_NOTIFICATION_TEXT);
 
@@ -77,6 +85,8 @@ public class PlacesActivity extends Activity implements Observer
                     {
                         startActivity(new Intent(PlacesActivity.this,
                                 P2PSetupActivity.class));
+
+
                     }
                 });
 
@@ -85,8 +95,21 @@ public class PlacesActivity extends Activity implements Observer
                 {
                     public void onClick(View v)
                     {
-                        nc.stop();
-                        finish();
+                    	if(!networkClicks)
+                    	{
+                    		Device.doAndroidHardStop();
+                            nc.start(RoutingAlg.AODV);
+                            ((Button) findViewById(R.id.stopButton)).setText("Stop");
+                            networkClicks=true;
+                    	}
+                    	else
+                    	{
+                    		nc.stop();
+                    		((Button) findViewById(R.id.stopButton)).setText("Start");
+                        	Device.doAndroidHardStop();
+                        	
+                        }
+                        //finish();
                     }
                 });
 
@@ -161,7 +184,13 @@ public class PlacesActivity extends Activity implements Observer
                         return true;
                     }
                 });
-
+        mapView.setKeepScreenOn(true);
+       my= new MyLocationOverlay(this, mapView);
+        my.enableCompass();
+        my.enableMyLocation();
+        
+        mapView.getOverlays().add(my);
+    
         mapView.getOverlays().add(overlay);
         mapView.postInvalidate();
     }
