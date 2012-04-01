@@ -45,8 +45,10 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:text="Stop"
+            android:text="Start"
             android:textSize="15dp" />
+
+   	    
     </RelativeLayout>
 
 </LinearLayout>

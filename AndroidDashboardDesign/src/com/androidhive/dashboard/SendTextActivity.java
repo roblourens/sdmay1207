@@ -33,6 +33,7 @@ public class SendTextActivity extends Activity
 
         // set send button listener
         final Context c = this;
+        
         ((Button) findViewById(R.id.sendButton))
                 .setOnClickListener(new OnClickListener()
                 {
@@ -40,10 +41,20 @@ public class SendTextActivity extends Activity
                     {
                         String text = ((EditText) findViewById(R.id.textToSend))
                                 .getText().toString();
-                        nc.sendNetworkMessage(new TextMessage(text), nodeNum);
+                        String prevtext = ((TextView) findViewById(R.id.textSent))
+                                .getText().toString();
+                        TextView tx=(TextView)findViewById(R.id.textSent);
+                        if(prevtext==null)
+                        	prevtext=" ";
+                        
+                        tx.setText("ME:"+text+"\n"+prevtext);
                         
                         
-                        Toast.makeText(c, "Text message sent", 3).show();
+                        
+                        //nc.sendNetworkMessage(new TextMessage(text), nodeNum);
+                        
+                        
+                        //Toast.makeText(c, "Text message sent", 3).show();
                     }
                 });
     }

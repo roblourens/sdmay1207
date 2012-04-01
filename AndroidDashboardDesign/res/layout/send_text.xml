@@ -33,8 +33,9 @@
         android:gravity="top|left"
         android:text="Message to be Sent" />
 
-    <EditText
+    <TextView
         android:id="@+id/textSent"
+        android:background="#ffffff"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.84"

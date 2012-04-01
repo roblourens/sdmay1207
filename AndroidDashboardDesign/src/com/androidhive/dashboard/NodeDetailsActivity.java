@@ -3,6 +3,9 @@ package com.androidhive.dashboard;
 import java.util.Observable;
 import java.util.Observer;
 
+import com.TextMessenger.model.ClassConstants;
+import com.TextMessenger.model.GPSManager;
+
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.model.Heartbeat;
@@ -13,6 +16,7 @@ import sdmay1207.ais.sensors.SensorInterface.SensorType;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -52,6 +56,17 @@ public class NodeDetailsActivity extends Activity implements Observer
                         startActivity(i);
                     }
                 });
+        
+        ((Button) findViewById(R.id.sendCamButton))
+        		.setOnClickListener(new OnClickListener()
+		        {
+		            public void onClick(View v)
+		            {
+		                Intent i = new Intent(c, PhotosActivity.class);
+		                i.putExtra(NODE_NUM_KEY, nodeNum);
+		                startActivity(i);
+		            }
+		        });
     }
 
     // make sure that observer has always been added and removed - see Activity
@@ -115,6 +130,10 @@ public class NodeDetailsActivity extends Activity implements Observer
 
                     ((TextView) findViewById(R.id.lon)).setText("longitude: "
                             + lonStr);
+                }
+                else
+                {
+                	//GPSSensor mGPS= new GPSSensor();
                 }
 
             }

@@ -40,13 +40,26 @@ public class NodeListActivity extends ListActivity implements Observer
     {
         nodeStrs.clear();
         nodes.clear();
+        
         for (Node n : nc.getKnownNodes().values())
         {
+        	boolean inNetwork=false;
             nodes.add(n);
             if(n.nodeNum==nc.getMe().nodeNum)
             	nodeStrs.add("Node "+ n+"(Me)");
             else
-            	nodeStrs.add("Node " + n);
+            {
+	            for(Node nn:nc .getNodesInNetwork().values())
+	            {
+	            	 if(nn.nodeNum==n.nodeNum)
+	            		 inNetwork=true;
+	            }
+	            if(inNetwork)
+	            	nodeStrs.add("Node " + n);
+	            else
+	            	nodeStrs.add("Node "+ n+"(Left)");
+	            	        
+            }
         }
 
         runOnUiThread(new Runnable()
@@ -75,7 +88,7 @@ public class NodeListActivity extends ListActivity implements Observer
         case NodeJoined:
             updateList();
             break;
-        case NodeLeft:
+        case NodeLeft:    	
             updateList();
             break;
         }

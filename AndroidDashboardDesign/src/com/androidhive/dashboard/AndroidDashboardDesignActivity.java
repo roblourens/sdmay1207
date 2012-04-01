@@ -1,5 +1,8 @@
 package com.androidhive.dashboard;
 
+import sdmay1207.ais.Device;
+import sdmay1207.ais.NodeController;
+import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,15 +11,17 @@ import android.widget.Button;
 import androidhive.dashboard.R;
 
 public class AndroidDashboardDesignActivity extends Activity {
-    
-    @Override
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dashboard_layout);
+        //setContentView(R.layout.dashboard_layout);
+        Intent i = new Intent(getApplicationContext(), PlacesActivity.class);
+		startActivity(i);
+        /*
         
-        /**
-         * Creating all buttons instances
-         * */
+        
+        // Creating all buttons instances
+         
         // Dashboard News feed button
         Button btn_newsfeed = (Button) findViewById(R.id.btn_news_feed);
         
@@ -35,9 +40,8 @@ public class AndroidDashboardDesignActivity extends Activity {
         // Dashboard Photos button
         Button btn_photos = (Button) findViewById(R.id.btn_photos);
         
-        /**
-         * Handling all button click events
-         * */
+        // Handling all button click events
+          
         
         // Listening to News Feed button click
         btn_newsfeed.setOnClickListener(new View.OnClickListener() {
@@ -98,5 +102,7 @@ public class AndroidDashboardDesignActivity extends Activity {
 				startActivity(i);
 			}
 		});
+        
+        */
     }
 }
