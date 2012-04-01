@@ -51,10 +51,10 @@ public class SendTextActivity extends Activity
                         
                         
                         
-                        //nc.sendNetworkMessage(new TextMessage(text), nodeNum);
+                        nc.sendNetworkMessage(new TextMessage(text), nodeNum);
                         
                         
-                        //Toast.makeText(c, "Text message sent", 3).show();
+                        Toast.makeText(c, "Text message sent", 3).show();
                     }
                 });
     }
