@@ -246,7 +246,7 @@ public class NetworkController extends Observable
             NetworkMessage msg = NetworkMessage.getMessage(fromIP, data);
             addMessage(msg);
         }
-        
+
         public void addMessage(NetworkMessage msg)
         {
             NetworkEvent event = null;
@@ -299,6 +299,8 @@ public class NetworkController extends Observable
         {
             try
             {
+                System.out.println("Sending camera packet to "
+                        + CAM_STREAM_ADDR + ", port " + CAM_STREAM_PORT);
                 localSock.send(new DatagramPacket(data, data.length,
                         CAM_STREAM_ADDR, CAM_STREAM_PORT));
             } catch (IOException e)
