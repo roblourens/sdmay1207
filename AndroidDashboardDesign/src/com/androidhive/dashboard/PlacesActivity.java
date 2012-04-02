@@ -62,11 +62,18 @@ public class PlacesActivity extends Activity implements Observer
         mapView = (MapView) findViewById(R.id.map);
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setClickable(true);
+        //mapView.
         mapView.setKeepScreenOn(true);
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
         mapView.getController().setZoom(15);
         mapView.getController().setCenter(new GeoPoint(42.024443, -93.656141));
+        
+        MyLocationOverlay myLocOverlay= new MyLocationOverlay(this,mapView);
+        myLocOverlay.enableCompass();
+        mapView.getOverlays().add(myLocOverlay);
+        
+        
 
         da = ((DashboardApplication) getApplication());
         nc = da.nc;
@@ -194,6 +201,10 @@ public class PlacesActivity extends Activity implements Observer
                         return true;
                     }
                 });
+
+        MyLocationOverlay myLocOverlay= new MyLocationOverlay(this,mapView);
+        myLocOverlay.enableCompass();
+        mapView.getOverlays().add(myLocOverlay);
         mapView.getOverlays().add(overlay);
         mapView.postInvalidate();
     }

@@ -33,6 +33,7 @@ public class PhotosActivity extends Activity
     private PowerManager.WakeLock wl;
     private int resX, resY, fps;
     private static CameraStreamer streamer;
+    private int nodeNum = 0;
 
     // Log Tag
     static final public String LOG_TAG = "CameraStreamer";
@@ -44,12 +45,17 @@ public class PhotosActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.photos_layout);
 
+
+        nodeNum = getIntent().getIntExtra(NodeDetailsActivity.NODE_NUM_KEY, 0);
+       
         // Get View
         camera = (SurfaceView) findViewById(R.id.smallcameraview);
         startButton = (Button) findViewById(R.id.streambutton);
         console = (TextView) findViewById(R.id.console);
         destEditText = (EditText) findViewById(R.id.ip);
 
+        //set destination
+        destEditText.setText("192.168.1."+nodeNum);
         // Set button listener
         startButton.setOnClickListener(new ButtonListener(this));
 

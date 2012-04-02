@@ -1,5 +1,8 @@
 package com.androidhive.dashboard;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.network.model.TextMessage;
 import android.app.Activity;
@@ -13,10 +16,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidhive.dashboard.R;
 
-public class SendTextActivity extends Activity
+import com.androidhive.dashboard.DashboardApplication.NetworkEventNotification;
+import com.androidhive.dashboard.DashboardApplication.Notification;
+
+public class SendTextActivity extends Activity implements Observer
 {
     private NodeController nc;
     private int nodeNum = 0;
+
+    TextView tx=(TextView)findViewById(R.id.textSent);
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -43,7 +51,6 @@ public class SendTextActivity extends Activity
                                 .getText().toString();
                         String prevtext = ((TextView) findViewById(R.id.textSent))
                                 .getText().toString();
-                        TextView tx=(TextView)findViewById(R.id.textSent);
                         if(prevtext==null)
                         	prevtext=" ";
                         
@@ -58,4 +65,15 @@ public class SendTextActivity extends Activity
                     }
                 });
     }
+
+	public void update(Observable arg0, Object arg1) {
+		if(((Notification)arg1).isTextMessage())
+		{
+			NetworkEventNotification notification = (NetworkEventNotification) arg1;
+			// TextMessage tm = (TextMessage) notification.netEvent.data;
+			String msg = notification.netEvent.data.toString();
+			
+			tx.setText(msg+"\n"+tx.getText());
+		}
+	}
 }
