@@ -24,7 +24,7 @@ public class SendTextActivity extends Activity implements Observer
     private NodeController nc;
     private int nodeNum = 0;
 
-    TextView tx=(TextView)findViewById(R.id.textSent);
+    TextView tx;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -41,7 +41,7 @@ public class SendTextActivity extends Activity implements Observer
 
         // set send button listener
         final Context c = this;
-        
+        tx =(TextView)findViewById(R.id.textSent);
         ((Button) findViewById(R.id.sendButton))
                 .setOnClickListener(new OnClickListener()
                 {

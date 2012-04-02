@@ -55,7 +55,7 @@ public class PhotosActivity extends Activity
         destEditText = (EditText) findViewById(R.id.ip);
 
         //set destination
-        destEditText.setText("192.168.1."+nodeNum);
+        destEditText.setText(nodeNum);
         // Set button listener
         startButton.setOnClickListener(new ButtonListener(this));
 
