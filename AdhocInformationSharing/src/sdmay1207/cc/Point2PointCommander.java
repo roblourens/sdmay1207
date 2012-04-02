@@ -28,7 +28,7 @@ public class Point2PointCommander implements CommandHandler
     // components
     private NodeController nodeController;
     private Point2PointGUI gui;
-    private Point2PointNodeWrangler wrangler;
+    public Point2PointNodeWrangler wrangler;
     private OSM osm;
 
     // data

@@ -224,8 +224,6 @@ public class PlacesActivity extends Activity implements Observer
     {
         if (observable == da.nm)
         {
-            System.out.println("isTextMessage: "
-                    + ((Notification) obj).isTextMessage());
             updateNotificationView();
             return;
         }
