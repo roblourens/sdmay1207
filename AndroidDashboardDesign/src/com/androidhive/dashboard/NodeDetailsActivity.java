@@ -1,10 +1,9 @@
 package com.androidhive.dashboard;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
-
-import com.TextMessenger.model.ClassConstants;
-import com.TextMessenger.model.GPSManager;
 
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
@@ -12,11 +11,11 @@ import sdmay1207.ais.network.model.Heartbeat;
 import sdmay1207.ais.network.model.Node;
 import sdmay1207.ais.sensors.Battery.BatteryStatus;
 import sdmay1207.ais.sensors.Compass.CompassReading;
+import sdmay1207.ais.sensors.GPS.Location;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -85,7 +84,7 @@ public class NodeDetailsActivity extends Activity implements Observer
         nc.removeNetworkObserver(this);
     }
 
-    private void updateInterfaceWithHeartbeat(Heartbeat hb)
+    private void updateInterfaceWithHeartbeat(final Heartbeat hb)
     {
         runOnUiThread(new Runnable()
         {
@@ -95,10 +94,9 @@ public class NodeDetailsActivity extends Activity implements Observer
                 ((TextView) findViewById(R.id.nodeDetailsTitle))
                         .setText("Node " + displayedNode.nodeNum);
 
-                // Set battery level
-                if (displayedNode.lastHeartbeat != null)
+                if (hb != null)
                 {
-                    String batterySensorStr = displayedNode.lastHeartbeat.sensorOutput
+                    String batterySensorStr = hb.sensorOutput
                             .get(SensorType.Battery);
 
                     String batteryStr = batterySensorStr == null ? "No battery"
@@ -108,7 +106,7 @@ public class NodeDetailsActivity extends Activity implements Observer
                             + batteryStr);
 
                     // Set compass reading
-                    String compassSensorStr = displayedNode.lastHeartbeat.sensorOutput
+                    String compassSensorStr = hb.sensorOutput
                             .get(SensorType.Compass);
                     String compassStr = compassSensorStr == null ? "No compass"
                             : new CompassReading(compassSensorStr).toString();
@@ -119,12 +117,14 @@ public class NodeDetailsActivity extends Activity implements Observer
                     // Set GPS reading
                     String latStr;
                     String lonStr;
-                    if (displayedNode.lastLocation == null)
+                    String locStr = hb.sensorOutput.get(SensorType.GPS);
+                    if (locStr == null)
                         latStr = lonStr = "No Location";
                     else
                     {
-                        latStr = displayedNode.lastLocation.latitude + "";
-                        lonStr = displayedNode.lastLocation.longitude + "";
+                        Location loc = new Location(locStr);
+                        latStr = loc.latitude + "";
+                        lonStr = loc.longitude + "";
                     }
 
                     ((TextView) findViewById(R.id.lat)).setText("Latitude: "
@@ -132,11 +132,14 @@ public class NodeDetailsActivity extends Activity implements Observer
 
                     ((TextView) findViewById(R.id.lon)).setText("longitude: "
                             + lonStr);
-                } else
-                {
-                    // GPSSensor mGPS= new GPSSensor();
-                }
 
+                    // Set last heartbeat time
+                    Date d = new Date(hb.timestamp);
+                    String formattedDate = new SimpleDateFormat("H:mm:ss")
+                            .format(d);
+                    ((TextView) findViewById(R.id.lastHB))
+                            .setText("Last heartbeat: " + formattedDate);
+                }
             }
         });
     }

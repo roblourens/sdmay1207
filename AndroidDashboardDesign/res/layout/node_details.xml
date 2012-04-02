@@ -41,9 +41,17 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="(longitude reading)"
+        android:text="(Longitude reading)"
         android:textSize="15dp" />
-
+
+    <TextView
+        android:id="@+id/lastHB"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="(Last heartbeat)"
+        android:textSize="15dp" />
+
     <Button
         android:id="@+id/sendTextButton"
         android:layout_width="wrap_content"

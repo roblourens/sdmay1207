@@ -1,21 +1,26 @@
 package com.androidhive.dashboard;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
 import android.app.ListActivity;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.SimpleAdapter;
 
 import com.androidhive.dashboard.DashboardApplication.Notification;
 
 public class NotificationActivity extends ListActivity implements Observer
 {
     private DashboardApplication da;
-    private ArrayAdapter<String> listAdapter;
-    private List<String> notificationStrs = new ArrayList<String>();
+    private BaseAdapter listAdapter;
+    private List<Map<String, String>> notificationData = new ArrayList<Map<String, String>>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -24,10 +29,13 @@ public class NotificationActivity extends ListActivity implements Observer
         da = ((DashboardApplication) getApplication());
 
         for (Notification n : da.nm.notifications)
-            notificationStrs.add(n.shortDisplayString());
+            addNotificationToList(n);
 
-        listAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, notificationStrs);
+        String[] from = { "displayStr", "timestamp" };
+        int[] to = { android.R.id.text1, android.R.id.text2 };
+
+        listAdapter = new SimpleAdapter(this, notificationData,
+                android.R.layout.simple_list_item_2, from, to);
         setListAdapter(listAdapter);
     }
 
@@ -44,11 +52,24 @@ public class NotificationActivity extends ListActivity implements Observer
         super.onPause();
         da.nm.deleteObserver(this);
     }
+    
+    private void addNotificationToList(Notification n)
+    {
+        Map<String, String> newNotificationMap = new HashMap<String, String>();
+        newNotificationMap.put("displayStr", n.shortDisplayString());
+
+        // format timestamp
+        Date d = new Date(n.timestamp);
+        String formattedDate = new SimpleDateFormat("H:mm:ss").format(d);
+        newNotificationMap.put("timestamp", formattedDate);
+        
+        notificationData.add(0, newNotificationMap);
+    }
 
     public void update(Observable observable, Object obj)
     {
         Notification n = (Notification) obj;
-        notificationStrs.add(0, n.shortDisplayString());
+        addNotificationToList(n);
 
         runOnUiThread(new Runnable()
         {

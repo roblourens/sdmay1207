@@ -111,6 +111,7 @@ public class PlacesActivity extends Activity implements Observer
                             ((Button) findViewById(R.id.stopButton))
                                     .setText("Start");
                             Device.doAndroidHardStop();
+                            networkClicks = false;
 
                         }
                     }
@@ -211,7 +212,8 @@ public class PlacesActivity extends Activity implements Observer
                     if (i != 0)
                         newText = "\n";
 
-                    Notification n = da.nm.notifications.get(i);
+                    int index = da.nm.notifications.size()-i-1;
+                    Notification n = da.nm.notifications.get(index);
                     newText += "+ " + n.shortDisplayString();
                     notificationView.setText(notificationView.getText()
                             + newText);

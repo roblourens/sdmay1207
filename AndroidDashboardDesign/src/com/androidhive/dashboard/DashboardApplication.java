@@ -108,7 +108,7 @@ public class DashboardApplication extends Application
 
         public void addNotification(Notification n)
         {
-            notifications.add(0, n);
+            notifications.add(n);
 
             setChanged();
             notifyObservers(n);
@@ -246,6 +246,12 @@ public class DashboardApplication extends Application
     public abstract class Notification
     {
         public abstract String shortDisplayString();
+        public long timestamp;
+        
+        public Notification()
+        {
+            timestamp = System.currentTimeMillis();
+        }
 
         public void addOverlay(OverlayManager om)
         {

@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="0.10"
         android:gravity="top|left"
-        android:hint="Message to be Sent" />
+        android:hint="Message to be sent" />
 
     <TextView
         android:id="@+id/textSent"
@@ -40,6 +40,6 @@
         android:layout_weight="0.84"
         android:background="#ffffff"
         android:gravity="top|left"
-        android:text="Message Sent" />
+        android:text="Messages" />
 
 </LinearLayout>
