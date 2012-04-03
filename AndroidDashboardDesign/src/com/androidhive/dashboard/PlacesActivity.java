@@ -22,6 +22,7 @@ import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Node;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,7 +42,7 @@ public class PlacesActivity extends Activity implements Observer
     private TextView notificationView;
 
     private NodeController nc;
-    boolean networkClicks = false;
+    boolean isStarted = false;
     MyLocationOverlay my;
     private DashboardApplication da;
 
@@ -88,7 +89,7 @@ public class PlacesActivity extends Activity implements Observer
                 {
                     public void onClick(View v)
                     {
-                        if (networkClicks)
+                        if (isStarted)
                             startActivity(new Intent(PlacesActivity.this,
                                     P2PSetupActivity.class));
                         else
@@ -99,27 +100,24 @@ public class PlacesActivity extends Activity implements Observer
                     }
                 });
 
-        ((Button) findViewById(R.id.stopButton))
+        ((Button) findViewById(R.id.startStopButton))
                 .setOnClickListener(new OnClickListener()
                 {
                     public void onClick(View v)
                     {
-                        if (!networkClicks)
+                        if (!isStarted)
                         {
-                            Device.doAndroidHardStop();
-                            nc.start(RoutingAlg.AODV);
-                            ((Button) findViewById(R.id.stopButton))
-                                    .setText("Stop");
-                            networkClicks = true;
-                            mapView.postInvalidate();
+                            ((Button) findViewById(R.id.startStopButton))
+                                    .setText("Starting...");
+                            ((Button) findViewById(R.id.startStopButton))
+                                    .setEnabled(false);
+                            new StartupTask().execute();
+                            isStarted = true;
                         } else
                         {
                             nc.stop();
-                            ((Button) findViewById(R.id.stopButton))
-                                    .setText("Start");
                             Device.doAndroidHardStop();
-                            networkClicks = false;
-
+                            isStarted = false;
                         }
                     }
                 });
@@ -280,5 +278,24 @@ public class PlacesActivity extends Activity implements Observer
             System.out.println(1 / 0);
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private class StartupTask extends AsyncTask<Void, Void, Void>
+    {
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            Device.doAndroidHardStop();
+            nc.start(RoutingAlg.AODV);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result)
+        {
+            super.onPostExecute(result);
+            ((Button) findViewById(R.id.startStopButton)).setText("Stop");
+            ((Button) findViewById(R.id.startStopButton)).setEnabled(true);
+        }
     }
 }

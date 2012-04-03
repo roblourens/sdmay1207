@@ -25,9 +25,18 @@
             android:id="@+id/showNodeListButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
             android:text="+"
+            android:textSize="15dp" />
+
+        <Button
+            android:id="@+id/directNeighborsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@id/showNodeListButton"
+            android:text="Neighbors"
             android:textSize="15dp" />
 
         <Button
@@ -35,21 +44,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_toRightOf="@id/showNodeListButton"
+            android:layout_alignParentLeft="true"
             android:text="p2p"
             android:textSize="15dp" />
 
         <Button
-            android:id="@+id/directNeighborsButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_toRightOf="@id/initP2PButton"
-            android:text="Neighbors"
-            android:textSize="15dp" />
-
-        <Button
-            android:id="@+id/stopButton"
+            android:id="@+id/startStopButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
