@@ -26,11 +26,17 @@ public class NodeListActivity extends ListActivity implements Observer
     private List<Map<String, String>> nodeData = new ArrayList<Map<String, String>>();
     private List<Node> nodes = new ArrayList<Node>();
     private BaseAdapter listAdapter;
+    private boolean directNeighborsOnly;
+
+    public static final String DIRECT_NEIGHBORS_ONLY_KEY = "neighorsOnly";
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        directNeighborsOnly = getIntent().getBooleanExtra(
+                DIRECT_NEIGHBORS_ONLY_KEY, false);
 
         nc = ((DashboardApplication) getApplication()).nc;
         nc.addNetworkObserver(this);
@@ -57,35 +63,46 @@ public class NodeListActivity extends ListActivity implements Observer
                 nodeData.clear();
                 nodes.clear();
 
-                for (Node n : nc.getKnownNodes().values())
+                if (directNeighborsOnly)
                 {
-                    nodes.add(n);
-
-                    String tag = "";
-                    if (n.nodeNum == nc.getMe().nodeNum)
-                        tag = "(Me)";
-                    else if (!nc.getNodesInNetwork().containsKey(n.nodeNum))
-                        tag = "(Left)";
-
-                    Map<String, String> rowMap = new HashMap<String, String>();
-                    rowMap.put("displayStr", "Node " + n.nodeNum + " " + tag);
-
-                    String lastHbStr = "";
-                    if (n.lastHeartbeat != null)
+                    for (Node n : nc.getNeighborNodes().values())
+                        addNodeToList(n, "Node " + n.nodeNum);
+                } else
+                {
+                    for (Node n : nc.getKnownNodes().values())
                     {
-                        Date d = new Date(n.lastHeartbeat.timestamp);
-                        String formattedDate = new SimpleDateFormat("H:mm:ss")
-                                .format(d);
-                        lastHbStr = "Last heartbeat: " + formattedDate;
-                    } else
-                        lastHbStr = "No heartbeats";
+                        String tag = "";
+                        if (n.nodeNum == nc.getMe().nodeNum)
+                            tag = "(Me)";
+                        else if (!nc.getNodesInNetwork().containsKey(n.nodeNum))
+                            tag = "(Left)";
 
-                    rowMap.put("timestamp", lastHbStr);
-
-                    nodeData.add(rowMap);
+                        addNodeToList(n, "Node " + n.nodeNum + " " + tag);
+                    }
                 }
 
                 listAdapter.notifyDataSetChanged();
+            }
+
+            public void addNodeToList(Node n, String displayStr)
+            {
+                nodes.add(n);
+                Map<String, String> rowMap = new HashMap<String, String>();
+                rowMap.put("displayStr", displayStr);
+
+                String lastHbStr = "";
+                if (n.lastHeartbeat != null)
+                {
+                    Date d = new Date(n.lastHeartbeat.timestamp);
+                    String formattedDate = new SimpleDateFormat("H:mm:ss")
+                            .format(d);
+                    lastHbStr = "Last heartbeat: " + formattedDate;
+                } else
+                    lastHbStr = "No heartbeats";
+
+                rowMap.put("timestamp", lastHbStr);
+
+                nodeData.add(rowMap);
             }
         });
     }
@@ -100,6 +117,9 @@ public class NodeListActivity extends ListActivity implements Observer
     }
 
     // event received from the NetworkController
+    // could add a callback for when a node joins/leaves as a neighbor, but
+    // RecvdHeartbeat should be good enough - the node will be displayed
+    // correctly if needed each time updateList is called
     public void update(Observable observable, Object obj)
     {
         NetworkEvent netEvent = (NetworkEvent) obj;

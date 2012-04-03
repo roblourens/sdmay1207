@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
-
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
     <TextView
         android:id="@+id/notifications"
         android:layout_width="fill_parent"
@@ -40,6 +40,15 @@
             android:textSize="15dp" />
 
         <Button
+            android:id="@+id/directNeighborsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/initP2PButton"
+            android:text="Neighbors"
+            android:textSize="15dp" />
+
+        <Button
             android:id="@+id/stopButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -47,8 +56,6 @@
             android:layout_alignParentRight="true"
             android:text="Start"
             android:textSize="15dp" />
-
-   	    
     </RelativeLayout>
 
 </LinearLayout>

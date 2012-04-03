@@ -200,6 +200,14 @@ public class NodeController implements Observer
 
         return nodes;
     }
+    
+    /**
+     * Returns a map of nodes which are direct neighbors of this node
+     */
+    public Map<Integer, Node> getNeighborNodes()
+    {
+        return networkController.neighborNodes();
+    }
 
     /**
      * Access to the current node object

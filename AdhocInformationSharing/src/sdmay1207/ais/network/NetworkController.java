@@ -138,6 +138,10 @@ public class NetworkController extends Observable
      */
     public Map<Integer, Node> neighborNodes()
     {
+        // not running? return an empty map
+        if (!isRunning)
+            return new HashMap<Integer, Node>();
+
         Set<Integer> neighbors = networkInterface.routingImpl
                 .getZeroHopNeighbors();
         Map<Integer, Node> neighborMap = new HashMap<Integer, Node>();

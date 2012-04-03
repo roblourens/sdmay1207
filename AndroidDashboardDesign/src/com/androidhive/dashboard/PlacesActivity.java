@@ -75,8 +75,11 @@ public class PlacesActivity extends Activity implements Observer
                 {
                     public void onClick(View v)
                     {
-                        startActivity(new Intent(PlacesActivity.this,
-                                NodeListActivity.class));
+                        Intent i = new Intent(PlacesActivity.this,
+                                NodeListActivity.class);
+                        i.putExtra(NodeListActivity.DIRECT_NEIGHBORS_ONLY_KEY,
+                                false);
+                        startActivity(i);
                     }
                 });
 
@@ -118,6 +121,19 @@ public class PlacesActivity extends Activity implements Observer
                             networkClicks = false;
 
                         }
+                    }
+                });
+
+        ((Button) findViewById(R.id.directNeighborsButton))
+                .setOnClickListener(new OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        Intent i = new Intent(PlacesActivity.this,
+                                NodeListActivity.class);
+                        i.putExtra(NodeListActivity.DIRECT_NEIGHBORS_ONLY_KEY,
+                                true);
+                        startActivity(i);
                     }
                 });
 
