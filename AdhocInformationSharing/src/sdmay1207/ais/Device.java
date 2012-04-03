@@ -29,23 +29,23 @@ public class Device
     {
         return Device.dataDir;
     }
-
+    
     /**
-     * Runs the system command
-     * 
-     * @return For Android, returns 0 if successful. Otherwise, returns the
-     *         console output
+     * Executes command with timeout in seconds (timeout only for netbook)
+     * @param timeout -1 : no timeout
+     * @return
      */
-    public static String sysCommand(String command)
+    public static String sysCommand(String command, int timeout)
     {
-        System.out.println(command);
-        
         if (isAndroidSystem())
             return runCommand(command) + "";
 
         String result = "";
         try
         {
+            if (timeout != -1)
+                command = "timeout " + timeout + " " + command;
+            
             Process p = Runtime.getRuntime().exec(command);
             p.waitFor();
             BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -63,8 +63,20 @@ public class Device
             return result;
         }
 
-        System.out.println("Result: " + result);
+        System.out.println(command);
+        //System.out.println("Result: " + result);
         return result;
+    }
+
+    /**
+     * Runs the system command
+     * 
+     * @return For Android, returns 0 if successful. Otherwise, returns the
+     *         console output
+     */
+    public static String sysCommand(String command)
+    {
+        return sysCommand(command, -1);
     }
 
     private static boolean isAndroid;

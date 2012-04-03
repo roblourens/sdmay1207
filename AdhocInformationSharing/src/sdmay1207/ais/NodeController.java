@@ -17,6 +17,7 @@ import sdmay1207.ais.network.model.NetworkCommand;
 import sdmay1207.ais.network.model.NetworkMessage;
 import sdmay1207.ais.network.model.NetworkMessage.MessageType;
 import sdmay1207.ais.network.model.Node;
+import sdmay1207.ais.sensors.NetbookGPS;
 import sdmay1207.ais.sensors.Sensor;
 import sdmay1207.ais.sensors.SensorInterface;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
@@ -332,6 +333,8 @@ public class NodeController implements Observer
             throw new RuntimeException(args[1]
                     + " isn't a routing algorithm! Enter A or B");
 
-        new NodeController(nodeNumber, null).start(routingAlg);
+        NodeController nc = new NodeController(nodeNumber, null);
+        nc.addSensor(new NetbookGPS());
+        nc.start(routingAlg);
     }
 }
