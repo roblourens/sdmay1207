@@ -46,33 +46,45 @@ public class NodeListActivity extends ListActivity implements Observer
 
     private void updateList()
     {
-        nodeData.clear();
-        nodes.clear();
-
-        for (Node n : nc.getKnownNodes().values())
-        {
-            nodes.add(n);
-
-            String tag = "";
-            if (n.nodeNum == nc.getMe().nodeNum)
-                tag = "(Me)";
-            else if (!nc.getNodesInNetwork().containsKey(n.nodeNum))
-                tag = "(Left)";
-            
-            Map<String, String> rowMap = new HashMap<String, String>();
-            rowMap.put("displayStr", "Node " + n.nodeNum + " " + tag);
-            
-            Date d = new Date(n.lastHeartbeat.timestamp);
-            String formattedDate = new SimpleDateFormat("H:mm:ss").format(d);
-            rowMap.put("timestamp", "Last heartbeat: " + formattedDate);
-            
-            nodeData.add(rowMap);
-        }
-
+        // I thought we could modify the data backing the adapter from any
+        // thread as long as we notified the adapter from the UI thread but I
+        // got an exception that says otherwise, must be a weird race condition,
+        // so let's try this for a while and keep it in mind for the other parts
         runOnUiThread(new Runnable()
         {
             public void run()
             {
+                nodeData.clear();
+                nodes.clear();
+
+                for (Node n : nc.getKnownNodes().values())
+                {
+                    nodes.add(n);
+
+                    String tag = "";
+                    if (n.nodeNum == nc.getMe().nodeNum)
+                        tag = "(Me)";
+                    else if (!nc.getNodesInNetwork().containsKey(n.nodeNum))
+                        tag = "(Left)";
+
+                    Map<String, String> rowMap = new HashMap<String, String>();
+                    rowMap.put("displayStr", "Node " + n.nodeNum + " " + tag);
+
+                    String lastHbStr = "";
+                    if (n.lastHeartbeat != null)
+                    {
+                        Date d = new Date(n.lastHeartbeat.timestamp);
+                        String formattedDate = new SimpleDateFormat("H:mm:ss")
+                                .format(d);
+                        lastHbStr = "Last heartbeat: " + formattedDate;
+                    } else
+                        lastHbStr = "No heartbeats";
+
+                    rowMap.put("timestamp", lastHbStr);
+
+                    nodeData.add(rowMap);
+                }
+
                 listAdapter.notifyDataSetChanged();
             }
         });

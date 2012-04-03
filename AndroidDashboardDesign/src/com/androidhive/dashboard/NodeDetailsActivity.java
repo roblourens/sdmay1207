@@ -41,7 +41,8 @@ public class NodeDetailsActivity extends Activity implements Observer
         final int nodeNum = getIntent().getIntExtra(NODE_NUM_KEY, 0);
         displayedNode = nc.getKnownNodes().get(nodeNum);
 
-        updateInterfaceWithHeartbeat(displayedNode.lastHeartbeat);
+        if (displayedNode.lastHeartbeat != null)
+            updateInterfaceWithHeartbeat(displayedNode.lastHeartbeat);
 
         // Set text button listener
         final Context c = this;
