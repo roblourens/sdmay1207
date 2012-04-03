@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.osmdroid.DefaultResourceProxyImpl;
-import org.osmdroid.ResourceProxy;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -31,6 +29,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidhive.dashboard.R;
 
 import com.androidhive.dashboard.DashboardApplication.Notification;
@@ -45,8 +44,6 @@ public class PlacesActivity extends Activity implements Observer
     boolean networkClicks = false;
     MyLocationOverlay my;
     private DashboardApplication da;
-    private ResourceProxy resProxy;
-    private ItemizedOverlay<OverlayItem> locationOverlay;
 
     private final int MAX_LINES_OF_NOTIFICATION_TEXT = 4;
     private final int MENU_ID_KILL = 7;
@@ -57,8 +54,6 @@ public class PlacesActivity extends Activity implements Observer
         super.onCreate(savedInstanceState);
         setContentView(R.layout.places_layout);
 
-        resProxy = new DefaultResourceProxyImpl(getApplicationContext());
-
         mapView = (MapView) findViewById(R.id.map);
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setClickable(true);
@@ -68,10 +63,6 @@ public class PlacesActivity extends Activity implements Observer
         mapView.setMultiTouchControls(true);
         mapView.getController().setZoom(15);
         mapView.getController().setCenter(new GeoPoint(42.024443, -93.656141));
-
-        MyLocationOverlay myLocOverlay = new MyLocationOverlay(this, mapView);
-        myLocOverlay.enableCompass();
-        mapView.getOverlays().add(myLocOverlay);
 
         da = ((DashboardApplication) getApplication());
         nc = da.nc;
@@ -94,9 +85,14 @@ public class PlacesActivity extends Activity implements Observer
                 {
                     public void onClick(View v)
                     {
-                        startActivity(new Intent(PlacesActivity.this,
-                                P2PSetupActivity.class));
-
+                        if (networkClicks)
+                            startActivity(new Intent(PlacesActivity.this,
+                                    P2PSetupActivity.class));
+                        else
+                            Toast.makeText(
+                                    PlacesActivity.this,
+                                    "You need to join the network before issuing a Point-to-Point command",
+                                    5).show();
                     }
                 });
 
@@ -199,11 +195,7 @@ public class PlacesActivity extends Activity implements Observer
                     }
                 });
 
-        MyLocationOverlay myLocOverlay = new MyLocationOverlay(this, mapView);
-        myLocOverlay.enableCompass();
-
         mapView.getOverlays().clear();
-        mapView.getOverlays().add(myLocOverlay);
         mapView.getOverlays().add(overlay);
         mapView.postInvalidate();
     }
