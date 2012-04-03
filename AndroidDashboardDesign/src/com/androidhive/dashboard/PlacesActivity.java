@@ -62,18 +62,16 @@ public class PlacesActivity extends Activity implements Observer
         mapView = (MapView) findViewById(R.id.map);
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setClickable(true);
-        //mapView.
+        // mapView.
         mapView.setKeepScreenOn(true);
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
         mapView.getController().setZoom(15);
         mapView.getController().setCenter(new GeoPoint(42.024443, -93.656141));
-        
-        MyLocationOverlay myLocOverlay= new MyLocationOverlay(this,mapView);
+
+        MyLocationOverlay myLocOverlay = new MyLocationOverlay(this, mapView);
         myLocOverlay.enableCompass();
         mapView.getOverlays().add(myLocOverlay);
-        
-        
 
         da = ((DashboardApplication) getApplication());
         nc = da.nc;
@@ -165,7 +163,6 @@ public class PlacesActivity extends Activity implements Observer
 
     private void updateMapObjects()
     {
-        mapView.getOverlays().clear();
         Collection<Node> nodes = nc.getNodesInNetwork().values();
         List<OverlayItem> items = new ArrayList<OverlayItem>();
         for (Node n : nodes)
@@ -202,8 +199,10 @@ public class PlacesActivity extends Activity implements Observer
                     }
                 });
 
-        MyLocationOverlay myLocOverlay= new MyLocationOverlay(this,mapView);
+        MyLocationOverlay myLocOverlay = new MyLocationOverlay(this, mapView);
         myLocOverlay.enableCompass();
+
+        mapView.getOverlays().clear();
         mapView.getOverlays().add(myLocOverlay);
         mapView.getOverlays().add(overlay);
         mapView.postInvalidate();
@@ -226,7 +225,7 @@ public class PlacesActivity extends Activity implements Observer
                     if (i != 0)
                         newText = "\n";
 
-                    int index = da.nm.notifications.size()-i-1;
+                    int index = da.nm.notifications.size() - i - 1;
                     Notification n = da.nm.notifications.get(index);
                     newText += "+ " + n.shortDisplayString();
                     notificationView.setText(notificationView.getText()
@@ -258,20 +257,20 @@ public class PlacesActivity extends Activity implements Observer
             break;
         }
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         menu.add(Menu.NONE, MENU_ID_KILL, Menu.NONE, "Kill");
         return true;
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
         if (item.getItemId() == MENU_ID_KILL)
-            System.out.println(1/0);
-        
+            System.out.println(1 / 0);
+
         return super.onOptionsItemSelected(item);
     }
 }

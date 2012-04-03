@@ -1,7 +1,11 @@
 package com.androidhive.dashboard;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -12,15 +16,16 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 
 public class NodeListActivity extends ListActivity implements Observer
 {
     private NodeController nc;
-    List<String> nodeStrs = new ArrayList<String>();
-    List<Node> nodes = new ArrayList<Node>();
-    ArrayAdapter<String> listAdapter;
+    private List<Map<String, String>> nodeData = new ArrayList<Map<String, String>>();
+    private List<Node> nodes = new ArrayList<Node>();
+    private BaseAdapter listAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -30,36 +35,38 @@ public class NodeListActivity extends ListActivity implements Observer
         nc = ((DashboardApplication) getApplication()).nc;
         nc.addNetworkObserver(this);
 
-        listAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, nodeStrs);
+        String[] from = { "displayStr", "timestamp" };
+        int[] to = { android.R.id.text1, android.R.id.text2 };
+
+        listAdapter = new SimpleAdapter(this, nodeData,
+                android.R.layout.simple_list_item_2, from, to);
         setListAdapter(listAdapter);
         updateList();
     }
 
     private void updateList()
     {
-        nodeStrs.clear();
+        nodeData.clear();
         nodes.clear();
-        
+
         for (Node n : nc.getKnownNodes().values())
         {
-        	boolean inNetwork=false;
             nodes.add(n);
-            if(n.nodeNum==nc.getMe().nodeNum)
-            	nodeStrs.add("Node "+ n+"(Me)");
-            else
-            {
-	            for(Node nn:nc .getNodesInNetwork().values())
-	            {
-	            	 if(nn.nodeNum==n.nodeNum)
-	            		 inNetwork=true;
-	            }
-	            if(inNetwork)
-	            	nodeStrs.add("Node " + n);
-	            else
-	            	nodeStrs.add("Node "+ n+"(Left)");
-	            	        
-            }
+
+            String tag = "";
+            if (n.nodeNum == nc.getMe().nodeNum)
+                tag = "(Me)";
+            else if (!nc.getNodesInNetwork().containsKey(n.nodeNum))
+                tag = "(Left)";
+            
+            Map<String, String> rowMap = new HashMap<String, String>();
+            rowMap.put("displayStr", "Node " + n.nodeNum + " " + tag);
+            
+            Date d = new Date(n.lastHeartbeat.timestamp);
+            String formattedDate = new SimpleDateFormat("H:mm:ss").format(d);
+            rowMap.put("timestamp", "Last heartbeat: " + formattedDate);
+            
+            nodeData.add(rowMap);
         }
 
         runOnUiThread(new Runnable()
@@ -75,7 +82,8 @@ public class NodeListActivity extends ListActivity implements Observer
     protected void onListItemClick(ListView l, View v, int position, long id)
     {
         Intent i = new Intent(this, NodeDetailsActivity.class);
-        i.putExtra(NodeDetailsActivity.NODE_NUM_KEY, nodes.get(position).nodeNum);
+        i.putExtra(NodeDetailsActivity.NODE_NUM_KEY,
+                nodes.get(position).nodeNum);
         startActivity(i);
     }
 
@@ -88,7 +96,10 @@ public class NodeListActivity extends ListActivity implements Observer
         case NodeJoined:
             updateList();
             break;
-        case NodeLeft:    	
+        case NodeLeft:
+            updateList();
+            break;
+        case RecvdHeartbeat:
             updateList();
             break;
         }

@@ -130,7 +130,7 @@ public class NodeDetailsActivity extends Activity implements Observer
                     ((TextView) findViewById(R.id.lat)).setText("Latitude: "
                             + latStr);
 
-                    ((TextView) findViewById(R.id.lon)).setText("longitude: "
+                    ((TextView) findViewById(R.id.lon)).setText("Longitude: "
                             + lonStr);
 
                     // Set last heartbeat time
