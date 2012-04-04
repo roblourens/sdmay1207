@@ -91,12 +91,12 @@ public class LocationGraph
     {
         // Only necessary if we might have nodes within DELTA*2 of each other
         LocationNode best = null;
-        double bestDist = -1;
+        double bestDist = Double.MAX_VALUE;
 
         for (LocationNode node : vertices.values())
         {
             double dist = node.distanceTo(p);
-            if (best == null || dist < bestDist)
+            if (dist < bestDist)
             {
                 best = node;
                 bestDist = dist;

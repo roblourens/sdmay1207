@@ -44,7 +44,7 @@ public class DashboardApplication extends Application
         int nodeNumber = r.nextInt(245) + 10; // reserve the single-digit
                                               // ones
 
-        String filename = "ISU_map.osm";
+        String filename = "Sidewalks.osm";
         String dataRoot = getApplicationContext().getFilesDir().getParent();
         File dataDir = new File(dataRoot, "/files");
         if (!new File(dataDir, filename).exists())

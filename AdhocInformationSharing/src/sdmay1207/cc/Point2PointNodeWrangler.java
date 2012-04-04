@@ -149,10 +149,19 @@ public class Point2PointNodeWrangler
      * @return
      */
     public List<Location> getNodePositionsBetweenPoints(Location p1,
-            Location p2, int n)
+            Location p2, int n, boolean straighten)
     {
         List<Location> positions = getPathBetweenPoints(p1, p2);
-        //positions = removeRedundantPositions(positions);
+        int initialNum = positions.size();
+        if (straighten)
+        {
+            positions = removeRedundantPositions(positions);
+            System.out.println("Straightening removed "
+                    + (initialNum - positions.size()) + " nodes");
+        }
+
+        System.out.println("Need " + positions.size()
+                + " nodes before filling in long segments");
 
         // Not enough nodes to cover all corners - if we eventually consider
         // known obstacles, this is one place it would be useful
@@ -188,12 +197,15 @@ public class Point2PointNodeWrangler
             }
         }
 
+        System.out.println("Got enough nodes, and needed " + (n - extraNodes));
+
         // now assign any extras to the largest gaps
         while (extraNodes > 0)
         {
             double maxGap = Double.MIN_VALUE;
             int maxGapStart = -1;
 
+            // find max gap
             for (int i = 0; i < positions.size() - 1; i++)
             {
                 Location l1 = positions.get(i);
@@ -206,33 +218,78 @@ public class Point2PointNodeWrangler
                 }
             }
 
-            Location gap1 = positions.get(maxGapStart);
-            Location gap2 = positions.get(maxGapStart + 1);
+            Location gap1, gap2;
+            // no gaps (1 position)
+            if (maxGapStart == -1)
+                gap1 = gap2 = positions.get(0);
+            else
+            {
+                gap1 = positions.get(maxGapStart);
+                gap2 = positions.get(maxGapStart + 1);
+            }
+
             Location split = new Location((gap1.latitude + gap2.latitude) / 2,
                     (gap1.longitude + gap2.longitude) / 2);
-            positions.add(maxGapStart, split);
+            positions.add(maxGapStart + 1, split);
             extraNodes--;
         }
 
         return positions;
     }
 
-    private final int REASONABLE_LARGE_DIST = 120; // m
+    private final int REASONABLE_SMALL_ANGLE = 10; // deg
 
     // Looks at the nodes 3 at a time. If the group is close to a straight line,
-    // and the distance between the two on the end is less than
-    // REASONABLE_LARGE_DIST, then the middle is removed
+    // then the middle is removed
     private List<Location> removeRedundantPositions(List<Location> positions)
     {
-        for (int i=0; i<positions.size()-2; i++)
+        for (int i = 0; i < positions.size() - 2; i++)
         {
             Location p0 = positions.get(i);
-            Location p1 = positions.get(i+1);
-            Location p2 = positions.get(i+2);
-            
-            
+            Location p1 = positions.get(i + 1);
+            Location p2 = positions.get(i + 2);
+
+            Vector v0 = new Vector(p0, p1);
+            Vector v2 = new Vector(p2, p1);
+
+            // angle between the two lines, 180 == straight
+            double theta = Math.acos(v0.dotProduct(v2)
+                    / (v0.magnitude() * v2.magnitude()))
+                    * 180 / Math.PI;
+
+            // close to straight?
+            if (180 - theta < REASONABLE_SMALL_ANGLE)
+            {
+                // remove p1
+                positions.remove(i + 1);
+
+                // to check from p0 to p3 with p2 as middle
+                i--;
+            }
         }
-        
+
         return positions;
+    }
+
+    private class Vector
+    {
+        private double x;
+        private double y;
+
+        public Vector(Location p0, Location p1)
+        {
+            this.x = p0.longitude - p1.longitude;
+            this.y = p0.latitude - p1.latitude;
+        }
+
+        public double magnitude()
+        {
+            return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        }
+
+        public double dotProduct(Vector v)
+        {
+            return x * v.x + y * v.y;
+        }
     }
 }

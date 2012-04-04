@@ -158,6 +158,7 @@ public class LocationAStarSearch
             if (node != null)
                 System.out.print("|");
         }
+        System.out.println();
 
         return path;
     }

@@ -116,6 +116,10 @@ public class Point2PointCommander implements CommandHandler
             try
             {
                 File mapFile = new File(mapPath);
+                if (!mapFile.exists())
+                    throw new RuntimeException(mapPath
+                            + " map file doesn't exist - can't start");
+
                 System.out.println("opening from " + mapFile.toString());
                 InputSource is = new InputSource(new FileInputStream(mapFile));
                 osm = OSMParser.parse(is);
@@ -156,7 +160,7 @@ public class Point2PointCommander implements CommandHandler
 
         // Get positions in shortest path
         List<Location> positions = wrangler.getNodePositionsBetweenPoints(p1,
-                p2, useableNodes.size());
+                p2, useableNodes.size(), true);
 
         // Do we have enough nodes to cover it?
         if (positions == null)
@@ -387,9 +391,6 @@ public class Point2PointCommander implements CommandHandler
         {
             for (int i = 0; i < way.nodes.size() - 1; i++)
             {
-                if (!way.isHighway())
-                    continue;
-
                 OSMNode node1 = way.nodes.get(i);
                 OSMNode node2 = way.nodes.get(i + 1);
 
@@ -419,28 +420,17 @@ public class Point2PointCommander implements CommandHandler
 
     public static void main(String[] args)
     {
-        // Location p1 = new Location(42.024676, -93.646598);
-        // Location p2 = new Location(42.028914, -93.641515);
-
-        // Location p1 = new Location(42.011887, -93.651653);
-        // Location p2 = new Location(42.050751, -93.615111);
-
-        // Location p1 = new Location(42.042122, -93.620496);
-        // Location p2 = new Location(42.050498, -93.614815);
-        // Location p2 = new Location(42.051201, -93.618004);
-
-        // Location p1 = new Location(42.0228962, -93.6714000);
-        // Location p2 = new Location(42.0228070, -93.6638790);
-        Location p1 = new Location(42.029818, -93.655056);
-        Location p2 = new Location(42.021848, -93.639178);
-        // 03-28 18:32:29.077: I/System.out(1054): Starting P2P task from
-        // 42.023283,-93.654627 to 42.028511,-93.647847
+        Location p1 = new Location(42.0250030787657, -93.64658397373728);
+        Location p2 = new Location(42.027688657548815, -93.64539676113856);
 
         Point2PointCommander p2p = new Point2PointCommander(null,
-                "/Users/rob/Documents/ISU/senior design/ISU_map.osm");
+                "/Users/rob/Documents/ISU/senior design/Sidewalks.osm");
         p2p.setupIfNeeded();
 
-        System.out.println("Result: "
-                + p2p.wrangler.getNodePositionsBetweenPoints(p1, p2, 150));
+        List<Location> positions = p2p.wrangler.getNodePositionsBetweenPoints(
+                p1, p2, 7, true);
+        System.out.println();
+        for (Location l : positions)
+            System.out.println(l.latitude + "\t" + l.longitude);
     }
 }
