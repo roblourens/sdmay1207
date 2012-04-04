@@ -131,7 +131,7 @@ public class Point2PointNodeWrangler
         // Add the exact start/end points if they are not too close to the first
         // actual graph nodes
         if (!ln1.withinDeltaOf(p1))
-            positions.add(p1);
+            positions.add(0, p1);
 
         if (!ln2.withinDeltaOf(p2))
             positions.add(p2);
@@ -155,7 +155,7 @@ public class Point2PointNodeWrangler
         int initialNum = positions.size();
         if (straighten)
         {
-            positions = removeRedundantPositions(positions);
+            removeRedundantPositions(positions);
             System.out.println("Straightening removed "
                     + (initialNum - positions.size()) + " nodes");
         }
@@ -168,41 +168,34 @@ public class Point2PointNodeWrangler
         if (positions.size() > n)
             return null;
 
-        // TODO eliminate redundant nodes in straight-line paths and nodes which
-        // are very close to each other
-
-        // If positions.size() < n, figure out where to assign the extra nodes,
-        // and ensure that the distance between any two nodes is less than
-        // MAX_LINE_OF_SIGHT_DIST
         int extraNodes = n - positions.size();
-        for (int i = 0; i < positions.size() - 1; i++)
-        {
-            Location l1 = positions.get(i);
-            Location l2 = positions.get(i + 1);
 
-            if (l1.distanceTo(l2) > MAX_LINE_OF_SIGHT_DIST)
-            {
-                // enough nodes to cover this gap?
-                if (extraNodes < 1)
-                    return null;
-                else
-                {
-                    Location split = new Location(
-                            (l1.latitude + l2.latitude) / 2,
-                            (l1.longitude + l2.longitude) / 2);
-                    positions.add(i + 1, split);
-                    i--; // need to check between l1 and split now
-                    extraNodes--;
-                }
-            }
+        // weird edge case, just get it out of here
+        if (positions.size() == 1)
+        {
+            // assign all nodes to that point
+            for (int i = 0; i < extraNodes; i++)
+                positions.add(positions.get(0));
         }
 
-        System.out.println("Got enough nodes, and needed " + (n - extraNodes));
+        int[] extras = extraNodeAssignments(positions, extraNodes);
 
-        // now assign any extras to the largest gaps
+        if (!haveEnoughNodes(positions, extras, extraNodes))
+            return null;
+
+        return placeExtraNodes(positions, extras);
+    }
+
+    private int[] extraNodeAssignments(List<Location> positions, int extraNodes)
+    {
+        // extras[i] is the number of extra nodes assigned to the gap between
+        // positions i and i+1
+        int[] extras = new int[positions.size() - 1];
+
+        // assign all extras
         while (extraNodes > 0)
         {
-            double maxGap = Double.MIN_VALUE;
+            double maxGap = -1;
             int maxGapStart = -1;
 
             // find max gap
@@ -211,37 +204,76 @@ public class Point2PointNodeWrangler
                 Location l1 = positions.get(i);
                 Location l2 = positions.get(i + 1);
 
-                if (l1.distanceTo(l2) > maxGap)
+                if (l1.distanceTo(l2) / (extras[i] + 1) > maxGap)
                 {
-                    maxGap = l1.distanceTo(l2);
+                    maxGap = l1.distanceTo(l2) / (extras[i] + 1);
                     maxGapStart = i;
                 }
             }
 
-            Location gap1, gap2;
-            // no gaps (1 position)
-            if (maxGapStart == -1)
-                gap1 = gap2 = positions.get(0);
-            else
-            {
-                gap1 = positions.get(maxGapStart);
-                gap2 = positions.get(maxGapStart + 1);
-            }
-
-            Location split = new Location((gap1.latitude + gap2.latitude) / 2,
-                    (gap1.longitude + gap2.longitude) / 2);
-            positions.add(maxGapStart + 1, split);
+            // assign an extra node to the largest gap
+            extras[maxGapStart]++;
             extraNodes--;
         }
 
-        return positions;
+        return extras;
+    }
+
+    private boolean haveEnoughNodes(List<Location> positions, int[] extras,
+            int extraNodes)
+    {
+        // ensure that the distance between any two nodes is less than
+        // MAX_LINE_OF_SIGHT_DIST
+        for (int i = 0; i < positions.size() - 1; i++)
+        {
+            Location l1 = positions.get(i);
+            Location l2 = positions.get(i + 1);
+
+            // too large gap still remains - not enough nodes to cover
+            if (l1.distanceTo(l2) / (extras[i] + 1) > MAX_LINE_OF_SIGHT_DIST)
+                return false;
+        }
+
+        return true;
+    }
+
+    private List<Location> placeExtraNodes(List<Location> positions,
+            int[] extras)
+    {
+        // positions with gaps filled
+        List<Location> filledPositions = new ArrayList<Location>();
+
+        // now place extras
+        for (int i = 0; i < extras.length; i++)
+        {
+            int numExtras = extras[i];
+            Location gap1 = positions.get(i);
+            Location gap2 = positions.get(i + 1);
+
+            // add the beginning of the gap then the split nodes. (the end of
+            // the gap is the beginning of the next gap, don't add here)
+            filledPositions.add(gap1);
+            for (int j = 0; j < numExtras; j++)
+            {
+                double splitLat = gap1.latitude + (j + 1)
+                        * (gap2.latitude - gap1.latitude) / (numExtras + 1);
+                double splitLon = gap1.longitude + (j + 1)
+                        * (gap2.longitude - gap1.longitude) / (numExtras + 1);
+                Location split = new Location(splitLat, splitLon);
+                filledPositions.add(split);
+            }
+        }
+
+        // the last node isn't the beginning of any gap, so add it here
+        filledPositions.add(positions.get(positions.size() - 1));
+        return filledPositions;
     }
 
     private final int REASONABLE_SMALL_ANGLE = 10; // deg
 
     // Looks at the nodes 3 at a time. If the group is close to a straight line,
     // then the middle is removed
-    private List<Location> removeRedundantPositions(List<Location> positions)
+    private void removeRedundantPositions(List<Location> positions)
     {
         for (int i = 0; i < positions.size() - 2; i++)
         {
@@ -267,8 +299,6 @@ public class Point2PointNodeWrangler
                 i--;
             }
         }
-
-        return positions;
     }
 
     private class Vector
