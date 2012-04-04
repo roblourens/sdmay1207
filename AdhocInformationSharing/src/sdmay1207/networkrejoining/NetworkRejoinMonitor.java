@@ -11,6 +11,7 @@ import sdmay1207.ais.NodeController;
 import sdmay1207.ais.etc.Repeater.TimedRepeater;
 import sdmay1207.ais.network.NetworkController.Event;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
+import sdmay1207.ais.network.model.Heartbeat;
 import sdmay1207.ais.network.model.NetworkMessage;
 import sdmay1207.ais.network.model.Node;
 import sdmay1207.ais.sensors.GPS.Location;
@@ -27,11 +28,14 @@ public class NetworkRejoinMonitor extends TimedRepeater implements Observer
 
     private List<NetworkRejoinListener> listeners = new ArrayList<NetworkRejoinListener>();
 
+    /**
+     * Checks every 10 seconds for lost nodes
+     */
     public NetworkRejoinMonitor(NodeController nc)
     {
         // routes expire after 3000 atm, this should work for detecting when all
         // nodes are lost?
-        super(5000);
+        super(10000);
 
         this.nc = nc;
         nc.addNetworkObserver(this);
@@ -138,6 +142,12 @@ public class NetworkRejoinMonitor extends TimedRepeater implements Observer
             Node joinedNode = nc.getKnownNodes().get(netEvent.data);
             if (lostNodes.contains(joinedNode))
                 lostNodes.remove(joinedNode);
+        } else if (netEvent.event == Event.RecvdHeartbeat)
+        {
+            Heartbeat hb = (Heartbeat) netEvent.data;
+            Node heartbeatNode = nc.getKnownNodes().get(hb.from);
+            if (lostNodes.contains(heartbeatNode.nodeNum))
+                lostNodes.remove(heartbeatNode);
         }
     }
 
