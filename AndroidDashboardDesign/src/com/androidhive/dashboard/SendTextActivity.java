@@ -24,6 +24,7 @@ public class SendTextActivity extends Activity implements Observer
     private NodeController nc;
     private int nodeNum = 0;
 
+    private DashboardApplication da;
     TextView tx;
 
     @Override
@@ -31,7 +32,7 @@ public class SendTextActivity extends Activity implements Observer
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.send_text);
-
+        da= ((DashboardApplication) getApplication());
         nc = ((DashboardApplication) getApplication()).nc;
         nodeNum = getIntent().getIntExtra(NodeDetailsActivity.NODE_NUM_KEY, 0);
 
@@ -42,6 +43,20 @@ public class SendTextActivity extends Activity implements Observer
         // set send button listener
         final Context c = this;
         tx =(TextView)findViewById(R.id.textSent);
+        
+        //Add previous text message to texbox
+        for(int i=da.nm.notifications.size()-1;i>-1;i--)
+        {
+        	NetworkEventNotification notification= (NetworkEventNotification) da.nm.notifications.get(i);
+        	if(notification.isTextMessage())
+        	{
+        		String msg = notification.netEvent.data.toString();
+    			tx.setText("Node"+msg+"\n"+tx.getText());
+        	}
+        		
+        }
+        
+        
         ((Button) findViewById(R.id.sendButton))
                 .setOnClickListener(new OnClickListener()
                 {
@@ -53,6 +68,7 @@ public class SendTextActivity extends Activity implements Observer
                                 .getText().toString();
                         if(prevtext==null)
                         	prevtext=" ";
+                        
                         
                         tx.setText("ME:"+text+"\n"+prevtext);
                         
