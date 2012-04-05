@@ -65,7 +65,7 @@ public class Point2PointCommander implements CommandHandler
 
     public Point2PointCommander(NodeController nodeController)
     {
-        this(nodeController, new File(Device.getDataDir(), "ISU_map.osm")
+        this(nodeController, new File(Device.getDataDir(), "Sidewalks.osm")
                 .toString());
     }
 
@@ -428,15 +428,19 @@ public class Point2PointCommander implements CommandHandler
         //Location p1 = new Location(42.025526384460676, -93.64968192245325);
         //Location p2 = new Location(42.028819782383934, -93.64936622676206);
         
-        Location p1 = new Location(42.02882905657832, -93.64539676113856);
-        Location p2 = new Location(42.025526384460676, -93.64968192245325);
+        // diagonal
+        //Location p1 = new Location(42.02882905657832, -93.64539676113856);
+        //Location p2 = new Location(42.025526384460676, -93.64968192245325);
+        Location p1 = new Location(42.026104, -93.645089);
+        Location p2 = new Location(42.026096, -93.645122);
+
 
         Point2PointCommander p2p = new Point2PointCommander(null,
                 "/Users/rob/Documents/ISU/senior design/Sidewalks.osm");
         p2p.setupIfNeeded();
 
         List<Location> positions = p2p.wrangler.getNodePositionsBetweenPoints(
-                p1, p2, 15, true);
+                p1, p2, 3, true);
         System.out.println();
         for (Location l : positions)
             System.out.println(l.latitude + "\t" + l.longitude);

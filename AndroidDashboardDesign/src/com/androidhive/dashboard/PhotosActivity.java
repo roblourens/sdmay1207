@@ -45,17 +45,16 @@ public class PhotosActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.photos_layout);
 
-
         nodeNum = getIntent().getIntExtra(NodeDetailsActivity.NODE_NUM_KEY, 0);
-       
+
         // Get View
         camera = (SurfaceView) findViewById(R.id.smallcameraview);
         startButton = (Button) findViewById(R.id.streambutton);
         console = (TextView) findViewById(R.id.console);
         destEditText = (EditText) findViewById(R.id.ip);
 
-        //set destination
-        destEditText.setText(nodeNum);
+        // set destination
+        destEditText.setText(nodeNum + "");
         // Set button listener
         startButton.setOnClickListener(new ButtonListener(this));
 

@@ -80,6 +80,8 @@ public class Point2PointNodeWrangler
                         return 0;
                 }
             });
+
+            locPrefs.put(position, thisPositionPrefs);
         }
 
         Map<Location, Node> locationAssignments = new HashMap<Location, Node>();

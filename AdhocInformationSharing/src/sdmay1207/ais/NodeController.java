@@ -74,7 +74,6 @@ public class NodeController implements Observer
         networkController.addObserver(this);
 
         p2pCmdr = new Point2PointCommander(this);
-
     }
 
     /**

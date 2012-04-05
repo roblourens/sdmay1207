@@ -112,9 +112,10 @@ public class PlacesActivity extends Activity implements Observer
                             ((Button) findViewById(R.id.startStopButton))
                                     .setEnabled(false);
                             new StartupTask().execute();
-                            isStarted = true;
                         } else
                         {
+                            ((Button) findViewById(R.id.startStopButton))
+                                    .setText("Start");
                             nc.stop();
                             Device.doAndroidHardStop();
                             isStarted = false;
@@ -261,6 +262,10 @@ public class PlacesActivity extends Activity implements Observer
         case NodeLeft:
             updateMapObjects();
             break;
+        case SentHeartbeat:
+            // in case we move/find position and are the only node
+            updateMapObjects();
+            break;
         }
     }
 
@@ -296,6 +301,7 @@ public class PlacesActivity extends Activity implements Observer
             super.onPostExecute(result);
             ((Button) findViewById(R.id.startStopButton)).setText("Stop");
             ((Button) findViewById(R.id.startStopButton)).setEnabled(true);
+            isStarted = true;
         }
     }
 }

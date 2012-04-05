@@ -13,6 +13,7 @@ import sdmay1207.ais.sensors.GPS.Location;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
 import sdmay1207.cc.Point2PointCommander.TooFewNodesException;
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -87,14 +88,14 @@ public class P2PSetupActivity extends Activity
             }
         });
     }
-    
+
     @Override
     protected void onPause()
     {
         super.onPause();
-        
+
         mapView.getTileProvider().clearTileCache();
-        //mapView.destroyDrawingCache(); //?
+        // mapView.destroyDrawingCache(); //?
     }
 
     @Override
@@ -143,30 +144,9 @@ public class P2PSetupActivity extends Activity
     {
         if (settingPoint == 2)
         {
-            try
-            {
-                nc.p2pCmdr.initiateP2PTask(selectedLocations[0],
-                        selectedLocations[1], selectedLocations[2], 1000000);
-                log("p2p initiated, finishing");
-                finish();
-            } catch (TooFewNodesException tfne)
-            {
-                Toast.makeText(
-                        this,
-                        "Sorry, there are not enough nodes in the network to connect those two points.",
-                        4).show();
-                log("p2p too few nodes");
-                return;
-            }
-
-            Toast.makeText(
-                    this,
-                    "Initializing point-to-point task! Sending commands to all nodes in the network.",
-                    3).show();
-
+            new P2PInitTask().execute();
             System.out.println(Arrays.toString(selectedLocations));
-        }
-        else
+        } else
         {
             settingPoint++;
             setupForPoint(settingPoint);
@@ -207,9 +187,66 @@ public class P2PSetupActivity extends Activity
             return super.onSingleTapUp(e);
         };
     }
-    
+
     private void log(String msg)
     {
         Log.d("P2PSetupActivity", msg);
+    }
+
+    private class P2PInitTask extends AsyncTask<Void, Void, Boolean>
+    {
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+
+            ((Button) P2PSetupActivity.this.findViewById(R.id.setupOkButton))
+                    .setText("Computing...");
+            ((Button) P2PSetupActivity.this.findViewById(R.id.setupOkButton))
+                    .setEnabled(false);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params)
+        {
+            try
+            {
+                nc.p2pCmdr.initiateP2PTask(selectedLocations[0],
+                        selectedLocations[1], selectedLocations[2], 1000000);
+            } catch (TooFewNodesException e)
+            {
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result)
+        {
+            super.onPostExecute(result);
+            ((Button) P2PSetupActivity.this.findViewById(R.id.setupOkButton))
+                    .setText("Ok");
+            ((Button) P2PSetupActivity.this.findViewById(R.id.setupOkButton))
+                    .setEnabled(true);
+
+            if (result)
+            {
+                System.out.println("p2p initiated, finishing");
+                Toast.makeText(
+                        P2PSetupActivity.this,
+                        "Initializing point-to-point task! Sending commands to all nodes in the network.",
+                        3).show();
+                finish();
+            } else
+            {
+
+                Toast.makeText(
+                        P2PSetupActivity.this,
+                        "Sorry, there are not enough nodes in the network to connect those two points.",
+                        7).show();
+                log("p2p too few nodes");
+            }
+        }
     }
 }

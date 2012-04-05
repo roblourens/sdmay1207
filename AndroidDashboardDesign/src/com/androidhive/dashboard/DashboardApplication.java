@@ -32,6 +32,7 @@ public class DashboardApplication extends Application
 {
     public NodeController nc = null;
     public NotificationManager nm;
+    private GPSSensor gps;
 
     @Override
     public void onCreate()
@@ -47,8 +48,8 @@ public class DashboardApplication extends Application
         String filename = "Sidewalks.osm";
         String dataRoot = getApplicationContext().getFilesDir().getParent();
         File dataDir = new File(dataRoot, "/files");
-        if (!new File(dataDir, filename).exists())
-        {
+        //if (!new File(dataDir, filename).exists())
+        //{
             try
             {
                 System.out.println("Copying file '" + filename + "' ...");
@@ -66,16 +67,27 @@ public class DashboardApplication extends Application
                 e.printStackTrace();
                 System.err.println("Couldn't copy a file to the data dir!");
             }
-        }
+        //}
 
         nc = new NodeController(nodeNumber, dataDir.toString());
         nc.addSensor(new BatterySensor(this));
         nc.addSensor(new CompassSensor(this));
-        nc.addSensor(new GPSSensor(this));
+        gps = new GPSSensor(this);
+        nc.addSensor(gps);
 
         nm = new NotificationManager();
 
         System.out.println("Node #: " + nodeNumber);
+    }
+    
+    public void start()
+    {
+        
+    }
+    
+    public void stop()
+    {
+        
     }
 
     public class NotificationManager extends Observable implements Observer,
