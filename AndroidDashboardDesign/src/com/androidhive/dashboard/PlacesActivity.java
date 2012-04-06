@@ -61,17 +61,12 @@ public class PlacesActivity extends Activity implements Observer
         mapView = (MapView) findViewById(R.id.map);
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setClickable(true);
-        // mapView.
         mapView.setKeepScreenOn(true);
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
         mapView.getController().setZoom(15);
         mapView.getController().setCenter(new GeoPoint(42.024443, -93.656141));
         
-        //MyLocationOverlay myLocOverlay= new MyLocationOverlay(this,mapView);
-        //myLocOverlay.enableCompass();
-        //mapView.getOverlays().add(myLocOverlay);
-        		
         da = ((DashboardApplication) getApplication());
         nc = da.nc;
         notificationView = ((TextView) findViewById(R.id.notifications));
@@ -192,27 +187,11 @@ public class PlacesActivity extends Activity implements Observer
                         "desc", new GeoPoint(n.lastLocation.latitude,
                                 n.lastLocation.longitude));
                 
-                //TextDrawable nodeIcon= new TextDrawable((""+n.nodeNum));
-                o1.setMarker(writeOnDrawable(R.drawable.disappear_dot,(" "+n.nodeNum)));
-                         //o1.setMarker(getResources().getDrawable(R.drawable.ic_launcher));
+                o1.setMarker(writeOnDrawable(R.drawable.disappear_dot, (" "+n.nodeNum)));
                 System.out.println("it enters the map icon area");
                 items.add(o1);
             }
         }
-        //
-        OverlayItem tempo1 = new OverlayItem("" + 12, "title",
-                "desc", (new GeoPoint(42.024443, -93.656141)));
-        
-        //TextDrawable nodeIcon= new TextDrawable(("aljfasdfasfasadsjf"));
-        tempo1.setMarker(writeOnDrawable(R.drawable.disappear_dot,("12")));
-        //tempo1.setMarker(nodeIcon);
-        
-        //nodeIcon.draw(R.drawable.ic_launcher);
-        //tempo1.setMarker((nodeIcon));
-        
-        System.out.println("it enters the map icon area");
-        items.add(tempo1);
-        //
 
         // now add from notifications
         // add notification map overlays
@@ -249,7 +228,7 @@ public class PlacesActivity extends Activity implements Observer
                 });
 
         mapView.getOverlays().add(overlay);
-        //mapView.postInvalidate();
+        mapView.postInvalidate();
     }
 
     // don't need to know what the new one is, just that there is a new
