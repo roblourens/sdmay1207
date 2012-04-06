@@ -61,6 +61,13 @@ public class Point2PointCommander implements CommandHandler
     {
         this.nodeController = nodeController;
         this.mapPath = mapPath;
+
+        nodeController.registerForCommand(
+                GoToLocCommand.GO_TO_LOC_COMMAND_TYPE, this);
+        nodeController.registerForCommand(
+                StartStreamCommand.START_STREAM_COMMAND_TYPE, this);
+        nodeController.registerForCommand(
+                StopStreamCommand.STOP_STREAM_COMMAND_TYPE, this);
     }
 
     public Point2PointCommander(NodeController nodeController)
@@ -96,6 +103,8 @@ public class Point2PointCommander implements CommandHandler
 
             // Start checking whether we are there yet
             new StateCheckTask().start();
+
+            System.out.println("Starting p2p task with dest " + curDest);
         } else if (command.commandType
                 .equals(StartStreamCommand.START_STREAM_COMMAND_TYPE))
         {
@@ -132,6 +141,12 @@ public class Point2PointCommander implements CommandHandler
                 return;
             }
         }
+    }
+
+    public Point2PointNodeWrangler getWrangler()
+    {
+        setupIfNeeded();
+        return wrangler;
     }
 
     /**
@@ -421,19 +436,18 @@ public class Point2PointCommander implements CommandHandler
     public static void main(String[] args)
     {
         // East side of central campus
-        //Location p1 = new Location(42.0250030787657, -93.64658397373728);
-        //Location p2 = new Location(42.027688657548815, -93.64539676113856);
-        
+        // Location p1 = new Location(42.0250030787657, -93.64658397373728);
+        // Location p2 = new Location(42.027688657548815, -93.64539676113856);
+
         // 2 straight lines
-        //Location p1 = new Location(42.025526384460676, -93.64968192245325);
-        //Location p2 = new Location(42.028819782383934, -93.64936622676206);
-        
+        // Location p1 = new Location(42.025526384460676, -93.64968192245325);
+        // Location p2 = new Location(42.028819782383934, -93.64936622676206);
+
         // diagonal
-        //Location p1 = new Location(42.02882905657832, -93.64539676113856);
-        //Location p2 = new Location(42.025526384460676, -93.64968192245325);
+        // Location p1 = new Location(42.02882905657832, -93.64539676113856);
+        // Location p2 = new Location(42.025526384460676, -93.64968192245325);
         Location p1 = new Location(42.026104, -93.645089);
         Location p2 = new Location(42.026096, -93.645122);
-
 
         Point2PointCommander p2p = new Point2PointCommander(null,
                 "/Users/rob/Documents/ISU/senior design/Sidewalks.osm");

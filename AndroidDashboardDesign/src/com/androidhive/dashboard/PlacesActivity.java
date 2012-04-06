@@ -12,13 +12,10 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedIconOverlay.OnItemGestureListener;
 import org.osmdroid.views.overlay.ItemizedOverlay;
-import org.osmdroid.views.overlay.MyLocationOverlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
-import sdmay1207.ais.Device;
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
-import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Node;
 import android.app.Activity;
 import android.content.Intent;
@@ -43,7 +40,6 @@ public class PlacesActivity extends Activity implements Observer
 
     private NodeController nc;
     boolean isStarted = false;
-    MyLocationOverlay my;
     private DashboardApplication da;
 
     private final int MAX_LINES_OF_NOTIFICATION_TEXT = 4;
@@ -116,8 +112,7 @@ public class PlacesActivity extends Activity implements Observer
                         {
                             ((Button) findViewById(R.id.startStopButton))
                                     .setText("Start");
-                            nc.stop();
-                            Device.doAndroidHardStop();
+                            da.stop();
                             isStarted = false;
                         }
                     }
@@ -174,6 +169,7 @@ public class PlacesActivity extends Activity implements Observer
 
     private void updateMapObjects()
     {
+        mapView.getOverlays().clear();
         Collection<Node> nodes = nc.getNodesInNetwork().values();
         List<OverlayItem> items = new ArrayList<OverlayItem>();
         for (Node n : nodes)
@@ -188,6 +184,15 @@ public class PlacesActivity extends Activity implements Observer
             }
         }
 
+        // now add from notifications
+        // add notification map overlays
+        for (Notification n : da.nm.notifications)
+        {
+            OverlayItem oi = n.getOverlayItem();
+            if (oi != null)
+                items.add(oi);
+        }
+
         ItemizedOverlay<OverlayItem> overlay = new ItemizedIconOverlay<OverlayItem>(
                 this, items, new OnItemGestureListener<OverlayItem>()
                 {
@@ -198,6 +203,9 @@ public class PlacesActivity extends Activity implements Observer
 
                     public boolean onItemSingleTapUp(int i, OverlayItem item)
                     {
+                        if (item.getUid().equals("notification"))
+                            return false;
+
                         int nodeNum = Integer.parseInt(item.getUid());
                         Intent intent = new Intent(PlacesActivity.this,
                                 NodeDetailsActivity.class);
@@ -210,7 +218,6 @@ public class PlacesActivity extends Activity implements Observer
                     }
                 });
 
-        mapView.getOverlays().clear();
         mapView.getOverlays().add(overlay);
         mapView.postInvalidate();
     }
@@ -288,10 +295,16 @@ public class PlacesActivity extends Activity implements Observer
     private class StartupTask extends AsyncTask<Void, Void, Void>
     {
         @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            da.gps.start();
+        }
+
+        @Override
         protected Void doInBackground(Void... params)
         {
-            Device.doAndroidHardStop();
-            nc.start(RoutingAlg.AODV);
+            da.start();
             return null;
         }
 

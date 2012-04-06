@@ -11,11 +11,16 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
 
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.OverlayManager;
+import org.osmdroid.views.overlay.PathOverlay;
 
+import sdmay1207.ais.Device;
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.network.NetworkController.Event;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
+import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.NetworkMessage;
 import sdmay1207.ais.sensors.GPS.Location;
 import sdmay1207.android.sensors.BatterySensor;
@@ -26,13 +31,15 @@ import sdmay1207.cc.Point2PointCommander.P2PState;
 import sdmay1207.cc.Point2PointCommander.Point2PointGUI;
 import sdmay1207.networkrejoining.NetworkRejoinMonitor.NetworkRejoinListener;
 import android.app.Application;
+import android.graphics.Color;
 import android.util.Log;
+import androidhive.dashboard.R;
 
 public class DashboardApplication extends Application
 {
     public NodeController nc = null;
     public NotificationManager nm;
-    private GPSSensor gps;
+    public GPSSensor gps;
 
     @Override
     public void onCreate()
@@ -48,26 +55,26 @@ public class DashboardApplication extends Application
         String filename = "Sidewalks.osm";
         String dataRoot = getApplicationContext().getFilesDir().getParent();
         File dataDir = new File(dataRoot, "/files");
-        //if (!new File(dataDir, filename).exists())
-        //{
-            try
-            {
-                System.out.println("Copying file '" + filename + "' ...");
-                InputStream is = getAssets().open(filename);
-                byte buf[] = new byte[1024];
-                int len;
-                OutputStream out = openFileOutput(filename, 0);
-                while ((len = is.read(buf)) > 0)
-                    out.write(buf, 0, len);
+        // if (!new File(dataDir, filename).exists())
+        // {
+        try
+        {
+            System.out.println("Copying file '" + filename + "' ...");
+            InputStream is = getAssets().open(filename);
+            byte buf[] = new byte[1024];
+            int len;
+            OutputStream out = openFileOutput(filename, 0);
+            while ((len = is.read(buf)) > 0)
+                out.write(buf, 0, len);
 
-                out.close();
-                is.close();
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-                System.err.println("Couldn't copy a file to the data dir!");
-            }
-        //}
+            out.close();
+            is.close();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+            System.err.println("Couldn't copy a file to the data dir!");
+        }
+        // }
 
         nc = new NodeController(nodeNumber, dataDir.toString());
         nc.addSensor(new BatterySensor(this));
@@ -79,15 +86,19 @@ public class DashboardApplication extends Application
 
         System.out.println("Node #: " + nodeNumber);
     }
-    
+
+    // must call gps start on UI thread first! (or after)
     public void start()
     {
-        
+        Device.doAndroidHardStop();
+        nc.start(RoutingAlg.AODV);
     }
-    
+
     public void stop()
     {
-        
+        nc.stop();
+        gps.stop();
+        Device.doAndroidHardStop();
     }
 
     public class NotificationManager extends Observable implements Observer,
@@ -141,6 +152,16 @@ public class DashboardApplication extends Application
                     return "We lost several nodes at once - you should move to "
                             + p + " to rejoin them.";
                 }
+
+                @Override
+                public OverlayItem getOverlayItem()
+                {
+                    OverlayItem oi = new OverlayItem("notification", "title",
+                            "desc", new GeoPoint(p.latitude, p.longitude));
+                    oi.setMarker(getResources()
+                            .getDrawable(R.drawable.dualflag));
+                    return oi;
+                }
             });
         }
 
@@ -153,6 +174,16 @@ public class DashboardApplication extends Application
                 {
                     return "The entire network has become disconnected - you should move to "
                             + p + " to rejoin it.";
+                }
+
+                @Override
+                public OverlayItem getOverlayItem()
+                {
+                    OverlayItem oi = new OverlayItem("notification", "title",
+                            "desc", new GeoPoint(p.latitude, p.longitude));
+                    oi.setMarker(getResources()
+                            .getDrawable(R.drawable.dualflag));
+                    return oi;
                 }
             });
         }
@@ -170,10 +201,29 @@ public class DashboardApplication extends Application
                 }
 
                 @Override
-                public void addOverlay(OverlayManager om)
+                public OverlayItem getOverlayItem()
                 {
-                    super.addOverlay(om);
-                    // add point and path here to command.loc
+                    OverlayItem oi = new OverlayItem("notification", "title",
+                            "desc", new GeoPoint(command.loc.latitude,
+                                    command.loc.longitude));
+                    oi.setMarker(getResources().getDrawable(R.drawable.flag));
+                    return oi;
+                }
+
+                @Override
+                public void drawOverlay(OverlayManager om)
+                {
+                    PathOverlay po = new PathOverlay(Color.BLUE,
+                            DashboardApplication.this);
+
+                    Location here = nc.getMe().lastLocation;
+                    List<Location> path = nc.p2pCmdr.getWrangler()
+                            .getPathBetweenPoints(here, command.loc);
+
+                    for (Location loc : path)
+                        po.addPoint(new GeoPoint(loc.latitude, loc.longitude));
+
+                    om.add(po);
                 }
             });
         }
@@ -258,14 +308,20 @@ public class DashboardApplication extends Application
     public abstract class Notification
     {
         public abstract String shortDisplayString();
+
         public long timestamp;
-        
+
         public Notification()
         {
             timestamp = System.currentTimeMillis();
         }
 
-        public void addOverlay(OverlayManager om)
+        public OverlayItem getOverlayItem()
+        {
+            return null;
+        }
+
+        public void drawOverlay(OverlayManager om)
         {
 
         }

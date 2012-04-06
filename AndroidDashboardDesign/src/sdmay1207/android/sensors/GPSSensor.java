@@ -20,6 +20,7 @@ public class GPSSensor extends GPS implements LocationListener
                 .getSystemService(Context.LOCATION_SERVICE);
     }
     
+    // must be called on UI thread I guess
     public void start()
     {
         locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0,

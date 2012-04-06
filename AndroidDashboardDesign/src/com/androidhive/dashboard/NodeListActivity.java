@@ -134,6 +134,9 @@ public class NodeListActivity extends ListActivity implements Observer
         case RecvdHeartbeat:
             updateList();
             break;
+        case SentHeartbeat:
+            updateList();
+            break;
         }
     }
 }

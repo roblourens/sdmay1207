@@ -6,6 +6,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import sdmay1207.ais.NodeController;
+import sdmay1207.ais.network.NetworkController.Event;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.model.Heartbeat;
 import sdmay1207.ais.network.model.Node;
@@ -149,13 +150,12 @@ public class NodeDetailsActivity extends Activity implements Observer
     public void update(Observable observable, Object obj)
     {
         NetworkEvent netEvent = (NetworkEvent) obj;
-        switch (netEvent.event)
+        if (netEvent.event == Event.RecvdHeartbeat
+                || netEvent.event == Event.SentHeartbeat)
         {
-        case RecvdHeartbeat:
             Heartbeat hb = (Heartbeat) netEvent.data;
             if (hb.from == displayedNode.nodeNum)
                 updateInterfaceWithHeartbeat(hb);
-            break;
         }
     }
 }
