@@ -19,6 +19,13 @@ import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.model.Node;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Paint.Style;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -60,7 +67,11 @@ public class PlacesActivity extends Activity implements Observer
         mapView.setMultiTouchControls(true);
         mapView.getController().setZoom(15);
         mapView.getController().setCenter(new GeoPoint(42.024443, -93.656141));
-
+        
+        //MyLocationOverlay myLocOverlay= new MyLocationOverlay(this,mapView);
+        //myLocOverlay.enableCompass();
+        //mapView.getOverlays().add(myLocOverlay);
+        		
         da = ((DashboardApplication) getApplication());
         nc = da.nc;
         notificationView = ((TextView) findViewById(R.id.notifications));
@@ -172,6 +183,7 @@ public class PlacesActivity extends Activity implements Observer
         mapView.getOverlays().clear();
         Collection<Node> nodes = nc.getNodesInNetwork().values();
         List<OverlayItem> items = new ArrayList<OverlayItem>();
+        
         for (Node n : nodes)
         {
             if (n.lastLocation != null)
@@ -179,10 +191,28 @@ public class PlacesActivity extends Activity implements Observer
                 OverlayItem o1 = new OverlayItem("" + n.nodeNum, "title",
                         "desc", new GeoPoint(n.lastLocation.latitude,
                                 n.lastLocation.longitude));
-                o1.setMarker(getResources().getDrawable(R.drawable.ic_launcher));
+                
+                //TextDrawable nodeIcon= new TextDrawable((""+n.nodeNum));
+                o1.setMarker(writeOnDrawable(R.drawable.disappear_dot,(" "+n.nodeNum)));
+                         //o1.setMarker(getResources().getDrawable(R.drawable.ic_launcher));
+                System.out.println("it enters the map icon area");
                 items.add(o1);
             }
         }
+        //
+        OverlayItem tempo1 = new OverlayItem("" + 12, "title",
+                "desc", (new GeoPoint(42.024443, -93.656141)));
+        
+        //TextDrawable nodeIcon= new TextDrawable(("aljfasdfasfasadsjf"));
+        tempo1.setMarker(writeOnDrawable(R.drawable.disappear_dot,("12")));
+        //tempo1.setMarker(nodeIcon);
+        
+        //nodeIcon.draw(R.drawable.ic_launcher);
+        //tempo1.setMarker((nodeIcon));
+        
+        System.out.println("it enters the map icon area");
+        items.add(tempo1);
+        //
 
         // now add from notifications
         // add notification map overlays
@@ -219,7 +249,7 @@ public class PlacesActivity extends Activity implements Observer
                 });
 
         mapView.getOverlays().add(overlay);
-        mapView.postInvalidate();
+        //mapView.postInvalidate();
     }
 
     // don't need to know what the new one is, just that there is a new
@@ -290,6 +320,21 @@ public class PlacesActivity extends Activity implements Observer
             System.out.println(1 / 0);
 
         return super.onOptionsItemSelected(item);
+    }
+    
+    public BitmapDrawable writeOnDrawable(int drawableId, String text){
+
+        Bitmap bm = BitmapFactory.decodeResource(getResources(), drawableId).copy(Bitmap.Config.ARGB_8888, true);
+
+        Paint paint = new Paint(); 
+        paint.setStyle(Style.FILL);  
+        paint.setColor(Color.BLACK); 
+        paint.setTextSize(20); 
+
+        Canvas canvas = new Canvas(bm);
+        canvas.drawText(text, 0, bm.getHeight()/2, paint);
+
+        return new BitmapDrawable(bm);
     }
 
     private class StartupTask extends AsyncTask<Void, Void, Void>
