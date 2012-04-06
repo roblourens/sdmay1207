@@ -66,7 +66,7 @@ public class PlacesActivity extends Activity implements Observer
         mapView.setMultiTouchControls(true);
         mapView.getController().setZoom(15);
         mapView.getController().setCenter(new GeoPoint(42.024443, -93.656141));
-        
+
         da = ((DashboardApplication) getApplication());
         nc = da.nc;
         notificationView = ((TextView) findViewById(R.id.notifications));
@@ -178,7 +178,7 @@ public class PlacesActivity extends Activity implements Observer
         mapView.getOverlays().clear();
         Collection<Node> nodes = nc.getNodesInNetwork().values();
         List<OverlayItem> items = new ArrayList<OverlayItem>();
-        
+
         for (Node n : nodes)
         {
             if (n.lastLocation != null)
@@ -186,8 +186,9 @@ public class PlacesActivity extends Activity implements Observer
                 OverlayItem o1 = new OverlayItem("" + n.nodeNum, "title",
                         "desc", new GeoPoint(n.lastLocation.latitude,
                                 n.lastLocation.longitude));
-                
-                o1.setMarker(writeOnDrawable(R.drawable.disappear_dot, (" "+n.nodeNum)));
+
+                o1.setMarker(writeOnDrawable(R.drawable.blank_icon,
+                        ("" + n.nodeNum)));
                 System.out.println("it enters the map icon area");
                 items.add(o1);
             }
@@ -300,18 +301,20 @@ public class PlacesActivity extends Activity implements Observer
 
         return super.onOptionsItemSelected(item);
     }
-    
-    public BitmapDrawable writeOnDrawable(int drawableId, String text){
 
-        Bitmap bm = BitmapFactory.decodeResource(getResources(), drawableId).copy(Bitmap.Config.ARGB_8888, true);
+    public BitmapDrawable writeOnDrawable(int drawableId, String text)
+    {
 
-        Paint paint = new Paint(); 
-        paint.setStyle(Style.FILL);  
-        paint.setColor(Color.BLACK); 
-        paint.setTextSize(20); 
+        Bitmap bm = BitmapFactory.decodeResource(getResources(), drawableId)
+                .copy(Bitmap.Config.ARGB_8888, true);
+
+        Paint paint = new Paint();
+        paint.setStyle(Style.FILL);
+        paint.setColor(Color.BLACK);
+        paint.setTextSize(20);
 
         Canvas canvas = new Canvas(bm);
-        canvas.drawText(text, 0, bm.getHeight()/2, paint);
+        canvas.drawText(text, 0, bm.getHeight() / 2, paint);
 
         return new BitmapDrawable(bm);
     }

@@ -19,7 +19,7 @@ public class NetworkCommand extends NetworkMessage
     
     public NetworkCommand(String commandType)
     {
-        
+        messageType = MessageType.Command;
     }
 
     public NetworkCommand(String commandType, Object commandData)
@@ -59,6 +59,7 @@ public class NetworkCommand extends NetworkMessage
         messageType = MessageType.Command;
     }
 
+    // should be overridden by the subclass
     public String toString()
     {
         if (commandData != null)

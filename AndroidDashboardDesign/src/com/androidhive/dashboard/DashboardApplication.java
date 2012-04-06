@@ -81,6 +81,7 @@ public class DashboardApplication extends Application
         nc.addSensor(new CompassSensor(this));
         gps = new GPSSensor(this);
         nc.addSensor(gps);
+        nc.p2pCmdr.setGUI(nm);
 
         nm = new NotificationManager();
 

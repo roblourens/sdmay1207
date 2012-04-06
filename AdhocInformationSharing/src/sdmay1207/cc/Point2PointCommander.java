@@ -319,7 +319,7 @@ public class Point2PointCommander implements CommandHandler
         }
     }
 
-    public class GoToLocCommand extends NetworkCommand
+    public static class GoToLocCommand extends NetworkCommand
     {
         public static final String GO_TO_LOC_COMMAND_TYPE = "p2p_GoToLocation";
 
