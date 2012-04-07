@@ -28,7 +28,8 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:text="+"
-            android:textSize="15dp" />
+            android:textSize="15dp"
+            android:enabled="false" />
 
         <Button
             android:id="@+id/directNeighborsButton"
@@ -37,7 +38,8 @@
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@id/showNodeListButton"
             android:text="Neighbors"
-            android:textSize="15dp" />
+            android:textSize="15dp"
+            android:enabled="false" />
 
         <Button
             android:id="@+id/initP2PButton"
@@ -46,7 +48,8 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:text="p2p"
-            android:textSize="15dp" />
+            android:textSize="15dp"
+            android:enabled="false" />
 
         <Button
             android:id="@+id/startStopButton"
