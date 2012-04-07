@@ -77,7 +77,7 @@ public class NodeListActivity extends ListActivity implements Observer
                         else if (!nc.getNodesInNetwork().containsKey(n.nodeNum))
                             tag = "(Left)";
 
-                        addNodeToList(n, "Node " + n.nodeNum + " " + tag);
+                        addNodeToList(n, "NodeID: " + n.nodeNum + " " + tag);
                     }
                 }
 

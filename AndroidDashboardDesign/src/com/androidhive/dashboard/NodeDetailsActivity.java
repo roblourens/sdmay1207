@@ -10,6 +10,7 @@ import sdmay1207.ais.network.NetworkController.Event;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.model.Heartbeat;
 import sdmay1207.ais.network.model.Node;
+import sdmay1207.ais.network.model.TextMessage;
 import sdmay1207.ais.sensors.Battery.BatteryStatus;
 import sdmay1207.ais.sensors.Compass.CompassReading;
 import sdmay1207.ais.sensors.GPS.Location;
@@ -22,6 +23,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidhive.dashboard.R;
 
 public class NodeDetailsActivity extends Activity implements Observer
@@ -36,38 +38,64 @@ public class NodeDetailsActivity extends Activity implements Observer
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.node_details);
-
+        
         nc = ((DashboardApplication) getApplication()).nc;
 
         final int nodeNum = getIntent().getIntExtra(NODE_NUM_KEY, 0);
         displayedNode = nc.getKnownNodes().get(nodeNum);
 
+        
         if (displayedNode.lastHeartbeat != null)
             updateInterfaceWithHeartbeat(displayedNode.lastHeartbeat);
 
         // Set text button listener
         final Context c = this;
-        ((Button) findViewById(R.id.sendTextButton))
-                .setOnClickListener(new OnClickListener()
+        
+        //check to see if this is the current node(My)
+        if(nodeNum==nc.getMe().nodeNum){
+            ((Button) findViewById(R.id.reqCamButton)).setEnabled(false);
+            ((Button) findViewById(R.id.sendCamButton)).setEnabled(false);
+            ((Button) findViewById(R.id.sendTextButton)).setEnabled(false);
+            
+        }
+        
+        	((Button) findViewById(R.id.sendTextButton))
+            .setOnClickListener(new OnClickListener()
+            {
+                public void onClick(View v)
                 {
-                    public void onClick(View v)
-                    {
-                        Intent i = new Intent(c, SendTextActivity.class);
-                        i.putExtra(NODE_NUM_KEY, nodeNum);
-                        startActivity(i);
-                    }
-                });
+                    Intent i = new Intent(c, SendTextActivity.class);
+                    i.putExtra(NODE_NUM_KEY, nodeNum);
+                    startActivity(i);
+                }
+            });
 
-        ((Button) findViewById(R.id.sendCamButton))
-                .setOnClickListener(new OnClickListener()
-                {
-                    public void onClick(View v)
-                    {
-                        Intent i = new Intent(c, PhotosActivity.class);
-                        i.putExtra(NODE_NUM_KEY, nodeNum);
-                        startActivity(i);
-                    }
-                });
+	        ((Button) findViewById(R.id.sendCamButton))
+	                .setOnClickListener(new OnClickListener()
+	                {
+	                    public void onClick(View v)
+	                    {
+	                        Intent i = new Intent(c, PhotosActivity.class);
+	                        i.putExtra(NODE_NUM_KEY, nodeNum);
+	                        startActivity(i);
+	                    }
+	                });
+	        
+	        ((Button) findViewById(R.id.reqCamButton))
+	        .setOnClickListener(new OnClickListener()
+	        {
+	            public void onClick(View v)
+	            {
+	            	String text= "NodeID("+nc.getMe().nodeNum+") request camera feed";
+	            	 nc.sendNetworkMessage(new TextMessage(text), nodeNum);
+	                 
+	                 
+	                 Toast.makeText(c, "Request can feed from this Node", 3).show();
+	                
+	            }
+	        });
+        
+
     }
 
     // make sure that observer has always been added and removed - see Activity
