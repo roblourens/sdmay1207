@@ -69,13 +69,9 @@ public class SendTextActivity extends Activity implements Observer
                         if(prevtext==null)
                         	prevtext=" ";
                         
-                        
                         tx.setText("ME:"+text+"\n"+prevtext);
-                        
-                        
-                        
+                                            
                         nc.sendNetworkMessage(new TextMessage(text), nodeNum);
-                        
                         
                         Toast.makeText(c, "Text message sent", 3).show();
                     }

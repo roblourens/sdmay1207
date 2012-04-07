@@ -73,6 +73,42 @@ public class PlacesActivity extends Activity implements Observer
         notificationView.setLines(MAX_LINES_OF_NOTIFICATION_TEXT);
 
         // Set button listeners
+        ((Button) findViewById(R.id.startStopButton))
+        .setOnClickListener(new OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                if (!isStarted)
+                {
+                    ((Button) findViewById(R.id.startStopButton))
+                            .setText("Starting...");
+                    ((Button) findViewById(R.id.startStopButton))
+                            .setEnabled(false);
+                    new StartupTask().execute();
+                    
+                    isStarted = true;
+                    
+                } else
+                {
+                    da.stop();
+                    isStarted = false;
+
+                    ((Button) findViewById(R.id.startStopButton))
+                            .setText("Start");
+                    //Disable network buttons
+                    ((Button) findViewById(R.id.showNodeListButton))
+                    .setEnabled(false);
+                    ((Button) findViewById(R.id.initP2PButton))
+                    .setEnabled(false);
+                    ((Button) findViewById(R.id.directNeighborsButton))
+                    .setEnabled(false);
+                   
+                    
+                }
+            }
+        });
+        
+                	
         ((Button) findViewById(R.id.showNodeListButton))
                 .setOnClickListener(new OnClickListener()
                 {
@@ -102,27 +138,7 @@ public class PlacesActivity extends Activity implements Observer
                     }
                 });
 
-        ((Button) findViewById(R.id.startStopButton))
-                .setOnClickListener(new OnClickListener()
-                {
-                    public void onClick(View v)
-                    {
-                        if (!isStarted)
-                        {
-                            ((Button) findViewById(R.id.startStopButton))
-                                    .setText("Starting...");
-                            ((Button) findViewById(R.id.startStopButton))
-                                    .setEnabled(false);
-                            new StartupTask().execute();
-                        } else
-                        {
-                            ((Button) findViewById(R.id.startStopButton))
-                                    .setText("Start");
-                            da.stop();
-                            isStarted = false;
-                        }
-                    }
-                });
+
 
         ((Button) findViewById(R.id.directNeighborsButton))
                 .setOnClickListener(new OnClickListener()
@@ -186,10 +202,15 @@ public class PlacesActivity extends Activity implements Observer
                 OverlayItem o1 = new OverlayItem("" + n.nodeNum, "title",
                         "desc", new GeoPoint(n.lastLocation.latitude,
                                 n.lastLocation.longitude));
-
-                o1.setMarker(writeOnDrawable(R.drawable.blank_icon,
+                if (n.nodeNum == nc.getMe().nodeNum)
+                	o1.setMarker(writeOnDrawable(R.drawable.my_person,
+                            ("" + n.nodeNum)));
+                else if (!nc.getNodesInNetwork().containsKey(n.nodeNum))
+                	o1.setMarker(writeOnDrawable(R.drawable.disappear_person,
+                            ("" + n.nodeNum)));
+                else
+                	o1.setMarker(writeOnDrawable(R.drawable.other_person,
                         ("" + n.nodeNum)));
-                System.out.println("it enters the map icon area");
                 items.add(o1);
             }
         }
@@ -340,7 +361,12 @@ public class PlacesActivity extends Activity implements Observer
         {
             super.onPostExecute(result);
             ((Button) findViewById(R.id.startStopButton)).setText("Stop");
+            //Enable buttons on screen
             ((Button) findViewById(R.id.startStopButton)).setEnabled(true);
+            ((Button) findViewById(R.id.showNodeListButton)).setEnabled(true);
+            ((Button) findViewById(R.id.initP2PButton)).setEnabled(true);
+            ((Button) findViewById(R.id.directNeighborsButton)).setEnabled(true);
+            
             isStarted = true;
         }
     }
