@@ -64,9 +64,9 @@ public class NetbookGPS extends GPS
                     double lat = 0, lon = 0;
                     try
                     {
-                        lat = Double.parseDouble(latStr) / 100
+                        lat = degreesFromGPSString(latStr)
                                 * (latHemisphere.equals("S") ? -1 : 1);
-                        lon = Double.parseDouble(lonStr) / 100
+                        lon = degreesFromGPSString(lonStr)
                                 * (lonHemisphere.equals("W") ? -1 : 1);
                     } catch (NumberFormatException nfe)
                     {
@@ -88,6 +88,14 @@ public class NetbookGPS extends GPS
             }
 
             System.out.println("No GPGGA in data from GPS");
+        }
+
+        private double degreesFromGPSString(String str)
+        {
+            int decimalPos = str.indexOf('.');
+            double latDegrees = Double.parseDouble(str.substring(0, decimalPos-2));
+            double latMinutes = Double.parseDouble(str.substring(decimalPos-2));
+            return latDegrees + latMinutes / 60;
         }
     }
 }
