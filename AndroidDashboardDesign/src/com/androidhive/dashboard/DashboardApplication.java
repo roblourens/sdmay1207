@@ -81,9 +81,9 @@ public class DashboardApplication extends Application
         nc.addSensor(new CompassSensor(this));
         gps = new GPSSensor(this);
         nc.addSensor(gps);
-        nc.p2pCmdr.setGUI(nm);
 
         nm = new NotificationManager();
+        nc.p2pCmdr.setGUI(nm);
 
         System.out.println("Node #: " + nodeNumber);
     }
@@ -193,6 +193,8 @@ public class DashboardApplication extends Application
         {
             addNotification(new Notification()
             {
+                private List<Location> pathToDest;
+
                 @Override
                 public String shortDisplayString()
                 {
@@ -218,10 +220,11 @@ public class DashboardApplication extends Application
                             DashboardApplication.this);
 
                     Location here = nc.getMe().lastLocation;
-                    List<Location> path = nc.p2pCmdr.getWrangler()
-                            .getPathBetweenPoints(here, command.loc);
+                    if (pathToDest == null)
+                        pathToDest = nc.p2pCmdr.getWrangler()
+                                .getPathBetweenPoints(here, command.loc);
 
-                    for (Location loc : path)
+                    for (Location loc : pathToDest)
                         po.addPoint(new GeoPoint(loc.latitude, loc.longitude));
 
                     om.add(po);
