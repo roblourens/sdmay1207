@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
@@ -16,24 +17,25 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 
-import sdmay1207.ais.network.model.Heartbeat;
-import sdmay1207.ais.network.model.Node;
+import netbook.node.Node;
+import netbook.node.NodePanel;
 
-public class NodeView extends JSplitPane{
+public class NodeView extends JSplitPane {
 
 	private static final long serialVersionUID = 1L;
 		
 	JTabbedPane tabs;
 	JList nodeList;
 	DefaultListModel listModel;
-	NetbookGUI parent;
+	NetbookFrame parent;
+	InsetTextPanel textPanel;
 	
-	NodePanel[] nodes;
+	NodePanel[] nodePanels;
 	
 	JButton backBtn;
 	
 	
-	public NodeView(final NetbookGUI parent){
+	public NodeView(final NetbookFrame parent){
 		this.parent = parent;
 		
 		listModel = new DefaultListModel();
@@ -51,7 +53,7 @@ public class NodeView extends JSplitPane{
             }
         });
 	
-		nodes = new NodePanel[255];
+		nodePanels = new NodePanel[255];
 		
 		tabs = new JTabbedPane();
 		tabs.setBackground(Color.GREEN);
@@ -64,11 +66,11 @@ public class NodeView extends JSplitPane{
 
 	}
 	
-	public void createNodes(Map<Integer, Node> nodeMap){	
+
+	public void createNodes(Map<Integer, Node> nodeMap){
 		for(int key : nodeMap.keySet()){
 			listModel.addElement("Node "+key);
-			nodes[key] = new NodePanel(key, this);
-			nodes[key].setConnection(true);
+			nodePanels[key] = new NodePanel(nodeMap.get(key), this);
 		}
 	}
 
@@ -89,8 +91,17 @@ public class NodeView extends JSplitPane{
         int index = tabs.indexOfTab("Node "+nodeNum);
         if(index >= 0){
      	  tabs.setSelectedIndex(index); 
-        } else if(nodes[nodeNum]!=null){
-        	tabs.add("Node "+nodeNum, nodes[nodeNum]);
+        } else if(nodePanels[nodeNum]!=null){
+        	index = 0;
+        	while(index < tabs.getTabCount()){
+        		if(((NodePanel) tabs.getComponentAt(index)).getNodeNumber() > nodeNum){
+        			break;
+        		}
+        		index++;
+        	}
+        	
+        	tabs.add(nodePanels[nodeNum], index);
+        	tabs.setTitleAt(index, "Node "+nodeNum);
         	tabs.setSelectedIndex(tabs.indexOfTab("Node "+nodeNum));
         }
 	}
@@ -101,38 +112,54 @@ public class NodeView extends JSplitPane{
 		tabs.remove(tabs.indexOfTab("Node "+nodeNum));
 	}
 
-	public void heartbeatUpdate(Heartbeat hb) {
-		int nodeNum = hb.from;
-				
-		if(nodes[nodeNum]!=null){
-			nodes[nodeNum].newHeartbeat(hb);
-			nodes[nodeNum].setConnection(true);
-		} else {
-			nodes[nodeNum] = new NodePanel(nodeNum,this);
-			nodes[nodeNum].setConnection(true);
-			nodes[nodeNum].newHeartbeat(hb);
-		}
-	}
-	
-	public void addNode(int nodeNum){
+	public void addNode(Node node){
+		int nodeNum = node.getNodeNumber();
 		String id = "Node "+nodeNum;
 		
 		if(!listModel.contains(id)){
 			listModel.addElement(id);
+			
+			int num = listModel.getSize();
+			String elements[] = new String[num];
+			int numbers[] = new int[num];
+			for(int i=0; i<num; i++){
+				elements[i] = (String) listModel.getElementAt(i);
+				numbers[i] = Integer.parseInt(elements[i].split(" ")[1]);
+			}
+			Arrays.sort(numbers);
+			
+			for(int i=0; i<num; i++){
+				listModel.setElementAt("Node "+numbers[i],i);
+			}
+			
 		}
 		
-		if(nodes[nodeNum]==null){
-			nodes[nodeNum] = new NodePanel(nodeNum, this);
-		}
-		
-		nodes[nodeNum].setConnection(true);
+		if(nodePanels[nodeNum]==null){
+			nodePanels[nodeNum] = new NodePanel(node, this);
+		}		
+		//nodePanels[nodeNum].setConnection(true);
 	}
 	
 	public void removeNode(int nodeNum){
 		//listModel.removeElement("Node "+data);
 		//NodelistModel.getElementAt(listModel.indexOf("Node"+data));
-		if(nodes[nodeNum]!=null){
-			nodes[nodeNum].setConnection(false);
-		}
+		//if(nodePanels[nodeNum]!=null){
+		//	nodePanels[nodeNum].setConnection(false);
+		//}
 	}
+
+
+	
+	public void sendMessage(int number, String message) {
+		parent.sendMessage(number, message);
+	}
+
+	public void sendMessageToAll(String message) {
+		parent.sendMessageToAll(message);
+	}
+	
+	public void openMap(int nodeNum){
+		parent.changeView(parent.MAPVIEW, nodeNum);
+	}
+
 }
