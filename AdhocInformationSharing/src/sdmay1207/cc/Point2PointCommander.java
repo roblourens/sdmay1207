@@ -12,7 +12,7 @@ import org.xml.sax.InputSource;
 import sdmay1207.ais.Device;
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.NodeController.CommandHandler;
-import sdmay1207.ais.etc.Repeater;
+import sdmay1207.ais.etc.Repeater.TimedRepeater;
 import sdmay1207.ais.etc.Utils;
 import sdmay1207.ais.network.model.NetworkCommand;
 import sdmay1207.ais.network.model.Node;
@@ -236,17 +236,27 @@ public class Point2PointCommander implements CommandHandler
         curState = newState;
     }
 
-    private class StateCheckTask extends Repeater
+    private class StateCheckTask extends TimedRepeater
     {
+        public StateCheckTask()
+        {
+            super(5000); // 5 secs
+            curState = P2PState.enRoute;
+        }
+
         @Override
         protected void runOnce()
         {
             Map<Integer, Node> nodes = nodeController.getNodesInNetwork();
 
+            if (curState == P2PState.inactive)
+                stop();
             if (System.currentTimeMillis() >= enRouteTimeoutTime
-                    && curState != P2PState.active)
+                    && curState != P2PState.active
+                    && curState != P2PState.enRouteToRallyPoint)
                 changeState(P2PState.enRouteToRallyPoint);
-            else if (curState == P2PState.enRoute)
+            else if (curState == P2PState.enRoute
+                    || curState == P2PState.enRouteToRallyPoint)
             {
                 Object currentLocationReading = nodeController
                         .getSensorReading(SensorType.GPS);
@@ -256,12 +266,22 @@ public class Point2PointCommander implements CommandHandler
                     RealWorldLocation currentLocation = new RealWorldLocation(
                             (Location) currentLocationReading);
 
-                    if (currentLocation.withinDeltaOf(curDest))
+                    if (curState == P2PState.enRoute)
                     {
-                        if (isHeadNode())
-                            changeState(P2PState.waiting);
-                        else
-                            changeState(P2PState.searching);
+                        if (currentLocation.withinDeltaOf(curDest))
+                        {
+                            if (isHeadNode())
+                                changeState(P2PState.waiting);
+                            else
+                                changeState(P2PState.searching);
+                        }
+                    } else
+                    {
+                        if (currentLocation
+                                .withinDeltaOf(curCommand.rallyPoint))
+                        {
+                            changeState(P2PState.inactive);
+                        }
                     }
                 }
             } else if (curState == P2PState.searching)
@@ -338,13 +358,18 @@ public class Point2PointCommander implements CommandHandler
             this.headNodeNum = headNodeNum;
             this.tailNodeNum = tailNodeNum;
             this.timeout = timeout;
+
+            // ahhhh
+            this.commandData = new String[] { loc.toString(),
+                    rallyPoint.toString(), headNodeNum + "", tailNodeNum + "",
+                    timeout + "" };
         }
 
         public GoToLocCommand(NetworkCommand command)
         {
             super(GO_TO_LOC_COMMAND_TYPE);
 
-            String[] args = command.commandData.toString().split(";");
+            String[] args = command.commandData;
             this.loc = new Location(args[0]);
             this.rallyPoint = new Location(args[1]);
             this.headNodeNum = Integer.parseInt(args[2]);
