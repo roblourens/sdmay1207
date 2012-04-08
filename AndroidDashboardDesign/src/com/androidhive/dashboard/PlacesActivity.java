@@ -17,6 +17,8 @@ import org.osmdroid.views.overlay.OverlayItem;
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.model.Node;
+import sdmay1207.ais.sensors.GPS.Location;
+import sdmay1207.cc.Point2PointCommander.GoToLocCommand;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -32,6 +34,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -74,41 +77,39 @@ public class PlacesActivity extends Activity implements Observer
 
         // Set button listeners
         ((Button) findViewById(R.id.startStopButton))
-        .setOnClickListener(new OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                if (!isStarted)
+                .setOnClickListener(new OnClickListener()
                 {
-                    ((Button) findViewById(R.id.startStopButton))
-                            .setText("Starting...");
-                    ((Button) findViewById(R.id.startStopButton))
-                            .setEnabled(false);
-                    new StartupTask().execute();
-                    
-                    isStarted = true;
-                    
-                } else
-                {
-                    da.stop();
-                    isStarted = false;
+                    public void onClick(View v)
+                    {
+                        if (!isStarted)
+                        {
+                            ((Button) findViewById(R.id.startStopButton))
+                                    .setText("Starting...");
+                            ((Button) findViewById(R.id.startStopButton))
+                                    .setEnabled(false);
+                            new StartupTask().execute();
 
-                    ((Button) findViewById(R.id.startStopButton))
-                            .setText("Start");
-                    //Disable network buttons
-                    ((Button) findViewById(R.id.showNodeListButton))
-                    .setEnabled(false);
-                    ((Button) findViewById(R.id.initP2PButton))
-                    .setEnabled(false);
-                    ((Button) findViewById(R.id.directNeighborsButton))
-                    .setEnabled(false);
-                   
-                    
-                }
-            }
-        });
-        
-                	
+                            isStarted = true;
+
+                        } else
+                        {
+                            da.stop();
+                            isStarted = false;
+
+                            ((Button) findViewById(R.id.startStopButton))
+                                    .setText("Start");
+                            // Disable network buttons
+                            ((Button) findViewById(R.id.showNodeListButton))
+                                    .setEnabled(false);
+                            ((Button) findViewById(R.id.initP2PButton))
+                                    .setEnabled(false);
+                            ((Button) findViewById(R.id.directNeighborsButton))
+                                    .setEnabled(false);
+
+                        }
+                    }
+                });
+
         ((Button) findViewById(R.id.showNodeListButton))
                 .setOnClickListener(new OnClickListener()
                 {
@@ -138,7 +139,28 @@ public class PlacesActivity extends Activity implements Observer
                     }
                 });
 
+        ((Button) findViewById(R.id.initP2PButton))
+                .setOnLongClickListener(new OnLongClickListener()
+                {
+                    public boolean onLongClick(View v)
+                    {
+                        Node differentNode = null;
+                        for (Node n : nc.getNodesInNetwork().values())
+                            if (n.nodeNum != nc.getMe().nodeNum)
+                            {
+                                differentNode = n;
+                                break;
+                            }
 
+                        if (differentNode != null)
+                            nc.sendNetworkMessage(new GoToLocCommand(
+                                    new Location(42.02740, -93.64912),
+                                    new Location(0, 0), nc.getMe().nodeNum, 15,
+                                    System.currentTimeMillis() + 100000),
+                                    differentNode.nodeNum);
+                        return false;
+                    }
+                });
 
         ((Button) findViewById(R.id.directNeighborsButton))
                 .setOnClickListener(new OnClickListener()
@@ -203,14 +225,14 @@ public class PlacesActivity extends Activity implements Observer
                         "desc", new GeoPoint(n.lastLocation.latitude,
                                 n.lastLocation.longitude));
                 if (n.nodeNum == nc.getMe().nodeNum)
-                	o1.setMarker(writeOnDrawable(R.drawable.my_person,
+                    o1.setMarker(writeOnDrawable(R.drawable.my_person,
                             ("" + n.nodeNum)));
                 else if (!nc.getNodesInNetwork().containsKey(n.nodeNum))
-                	o1.setMarker(writeOnDrawable(R.drawable.disappear_person,
+                    o1.setMarker(writeOnDrawable(R.drawable.disappear_person,
                             ("" + n.nodeNum)));
                 else
-                	o1.setMarker(writeOnDrawable(R.drawable.other_person,
-                        ("" + n.nodeNum)));
+                    o1.setMarker(writeOnDrawable(R.drawable.other_person,
+                            ("" + n.nodeNum)));
                 items.add(o1);
             }
         }
@@ -222,6 +244,8 @@ public class PlacesActivity extends Activity implements Observer
             OverlayItem oi = n.getOverlayItem();
             if (oi != null)
                 items.add(oi);
+
+            n.drawOverlay(mapView.getOverlayManager());
         }
 
         ItemizedOverlay<OverlayItem> overlay = new ItemizedIconOverlay<OverlayItem>(
@@ -361,12 +385,13 @@ public class PlacesActivity extends Activity implements Observer
         {
             super.onPostExecute(result);
             ((Button) findViewById(R.id.startStopButton)).setText("Stop");
-            //Enable buttons on screen
+            // Enable buttons on screen
             ((Button) findViewById(R.id.startStopButton)).setEnabled(true);
             ((Button) findViewById(R.id.showNodeListButton)).setEnabled(true);
             ((Button) findViewById(R.id.initP2PButton)).setEnabled(true);
-            ((Button) findViewById(R.id.directNeighborsButton)).setEnabled(true);
-            
+            ((Button) findViewById(R.id.directNeighborsButton))
+                    .setEnabled(true);
+
             isStarted = true;
         }
     }
