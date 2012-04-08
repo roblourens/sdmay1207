@@ -15,18 +15,21 @@ public class NetworkCommand extends NetworkMessage
     public String commandType;
 
     // Extra optional data, probably not used if NetworkCommand is subclassed
-    public Object commandData;
-    
+    public String[] commandData;
+
     public NetworkCommand(String commandType)
     {
+        super();
         messageType = MessageType.Command;
+        this.commandType = commandType;
     }
 
     public NetworkCommand(String commandType, Object commandData)
     {
+        super();
         messageType = MessageType.Command;
         this.commandType = commandType;
-        this.commandData = commandData;
+        this.commandData = commandData.toString().split(";");
     }
 
     /**
@@ -48,24 +51,14 @@ public class NetworkCommand extends NetworkMessage
                     + Arrays.toString(commandArgs));
             return;
         }
-        
-        commandType = data[0];
-        commandData = data[1];
-    }
 
-    public NetworkCommand()
-    {
-        super();
-        messageType = MessageType.Command;
+        commandType = data[0];
+        commandData = Utils.arrayCopy(data, 1, data.length);
     }
 
     // should be overridden by the subclass
     public String toString()
     {
-        if (commandData != null)
-            return Utils.join(";", super.toString(), commandType,
-                    commandData.toString());
-        else
-            return Utils.join(";", super.toString(), commandType);
+        return Utils.join(";", super.toString(), commandType);
     }
 }

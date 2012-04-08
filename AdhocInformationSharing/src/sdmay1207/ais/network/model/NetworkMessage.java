@@ -55,7 +55,7 @@ public class NetworkMessage
     {
         return getMessage(fromIP, new String(messageData));
     }
-
+    
     /**
      * Deserialize the message from a String
      * 

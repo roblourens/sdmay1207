@@ -25,7 +25,7 @@ public class AODV implements RoutingImpl, Observer
     {
         this.receiver = receiver;
     }
-    
+
     public boolean transmitData(int nodeNumber, byte[] data)
     {
         nodeAODV.sendData(TRANSMIT_PKT_ID, nodeNumber, data);
@@ -120,7 +120,7 @@ public class AODV implements RoutingImpl, Observer
             default:
                 System.out.println("Value Response: "
                         + ((Integer) value.getContainedData()).toString()
-                        + "\tMessage Type: " + value.getMessageType());
+                        + "\tMessage Type: " + type);
                 break;
             }
         }
