@@ -15,6 +15,7 @@ import sdmay1207.ais.sensors.Battery.BatteryStatus;
 import sdmay1207.ais.sensors.Compass.CompassReading;
 import sdmay1207.ais.sensors.GPS.Location;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
+import sdmay1207.cc.Point2PointCommander.P2PState;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -169,6 +170,9 @@ public class NodeDetailsActivity extends Activity implements Observer
                             .format(d);
                     ((TextView) findViewById(R.id.lastHB))
                             .setText("Last heartbeat: " + formattedDate);
+
+                    ((TextView) findViewById(R.id.taskStatus))
+                            .setText("Task status: " + hb.taskState.toString());
                 }
             }
         });
