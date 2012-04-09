@@ -74,7 +74,6 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 		
 		
 		home = new GeoPosition(42.029850, -93.651237);
-		setUpMap();
 	    this.add(kit, BorderLayout.CENTER);
 	    
 	    JPanel buttons = new JPanel();
