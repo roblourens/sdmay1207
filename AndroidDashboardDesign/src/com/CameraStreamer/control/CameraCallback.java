@@ -3,13 +3,13 @@ package com.CameraStreamer.control;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 
-import com.androidhive.dashboard.PhotosActivity;
+import com.androidhive.dashboard.CameraActivity;
 
 public class CameraCallback implements Callback {
 	
-	PhotosActivity parent;
+	CameraActivity parent;
 	
-	public CameraCallback(PhotosActivity parent){
+	public CameraCallback(CameraActivity parent){
 		this.parent = parent;
 	}
 	

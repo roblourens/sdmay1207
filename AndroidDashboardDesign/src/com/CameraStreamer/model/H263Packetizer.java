@@ -8,7 +8,7 @@ import sdmay1207.ais.network.NetworkController;
 import android.os.SystemClock;
 import android.util.Log;
 
-import com.androidhive.dashboard.PhotosActivity;
+import com.androidhive.dashboard.CameraActivity;
 
 public class H263Packetizer extends Thread implements Runnable
 {
@@ -40,7 +40,7 @@ public class H263Packetizer extends Thread implements Runnable
         leftoverAmount = 0;
         endOfFrame = true;
         cycle = 0;
-        Log.d(PhotosActivity.LOG_TAG, "Streaming to node" + destNodeNum);
+        Log.d(CameraActivity.LOG_TAG, "Streaming to node" + destNodeNum);
     }
 
     // Start streaming

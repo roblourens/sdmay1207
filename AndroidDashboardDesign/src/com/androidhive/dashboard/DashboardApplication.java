@@ -16,6 +16,10 @@ import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.OverlayManager;
 import org.osmdroid.views.overlay.PathOverlay;
 
+import com.sdmay1207.sensors.BatterySensor;
+import com.sdmay1207.sensors.CompassSensor;
+import com.sdmay1207.sensors.GPSSensor;
+
 import sdmay1207.ais.Device;
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.network.NetworkController.Event;
@@ -23,9 +27,6 @@ import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.NetworkMessage;
 import sdmay1207.ais.sensors.GPS.Location;
-import sdmay1207.android.sensors.BatterySensor;
-import sdmay1207.android.sensors.CompassSensor;
-import sdmay1207.android.sensors.GPSSensor;
 import sdmay1207.cc.Point2PointCommander.GoToLocCommand;
 import sdmay1207.cc.Point2PointCommander.P2PState;
 import sdmay1207.cc.Point2PointCommander.Point2PointGUI;

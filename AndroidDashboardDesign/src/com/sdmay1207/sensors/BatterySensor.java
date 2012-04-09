@@ -1,4 +1,4 @@
-package sdmay1207.android.sensors;
+package com.sdmay1207.sensors;
 
 import sdmay1207.ais.sensors.Battery;
 import android.content.Context;

@@ -13,7 +13,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.CameraStreamer.model.H263Packetizer;
-import com.androidhive.dashboard.PhotosActivity;
+import com.androidhive.dashboard.CameraActivity;
 
 public class CameraStreamer extends MediaRecorder
 {
@@ -80,7 +80,7 @@ public class CameraStreamer extends MediaRecorder
                     netController);
         } catch (IOException e)
         {
-            Log.e(PhotosActivity.LOG_TAG, "Unknown host");
+            Log.e(CameraActivity.LOG_TAG, "Unknown host");
             throw new IOException("Can't resolve host :(");
         }
 
@@ -152,7 +152,7 @@ public class CameraStreamer extends MediaRecorder
         super.start();
         vstream.startStreaming();
         streaming = true;
-        Log.d(PhotosActivity.LOG_TAG, "Camera Started");
+        Log.d(CameraActivity.LOG_TAG, "Camera Started");
 
     }
 
@@ -203,7 +203,7 @@ public class CameraStreamer extends MediaRecorder
                 receiver.close();
             } catch (IOException e)
             {
-                Log.e(PhotosActivity.LOG_TAG,
+                Log.e(CameraActivity.LOG_TAG,
                         "Error while attempting to close local sockets");
             }
             lss = null;

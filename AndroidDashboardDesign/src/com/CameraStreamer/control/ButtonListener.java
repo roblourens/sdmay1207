@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import androidhive.dashboard.R;
 
-import com.androidhive.dashboard.PhotosActivity;
+import com.androidhive.dashboard.CameraActivity;
 
 
 public class ButtonListener implements OnClickListener{
@@ -18,8 +18,8 @@ public class ButtonListener implements OnClickListener{
 
 	public void onClick(View v) {
 		if(v.equals(parent.findViewById(R.id.streambutton))){
-			Log.d(PhotosActivity.LOG_TAG,"StreamButton Clicked");
-			((PhotosActivity) parent).toggleStreaming();
+			Log.d(CameraActivity.LOG_TAG,"StreamButton Clicked");
+			((CameraActivity) parent).toggleStreaming();
 		}
 	}
 }

@@ -20,7 +20,7 @@ import com.CameraStreamer.control.ButtonListener;
 import com.CameraStreamer.control.CameraCallback;
 import com.CameraStreamer.control.CameraStreamer;
 
-public class PhotosActivity extends Activity
+public class CameraActivity extends Activity
 {
 
     // Variables for layout

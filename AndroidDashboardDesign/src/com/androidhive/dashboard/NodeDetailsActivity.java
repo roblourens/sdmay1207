@@ -76,7 +76,7 @@ public class NodeDetailsActivity extends Activity implements Observer
 	                {
 	                    public void onClick(View v)
 	                    {
-	                        Intent i = new Intent(c, PhotosActivity.class);
+	                        Intent i = new Intent(c, CameraActivity.class);
 	                        i.putExtra(NODE_NUM_KEY, nodeNum);
 	                        startActivity(i);
 	                    }
