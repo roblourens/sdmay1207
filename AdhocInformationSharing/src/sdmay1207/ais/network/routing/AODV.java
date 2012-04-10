@@ -44,6 +44,12 @@ public class AODV implements RoutingImpl, Observer
         return true;
     }
 
+    public boolean broadcastData(byte[] data)
+    {
+        nodeAODV.sendData(BCAST_PKT_ID, BROADCAST_ID, data);
+        return true;
+    }
+
     @Override
     public boolean start(String subnet, int nodeNumber)
     {

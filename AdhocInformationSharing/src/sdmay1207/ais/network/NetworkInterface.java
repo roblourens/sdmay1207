@@ -152,6 +152,11 @@ public class NetworkInterface
         System.out.println("Broadcasting: " + data.toString());
         return routingImpl.broadcastData(data.toString());
     }
+    
+    public boolean broadcastData(byte[] data)
+    {
+        return routingImpl.broadcastData(data);
+    }
 
     public boolean sendData(int nodeNum, Object data)
     {

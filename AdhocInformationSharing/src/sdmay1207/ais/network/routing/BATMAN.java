@@ -278,4 +278,11 @@ public class BATMAN implements RoutingImpl
             }
         }
     }
+
+    @Override
+    public boolean broadcastData(byte[] data)
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }

@@ -47,7 +47,7 @@ public class SmallRtpSocket
         System.arraycopy(buffer, 0, sendBuffer, 0, length);
 
         // send
-        netController.transmitData(destNodeNum, sendBuffer);
+        netController.transmitDataUnencrypted(destNodeNum, sendBuffer);
 
         // If it was marked as end of frame, unmark
         if (upts)

@@ -12,6 +12,8 @@ public interface RoutingImpl
     public boolean transmitData(int nodeNumber, String data);
 
     public boolean broadcastData(String data);
+    
+    public boolean broadcastData(byte[] data);
 
     public boolean start(String subnet, int nodeNumber);
 

@@ -73,4 +73,42 @@ public class Utils
 
         return null;
     }
+
+    /**
+     * Turns array of bytes into string. From
+     * http://java.sun.com/developer/technicalArticles/Security/AES/AES_v1.html
+     * 
+     * @param buf
+     *            Array of bytes to convert to hex string
+     * @return Generated hex string
+     */
+    public static String bytesToHexStr(byte buf[])
+    {
+        StringBuffer strbuf = new StringBuffer(buf.length * 2);
+        int i;
+
+        for (i = 0; i < buf.length; i++)
+        {
+            if (((int) buf[i] & 0xff) < 0x10)
+                strbuf.append("0");
+
+            strbuf.append(Long.toString((int) buf[i] & 0xff, 16));
+        }
+
+        return strbuf.toString();
+    }
+    
+    public static byte[] hexStrToBytes(String hexStr)
+    {
+        byte[] bytes = new byte[hexStr.length()/2];
+        
+        for (int i=0; i<hexStr.length(); i+=2)
+        {
+            String byteStr = hexStr.substring(i, i+2);
+            byte theByte = (byte) Integer.parseInt(byteStr, 16);
+            bytes[i/2] = theByte;
+        }
+        
+        return bytes;
+    }
 }

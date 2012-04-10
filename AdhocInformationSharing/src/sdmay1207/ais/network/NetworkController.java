@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
@@ -12,7 +14,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+
 import sdmay1207.ais.etc.Repeater;
+import sdmay1207.ais.etc.Utils;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Heartbeat;
 import sdmay1207.ais.network.model.NetworkMessage;
@@ -27,7 +36,11 @@ public class NetworkController extends Observable
 {
     public NetworkInterface networkInterface;
     public Receiver r;
+
     private boolean isRunning = false;
+    private Cipher encryptCipher;
+    private Cipher decryptCipher;
+    private String keyHex = "8a8492e4a036b29809fb8968d591cea0";
 
     // Note: node objects between knownNodes/connectedNodes are the same
     // A map of all nodes which have been seen so far - at this point, may or
@@ -59,6 +72,30 @@ public class NetworkController extends Observable
             this.event = event;
             this.data = data;
             this.rcvdTimestamp = System.currentTimeMillis();
+        }
+    }
+
+    public NetworkController()
+    {
+        try
+        {
+            SecretKeySpec skeySpec = new SecretKeySpec(
+                    Utils.hexStrToBytes(keyHex), "AES");
+
+            encryptCipher = Cipher.getInstance("AES");
+            encryptCipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+
+            decryptCipher = Cipher.getInstance("AES");
+            decryptCipher.init(Cipher.DECRYPT_MODE, skeySpec);
+        } catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e)
+        {
+            e.printStackTrace();
+        } catch (InvalidKeyException e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -97,7 +134,10 @@ public class NetworkController extends Observable
      */
     public boolean sendHeartbeat(Heartbeat hb)
     {
-        return networkInterface.broadcastData(hb);
+        byte[] encrypted = encryptedData(hb.toString().getBytes());
+        System.out
+                .println("decrypted: " + new String(decryptedData(encrypted)));
+        return networkInterface.broadcastData(encrypted);
     }
 
     /**
@@ -105,12 +145,19 @@ public class NetworkController extends Observable
      */
     public boolean sendNetworkMessage(NetworkMessage message, int destNodeNum)
     {
-        return networkInterface.sendData(destNodeNum, message);
+        return networkInterface.sendData(destNodeNum, encryptedData(message
+                .toString().getBytes()));
     }
 
     public boolean broadcastNetworkMessage(NetworkMessage message)
     {
-        return networkInterface.broadcastData(message);
+        return networkInterface.broadcastData(encryptedData(message.toString()
+                .getBytes()));
+    }
+
+    public boolean transmitDataUnencrypted(int destNodeNum, byte[] data)
+    {
+        return networkInterface.sendData(destNodeNum, data);
     }
 
     /**
@@ -161,11 +208,6 @@ public class NetworkController extends Observable
         return neighborMap;
     }
 
-    public void transmitData(int nodeNum, byte[] data)
-    {
-        networkInterface.sendData(nodeNum, data);
-    }
-
     public boolean isRunning()
     {
         return isRunning;
@@ -184,6 +226,44 @@ public class NetworkController extends Observable
 
         if (!connectedNodes.containsKey(hb.from))
             connectedNodes.put(hb.from, knownNodes.get(hb.from));
+    }
+
+    private byte[] encryptedData(byte[] data)
+    {
+
+        byte[] encrypted = new byte[0];
+        try
+        {
+            encrypted = encryptCipher.doFinal(data);
+        } catch (IllegalBlockSizeException e)
+        {
+            e.printStackTrace();
+        } catch (BadPaddingException e)
+        {
+            e.printStackTrace();
+        }
+
+        System.out.println("encrypted string: "
+                + Utils.bytesToHexStr(encrypted));
+
+        return encrypted;
+    }
+
+    private byte[] decryptedData(byte[] data)
+    {
+        byte[] original = new byte[0];
+        try
+        {
+            original = decryptCipher.doFinal(data);
+        } catch (IllegalBlockSizeException e)
+        {
+            e.printStackTrace();
+        } catch (BadPaddingException e)
+        {
+            e.printStackTrace();
+        }
+
+        return original;
     }
 
     /**
@@ -244,6 +324,14 @@ public class NetworkController extends Observable
             if (data[0] == -128 && (data[1] == 74 || data[1] == -54))
             {
                 handleCameraStreamPacket(data);
+                return;
+            }
+
+            data = decryptedData(data);
+            if (data.length == 0)
+            {
+                System.err
+                        .println("Received data was empty or could not be decrypted - dropping");
                 return;
             }
 
