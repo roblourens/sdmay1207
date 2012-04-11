@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -41,7 +42,8 @@ public class DashboardApplication extends Application
     public NodeController nc = null;
     public NotificationManager nm;
     public GPSSensor gps;
-
+    public HashMap<Integer,String> text;
+    public HashMap<Integer,Integer> lastChecked;
     @Override
     public void onCreate()
     {
@@ -52,7 +54,8 @@ public class DashboardApplication extends Application
         Random r = new Random();
         int nodeNumber = r.nextInt(245) + 10; // reserve the single-digit
                                               // ones
-
+        text= new HashMap<Integer,String>();
+        lastChecked= new HashMap<Integer,Integer>();
         String filename = "Sidewalks.osm";
         String dataRoot = getApplicationContext().getFilesDir().getParent();
         File dataDir = new File(dataRoot, "/files");

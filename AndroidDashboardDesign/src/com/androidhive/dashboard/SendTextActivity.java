@@ -35,8 +35,12 @@ public class SendTextActivity extends Activity implements Observer
         da= ((DashboardApplication) getApplication());
         nc = ((DashboardApplication) getApplication()).nc;
         nodeNum = getIntent().getIntExtra(NodeDetailsActivity.NODE_NUM_KEY, 0);
-
-        // set title text
+        if(!da.text.containsKey(nodeNum))
+        {
+        	da.text.put(nodeNum, "");
+        	da.lastChecked.put(nodeNum, 0);
+            
+        }// set title text
         ((TextView) findViewById(R.id.sendTextTitle))
                 .setText("Send a text message to node " + nodeNum);
 
@@ -45,17 +49,22 @@ public class SendTextActivity extends Activity implements Observer
         tx =(TextView)findViewById(R.id.textSent);
         
         //Add previous text message to texbox
-        for(int i=da.nm.notifications.size()-1;i>-1;i--)
+        for(int i=da.lastChecked.get(nodeNum);i<da.nm.notifications.size();i++)
         {
         	NetworkEventNotification notification= (NetworkEventNotification) da.nm.notifications.get(i);
         	if(notification.isTextMessage())
         	{
         		String msg = notification.netEvent.data.toString();
-    			tx.setText("Node"+msg+"\n"+tx.getText());
+        		String text= da.text.get(nodeNum);
+        		da.text.remove(nodeNum);
+        		da.text.put(nodeNum, ("Node"+nodeNum+": "+msg.substring(msg.lastIndexOf(';')+1)+"\n"+text));
+    			
         	}
         		
         }
-        
+        da.lastChecked.remove(nodeNum);
+        da.lastChecked.put(nodeNum, da.nm.notifications.size());
+        tx.setText(da.text.get(nodeNum));
         
         ((Button) findViewById(R.id.sendButton))
                 .setOnClickListener(new OnClickListener()
@@ -64,15 +73,15 @@ public class SendTextActivity extends Activity implements Observer
                     {
                         String text = ((EditText) findViewById(R.id.textToSend))
                                 .getText().toString();
-                        String prevtext = ((TextView) findViewById(R.id.textSent))
-                                .getText().toString();
-                        if(prevtext==null)
-                        	prevtext=" ";
                         
-                        tx.setText("ME:"+text+"\n"+prevtext);
-                                            
-                        nc.sendNetworkMessage(new TextMessage(text), nodeNum);
                         
+                       String prevText= da.text.get(nodeNum);
+                		da.text.remove(nodeNum);
+                		prevText= "Me: "+text+"\n"+prevText;
+                		da.text.put(nodeNum, prevText);
+            			tx.setText(da.text.get(nodeNum));
+            			
+                        nc.sendNetworkMessage(new TextMessage(text), nodeNum);                        
                         Toast.makeText(c, "Text message sent", 3).show();
                     }
                 });
@@ -85,7 +94,15 @@ public class SendTextActivity extends Activity implements Observer
 			// TextMessage tm = (TextMessage) notification.netEvent.data;
 			String msg = notification.netEvent.data.toString();
 			
-			tx.setText(msg+"\n"+tx.getText());
+			String text= da.text.get(nodeNum);
+    		da.text.remove(nodeNum);
+    		da.text.put(nodeNum, ("Node"+nodeNum+": "+msg.substring(msg.lastIndexOf(';')+1)+"\n"+text));
+			
+			
+			
 		}
+		tx.setText(da.text.get(nodeNum));
+        //tx.refreshDrawableState();
+        tx.invalidate();
 	}
 }
