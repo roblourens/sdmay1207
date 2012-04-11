@@ -16,9 +16,12 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import netbook.map.MapMouseListener;
+import netbook.map.NodeWaypoint;
 import netbook.map.TileInfo;
 import netbook.node.HoverPanel;
 import netbook.node.Node;
+import netbook.textmessenger.InsetTextPanel;
+import netbook.textmessenger.TextMessengerListener;
 
 import org.jdesktop.swingx.JXMapKit;
 import org.jdesktop.swingx.JXMapViewer;
@@ -112,7 +115,7 @@ public class MapView extends JPanel implements TextMessengerListener,  MouseMoti
 					
 			        Point2D gp_pt = map.getTileFactory().geoToPixel(wp.getLocation(), map.getZoom());
 			        Point gpPoint = new Point((int)gp_pt.getX()-rect.x, (int)gp_pt.getY()-rect.y);
-					icon.paintIcon(map, g, gpPoint.x, gpPoint.y);		
+					icon.paintIcon(map, g, gpPoint.x-icon.getIconWidth()/2, gpPoint.y-icon.getIconHeight());		
 					System.out.println("Painting Icon["+node.getNodeNumber()+" ("+wp.getLocation().toString()+") at "+gpPoint.x+" "+gpPoint.y);
 				}
 			}
@@ -190,10 +193,12 @@ public class MapView extends JPanel implements TextMessengerListener,  MouseMoti
 	@Override
 	public void sendMessage(int number, String message) {
 		parent.sendMessage(number, message);	
+		this.closeTextMessenger();
 	}
 	@Override
 	public void sendMessageToAll(String message) {
 		parent.sendMessageToAll(message);
+		this.closeTextMessenger();
 	}
 	@Override
 	public void closeTextMessenger() {

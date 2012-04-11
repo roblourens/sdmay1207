@@ -16,9 +16,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import netbook.InsetTextPanel;
+import netbook.textmessenger.InsetTextPanel;
 import netbook.NodeView;
-import netbook.TextMessengerListener;
+import netbook.textmessenger.TextMessengerListener;
 
 
 public class NodePanel extends JPanel implements ActionListener, Observer, TextMessengerListener{

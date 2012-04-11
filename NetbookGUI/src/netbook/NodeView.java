@@ -19,6 +19,7 @@ import javax.swing.ListSelectionModel;
 
 import netbook.node.Node;
 import netbook.node.NodePanel;
+import netbook.textmessenger.InsetTextPanel;
 
 public class NodeView extends JSplitPane {
 
@@ -152,14 +153,21 @@ public class NodeView extends JSplitPane {
 	
 	public void sendMessage(int number, String message) {
 		parent.sendMessage(number, message);
+		this.closeTextMessenger();
 	}
 
 	public void sendMessageToAll(String message) {
 		parent.sendMessageToAll(message);
+		this.closeTextMessenger();
 	}
 	
 	public void openMap(int nodeNum){
 		parent.changeView(parent.MAPVIEW, nodeNum);
+	}
+	public void closeTextMessenger() {
+		textPanel.setVisible(false);
+		textPanel = null;
+		
 	}
 
 }

@@ -20,6 +20,8 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import netbook.map.TileInfo;
+import netbook.textmessenger.InsetTextPanel;
+import netbook.textmessenger.TextMessengerListener;
 
 import org.jdesktop.swingx.JXMapKit;
 import org.jdesktop.swingx.JXMapViewer;
@@ -35,12 +37,13 @@ import sdmay1207.cc.Point2PointCommander.P2PState;
 import sdmay1207.cc.Point2PointCommander.Point2PointGUI;
 import sdmay1207.cc.Point2PointCommander.TooFewNodesException;
 
-public class P2PView extends JPanel implements ActionListener, MouseListener, Point2PointGUI {
+public class P2PView extends JPanel implements ActionListener, MouseListener, Point2PointGUI, TextMessengerListener{
 	
 	private static final long serialVersionUID = 1L;
 	
 	JXMapKit kit;
 	NetbookFrame parent;
+	InsetTextPanel textPanel;
 	Point2PointCommander p2pCmdr;
 	GoToLocCommand command;
 	Waypoint[] waypoints;
@@ -60,13 +63,13 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 	JButton backBtn;
 	private JButton undoBtn;
 	private JButton startBtn;
+	private JButton msgBtn;
 			
 
 	public P2PView(NetbookFrame parent){
 		this.parent = parent;
 		this.setLayout(new BorderLayout());
-		//this.p2pCmdr = parent.getP2PCommander();
-	
+			
 		selectedLocations = new Location[3];
 		settingPoint = 0;
 		waypoints = new Waypoint[4];
@@ -74,11 +77,11 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 		
 		
 		home = new GeoPosition(42.029850, -93.651237);
-	    this.add(kit, BorderLayout.CENTER);
+
 	    
 	    JPanel buttons = new JPanel();
 	    		
-	    backBtn = new JButton("Back");
+	    backBtn = new JButton("Back to Main View");
 		backBtn.addActionListener(parent);
 		backBtn.setBackground(new Color(16, 150, 70));
 
@@ -87,18 +90,25 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 		undoBtn.addActionListener(this);
 		undoBtn.setBackground(new Color(16, 150, 70));
 
+		msgBtn = new JButton("Send Message");
+		msgBtn.addActionListener(this);
+		msgBtn.setBackground(new Color(16, 150, 70));
+
 
 	    startBtn = new JButton("Start");
 	    startBtn.addActionListener(this);
 	    startBtn.setBackground(new Color(16, 150, 70));
 		
+
+		buttons.add(backBtn);
 	    buttons.add(startBtn);
 		buttons.add(undoBtn);
-		buttons.add(backBtn);
+		buttons.add(msgBtn);
 		
 		this.add(buttons, BorderLayout.SOUTH);
 		
 		setUpMap();
+	    this.add(kit, BorderLayout.CENTER);
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -121,8 +131,7 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 			protected void doPaint(Graphics2D g, JXMapViewer map, int width, int height) {
 		        Rectangle rect = map.getViewportBounds();
 		        
-				//for (Waypoint wp : waypoints) {
-		        for(int i=0; i<waypoints.length && waypoints[i]!=null; i++){
+				for(int i=0; i<waypoints.length && waypoints[i]!=null; i++){
 					ImageIcon icon = null;
 					
 		        	switch(i){
@@ -131,18 +140,28 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 		        	case 2 :	icon = new ImageIcon(rallyIcon); break;
 		        	case 3 :	icon = new ImageIcon(destIcon); break;
 		        	}
-					//Node node = wp.getNode();
-
+					
 					Waypoint wp = waypoints[i];
 			        Point2D gp_pt = map.getTileFactory().geoToPixel(wp.getPosition(), map.getZoom());
 			        Point gpPoint = new Point((int)gp_pt.getX()-rect.x, (int)gp_pt.getY()-rect.y);
-		        	//Point gpPoint = convertPositionToPoint(wp.getPosition());
-					icon.paintIcon(map, g, gpPoint.x, gpPoint.y);		
+		        	icon.paintIcon(map, g, gpPoint.x-icon.getIconWidth()/2, gpPoint.y-icon.getIconHeight());		
 					System.out.println("Painting Icon("+wp.getPosition().toString()+") at "+gpPoint.x+" "+gpPoint.y);
 				}
 		        
 		        g.setColor(Color.RED);
-		        g.setFont(new Font("Serif", Font.BOLD, 32));
+		        g.setFont(new Font("Serif", Font.BOLD, 16));
+		        int strLength = 30;
+		        /*if(status.length()>strLength){
+		        	int j=0;
+		        	while(j*30<status.length()){
+		        		if(j*strLength+strLength<status.length()){
+		        			g.drawString(status.substring(j*strLength,j*strLength+strLength), 30, 60+j*30);
+		        		} else {
+		        			g.drawString(status.substring(j*strLength), 30, 60+j*30);
+		        		}
+		        		j+=1;
+		        	}
+		        }*/
 		        g.drawString(status, 30, 60);
 			}
 		};
@@ -155,12 +174,17 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 		if((this.p2pCmdr = parent.getP2PCommander()) != null){
 			p2pModeOn = true;
 			setupForPoint(settingPoint);
+			for(Waypoint wp : waypoints) if(wp!=null) wp.setPosition(new GeoPosition(0, 0));
+			settingPoint = 0;
 		} else {
 			setStatus("Network not started!Please start network");
 		}
+		kit.getMainMap().repaint();
 	}
 	public void stopP2P(){
 		p2pModeOn = false;
+		for(Waypoint wp : waypoints) wp = null;
+		
 	}
 	
 	
@@ -183,7 +207,6 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 			settingPoint = 0;
 			p2pModeOn = false;
 			
-
 			try {
 				p2pCmdr.initiateP2PTask(selectedLocations[0],
 						selectedLocations[1], selectedLocations[2], 1000000);
@@ -216,13 +239,17 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 		default:
 			break;
 		}
+		kit.getMainMap().repaint();
 	}
 
+	
 	private void undoP2P(){
-		waypoints[settingPoint] = null;
-		selectedLocations[settingPoint] = null;
-		settingPoint--;
-		settingNextPoint();
+		if(settingPoint > 0){
+			waypoints[settingPoint] = null;
+			selectedLocations[settingPoint] = null;
+			settingPoint--;
+			setupForPoint(settingPoint);
+		}
 	}
 
 	// Point2Point GUI Methods
@@ -327,6 +354,8 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 			
 		} else if (action.getSource() == startBtn) {
 			startP2P();
+		} else if (action.getSource() == msgBtn){
+			openTextMessenger(0);
 		}
 		
 	}
@@ -348,12 +377,28 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 	public void mouseExited(MouseEvent arg0) {}
 	@Override
 	public void mousePressed(MouseEvent arg0) {}
-	@Override
 	public void mouseReleased(MouseEvent arg0) {}
 
-
 	
-	
+	// TextMessenger Listener Methods
+	public void sendMessage(int number, String message) {
+		parent.sendMessage(number, message);
+		this.closeTextMessenger();
+	}
+	public void sendMessageToAll(String message) {
+		parent.sendMessageToAll(message);
+		this.closeTextMessenger();
+	}
+	public void closeTextMessenger() {
+		textPanel.setVisible(false);
+		textPanel = null;
+	}
+	public void openTextMessenger(int nodeNum) {
+		textPanel = new InsetTextPanel(this, parent.getThisNodeNumber());
+		this.add(textPanel, BorderLayout.EAST);
+		textPanel.setDestination(nodeNum);	
+		this.updateUI();
+	}
 	
 	
 	

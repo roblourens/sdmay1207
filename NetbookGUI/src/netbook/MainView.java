@@ -11,6 +11,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import netbook.textmessenger.TextPanel;
+
 public class MainView extends JPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -96,8 +98,8 @@ public class MainView extends JPanel {
 	    retPanel.add(startStop);
 	    retPanel.add(mapView);
 	    retPanel.add(nodeView);
-	    retPanel.add(camView);
 	    retPanel.add(p2pBtn);
+	    retPanel.add(camView);
 	    
 		return retPanel;
 	}

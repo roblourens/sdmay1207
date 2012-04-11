@@ -212,6 +212,7 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 				nodes.put(hb.from, new Node(hb.from));
 				Node node = nodes.get(hb.from);
 				node.newHeartbeat(hb);
+				nodeView.addNode(node);
 				mapView.addNode(node);
 			}
 			break;
@@ -231,19 +232,22 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 			} else {
 				node.setConnection(true);
 			}
+			setStatus("Node joined: "+netEvent.data);
 			break;
 
 		case NodeLeft:
 			System.out.println("Received a node left from " + netEvent.data);
 			mainView.displayMessage("Node left: " + netEvent.data);
-			// nodeView.removeNode((Integer) netEvent.data);
 			nodes.get((Integer) netEvent.data).setConnection(false);
+			setStatus("Node Left: "+netEvent.data);
 			break;
 
 		case RecvdTextMessage:
-			System.out.println("Received TExt message");
+			System.out.println("Received Text message");
 			TextMessage tm = (TextMessage) netEvent.data;
 			mainView.displayMessage(tm.from, nodeNum, tm.message);
+			//nodes.get(tm.from).addMessage(tm.from, tm.message);
+			setStatus("Received Text Message");
 			
 		}
 	}
