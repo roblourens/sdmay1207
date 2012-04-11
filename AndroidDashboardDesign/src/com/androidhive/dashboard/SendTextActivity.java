@@ -64,6 +64,14 @@ public class SendTextActivity extends Activity implements Observer
         }
         da.lastChecked.remove(nodeNum);
         da.lastChecked.put(nodeNum, da.nm.notifications.size());
+       /* runOnUiThread(new Runnable()
+        {
+            public void run()
+            {
+            	tx.setText(da.text.get(nodeNum));
+                
+            }
+        });*/
         tx.setText(da.text.get(nodeNum));
         
         ((Button) findViewById(R.id.sendButton))
@@ -101,8 +109,16 @@ public class SendTextActivity extends Activity implements Observer
 			
 			
 		}
-		tx.setText(da.text.get(nodeNum));
+		/*
+		runOnUiThread(new Runnable()
+        {
+            public void run()
+            {
+            	 }
+        });*/
+		tx.setText(da.text.get(nodeNum));       
+		
         //tx.refreshDrawableState();
-        tx.invalidate();
+        tx.postInvalidate();//invalidate();
 	}
 }
