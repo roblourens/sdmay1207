@@ -19,7 +19,7 @@ public class Point2PointNodeWrangler
 
     // Consider this to be the furthest that a connection can be made with
     // roughly a line of sight, in meters
-    private static final int MAX_LINE_OF_SIGHT_DIST = 150;
+    private static final int MAX_LINE_OF_SIGHT_DIST = 200;
 
     public Point2PointNodeWrangler(LocationGraph graph)
     {
@@ -163,7 +163,7 @@ public class Point2PointNodeWrangler
         }
 
         System.out.println("Need " + positions.size()
-                + " nodes before filling in long segments");
+                + " nodes before filling in long segments, have " + n);
 
         // Not enough nodes to cover all corners - if we eventually consider
         // known obstacles, this is one place it would be useful
@@ -183,7 +183,10 @@ public class Point2PointNodeWrangler
         int[] extras = extraNodeAssignments(positions, extraNodes);
 
         if (!haveEnoughNodes(positions, extras, extraNodes))
+        {
+            System.out.println("Too large gaps");
             return null;
+        }
 
         return placeExtraNodes(positions, extras);
     }
@@ -271,7 +274,7 @@ public class Point2PointNodeWrangler
         return filledPositions;
     }
 
-    private final int REASONABLE_SMALL_ANGLE = 10; // deg
+    private final int REASONABLE_SMALL_ANGLE = 15; // deg
 
     // Looks at the nodes 3 at a time. If the group is close to a straight line,
     // then the middle is removed

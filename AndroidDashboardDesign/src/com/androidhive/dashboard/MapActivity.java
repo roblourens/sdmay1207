@@ -220,6 +220,8 @@ public class MapActivity extends Activity implements Observer
             OverlayItem oi = n.getOverlayItem();
             if (oi != null)
                 items.add(oi);
+            
+            n.drawOverlay(mapView.getOverlayManager());
         }
 
         ItemizedOverlay<OverlayItem> overlay = new ItemizedIconOverlay<OverlayItem>(
