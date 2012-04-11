@@ -6,7 +6,7 @@ import sdmay1207.ais.sensors.GPS.Location;
 public class RealWorldLocation
 {
     // If two Locations are within DELTA meters, consider them equal
-    public static final double DELTA = 8;
+    public static final double DELTA = 20;
     
     public Location loc;
     
