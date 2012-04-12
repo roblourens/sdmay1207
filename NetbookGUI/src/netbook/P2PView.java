@@ -256,10 +256,11 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 	@Override
 	public void p2pInitiated(GoToLocCommand command) {
 		this.command = command;
-		String message = "Node "+command.from+" has initiated a point-to-point task. Go to "
+		String message = "Node "+command.from+" has initiated a point-to-point task. \nGo to "
                 		+command.loc+" to relay video.";
 		setDirections(command.loc);
 		setStatus(message);
+		parent.changeView(parent.P2PVIEW, parent.getThisNodeNumber());
 	}
 	@Override
 	public void stateChanged(P2PState newState){
@@ -360,7 +361,6 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 		
 	}
 
-	
 	
 	
 	// MouseListener Methods

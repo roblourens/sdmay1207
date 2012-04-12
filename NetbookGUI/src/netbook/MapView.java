@@ -130,6 +130,7 @@ public class MapView extends JPanel implements TextMessengerListener,  MouseMoti
 		if(waypointMapper.get(node.getNodeNumber())==null){
 			waypointMapper.put(node.getNodeNumber(), new NodeWaypoint(this, node));
 			System.out.println("Adding node to map");
+			kit.getMainMap().repaint();
 			return true;
 		} else {
 			return false;
