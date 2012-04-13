@@ -103,7 +103,7 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 	
 	public void createNetwork() {
 		nc = new NodeController(nodeNum, DATADIR);
-
+		nc.p2pCmdr.setGUI(p2pView);
 		nc.addNetworkObserver(this);
 		nodes = getNodes();
 
@@ -174,6 +174,10 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 			((CardLayout) views.getLayout()).show(views, NODEVIEW);
 			nodeView.openNode(nodeNum);
 			System.out.println("Node Info Clicked");
+			
+		} else if (action.getSource() == mainView.nodeInfo) { // Node Info
+			mainView.clearPanel();
+			System.out.println("Clear Button Clicked");
 
 		} else if (action.getSource() == camView.playBtn) { // Play Button
 			if (new File(spdFile).exists()) {
@@ -194,13 +198,15 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 
 	public void update(Observable observable, Object obj) {
 		NetworkEvent netEvent = (NetworkEvent) obj;
+		Node node = null;
 		switch (netEvent.event) {
 		case RecvdHeartbeat:
 		case SentHeartbeat:
 			Heartbeat hb = (Heartbeat) netEvent.data;
 			System.out.println("Got heartbeat from " + hb.from + ": "
 					+ hb.toString());
-			if (nodes.get(hb.from) != null) {
+			node = nodes.get(hb.from);
+			if (node != null) {
 				nodes.get(hb.from).newHeartbeat(hb);
 				// mapView.updateNodes(nodes.get(hb.from));
 			} else {
@@ -210,17 +216,18 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 						+ netEvent.data
 						+ "\n\tIt was not in system\n\tAdding it now");
 				nodes.put(hb.from, new Node(hb.from));
-				Node node = nodes.get(hb.from);
+				node = nodes.get(hb.from);
 				node.newHeartbeat(hb);
 				nodeView.addNode(node);
 				mapView.addNode(node);
 			}
+			node.setConnection(true);
 			break;
 
 		case NodeJoined:
 			System.out.println("Received a Node joined message from "
 					+ netEvent.data);
-			Node node = nodes.get((Integer) netEvent.data);
+			node = nodes.get((Integer) netEvent.data);
 			if (node == null) {
 				node = new Node((Integer) netEvent.data);
 				nodes.put((Integer) netEvent.data, node);

@@ -131,27 +131,29 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 			protected void doPaint(Graphics2D g, JXMapViewer map, int width, int height) {
 		        Rectangle rect = map.getViewportBounds();
 		        
-				for(int i=0; i<waypoints.length && waypoints[i]!=null; i++){
-					ImageIcon icon = null;
-					
-		        	switch(i){
-		        	case 0 :	icon = new ImageIcon(fromIcon); break;
-		        	case 1 :	icon = new ImageIcon(toIcon); break;
-		        	case 2 :	icon = new ImageIcon(rallyIcon); break;
-		        	case 3 :	icon = new ImageIcon(destIcon); break;
-		        	}
-					
-					Waypoint wp = waypoints[i];
-			        Point2D gp_pt = map.getTileFactory().geoToPixel(wp.getPosition(), map.getZoom());
-			        Point gpPoint = new Point((int)gp_pt.getX()-rect.x, (int)gp_pt.getY()-rect.y);
-		        	icon.paintIcon(map, g, gpPoint.x-icon.getIconWidth()/2, gpPoint.y-icon.getIconHeight());		
-					System.out.println("Painting Icon("+wp.getPosition().toString()+") at "+gpPoint.x+" "+gpPoint.y);
+				for(int i=0; i<waypoints.length; i++){
+					if(waypoints[i]!=null){
+						ImageIcon icon = null;
+						
+			        	switch(i){
+			        	case 0 :	icon = new ImageIcon(fromIcon); break;
+			        	case 1 :	icon = new ImageIcon(toIcon); break;
+			        	case 2 :	icon = new ImageIcon(rallyIcon); break;
+			        	case 3 :	icon = new ImageIcon(destIcon); break;
+			        	}
+						
+						Waypoint wp = waypoints[i];
+				        Point2D gp_pt = map.getTileFactory().geoToPixel(wp.getPosition(), map.getZoom());
+				        Point gpPoint = new Point((int)gp_pt.getX()-rect.x, (int)gp_pt.getY()-rect.y);
+			        	icon.paintIcon(map, g, gpPoint.x-icon.getIconWidth()/2, gpPoint.y-icon.getIconHeight());		
+						System.out.println("Painting Icon("+wp.getPosition().toString()+") at "+gpPoint.x+" "+gpPoint.y);
+					}
 				}
 		        
 		        g.setColor(Color.RED);
 		        g.setFont(new Font("Serif", Font.BOLD, 16));
-		        int strLength = 30;
-		        /*if(status.length()>strLength){
+		        /*int strLength = 30;
+		        if(status.length()>strLength){
 		        	int j=0;
 		        	while(j*30<status.length()){
 		        		if(j*strLength+strLength<status.length()){
@@ -255,8 +257,9 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 	// Point2Point GUI Methods
 	@Override
 	public void p2pInitiated(GoToLocCommand command) {
+		p2pModeOn = true;
 		this.command = command;
-		String message = "Node "+command.from+" has initiated a point-to-point task. \nGo to "
+		String message = "Node "+command.from+" has initiated a point-to-point task.\nGo to "
                 		+command.loc+" to relay video.";
 		setDirections(command.loc);
 		setStatus(message);
@@ -297,14 +300,14 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 	
 	
 	public void setStatus(String message){
-		//kit.getMainMap().getGraphics().drawString(message, 0, 0);
 		status = message;
 		kit.getMainMap().repaint();
 	}
 	public void setDirections(Location loc){
-		Point start = convertLocationToPoint(parent.getThisNodeLocation());
-		Point end = convertLocationToPoint(loc);
-		kit.getMainMap().getGraphics().drawLine(start.x, start.y, end.x, end.y);
+		//Point start = convertLocationToPoint(parent.getThisNodeLocation());
+		//Point end = convertLocationToPoint(loc);
+		//kit.getMainMap().getGraphics().drawLine(start.x, start.y, end.x, end.y);
+		waypoints[3] = new Waypoint(new GeoPosition((double)loc.latitude, (double) loc.longitude));
 	}
 	public void setDirectionsFull(Location loc){
 		Location currentLocation = parent.getThisNodeLocation();
@@ -318,8 +321,7 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 		}
 	}
 
-	// Action listener Methods
-		
+
 	public Point convertPositionToPoint(GeoPosition gp){
 		JXMapViewer map = kit.getMainMap();
         Rectangle rect = map.getViewportBounds();
@@ -327,7 +329,6 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 		System.out.println("GTP: Converted "+gp.toString()+"to "+gp_pt.toString()+" rectx:"+rect.x+" recty:"+rect.y);
 		return new Point((int)(gp_pt.getX()-rect.x), (int)(gp_pt.getY()-rect.y));
 	}
-	
 	public Point convertLocationToPoint(Location loc){
 		JXMapViewer map = kit.getMainMap();
         Rectangle rect = map.getViewportBounds();
@@ -336,7 +337,6 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 		System.out.println("LTP: Converted "+gp.toString()+"to "+gp_pt.toString()+"rectx:"+rect.x+" recty:"+rect.y);
 		return new Point((int)(gp_pt.getX()-rect.x), (int)(gp_pt.getY()-rect.y));
 	}
-	
 	public Location convertPointToLocation(Point point){
 		JXMapViewer map = kit.getMainMap();
 		Rectangle rect = map.getViewportBounds();
@@ -347,7 +347,7 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 	}
 	
 	
-	
+	// Action listener Methods
 	@Override
 	public void actionPerformed(ActionEvent action) {
 		if (action.getSource() == undoBtn) {

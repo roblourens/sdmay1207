@@ -70,7 +70,7 @@ public class NodeView extends JSplitPane {
 
 	public void createNodes(Map<Integer, Node> nodeMap){
 		for(int key : nodeMap.keySet()){
-			listModel.addElement("Node "+key);
+			listModel.addElement("Node ID "+key);
 			nodePanels[key] = new NodePanel(nodeMap.get(key), this);
 		}
 	}
@@ -89,7 +89,7 @@ public class NodeView extends JSplitPane {
 	}
 
 	public void openNode(int nodeNum){
-        int index = tabs.indexOfTab("Node "+nodeNum);
+        int index = tabs.indexOfTab("Node ID "+nodeNum);
         if(index >= 0){
      	  tabs.setSelectedIndex(index); 
         } else if(nodePanels[nodeNum]!=null){
@@ -110,12 +110,12 @@ public class NodeView extends JSplitPane {
 	
 
 	public void closeNode(int nodeNum) {
-		tabs.remove(tabs.indexOfTab("Node "+nodeNum));
+		tabs.remove(tabs.indexOfTab("Node ID "+nodeNum));
 	}
 
 	public void addNode(Node node){
 		int nodeNum = node.getNodeNumber();
-		String id = "Node "+nodeNum;
+		String id = "Node ID "+nodeNum;
 		
 		if(!listModel.contains(id)){
 			listModel.addElement(id);
@@ -125,12 +125,12 @@ public class NodeView extends JSplitPane {
 			int numbers[] = new int[num];
 			for(int i=0; i<num; i++){
 				elements[i] = (String) listModel.getElementAt(i);
-				numbers[i] = Integer.parseInt(elements[i].split(" ")[1]);
+				numbers[i] = Integer.parseInt(elements[i].split(" ")[2]);
 			}
 			Arrays.sort(numbers);
 			
 			for(int i=0; i<num; i++){
-				listModel.setElementAt("Node "+numbers[i],i);
+				listModel.setElementAt("Node ID "+numbers[i],i);
 			}
 			
 		}

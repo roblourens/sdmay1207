@@ -10,6 +10,8 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -31,7 +33,7 @@ import org.jdesktop.swingx.mapviewer.Waypoint;
 import org.jdesktop.swingx.mapviewer.WaypointPainter;
 
 //@SuppressWarnings("unchecked")
-public class MapView extends JPanel implements TextMessengerListener,  MouseMotionListener{
+public class MapView extends JPanel implements TextMessengerListener, MouseMotionListener{
 
 	private static final long serialVersionUID = 1L;
 	final NetbookFrame parent;
@@ -73,8 +75,9 @@ public class MapView extends JPanel implements TextMessengerListener,  MouseMoti
 		backBtn.setBackground(new Color(16, 150, 70));
 		this.add(backBtn, BorderLayout.SOUTH);
 		
-		
-	    kit.getMainMap().addMouseMotionListener(this);
+		kit.getMainMap().addMouseMotionListener(this);
+		Timer timer = new Timer();
+		timer.schedule(new Updater(), 2000);
 	  }
 	
 	@SuppressWarnings("rawtypes")
@@ -130,7 +133,6 @@ public class MapView extends JPanel implements TextMessengerListener,  MouseMoti
 		if(waypointMapper.get(node.getNodeNumber())==null){
 			waypointMapper.put(node.getNodeNumber(), new NodeWaypoint(this, node));
 			System.out.println("Adding node to map");
-			kit.getMainMap().repaint();
 			return true;
 		} else {
 			return false;
@@ -223,5 +225,17 @@ public class MapView extends JPanel implements TextMessengerListener,  MouseMoti
 	public void mouseMoved(MouseEvent e) {
 		checkPopup(e.getPoint());
 	}
+
+
+	
+
+	private class Updater extends TimerTask{
+		@Override
+		public void run() {
+			System.out.println("Updating map");
+			kit.getMainMap().repaint();
+		}
+	}
+
 	
 }

@@ -26,6 +26,7 @@ public class MainView extends JPanel {
 	JButton nodeView;
 	JButton nodeInfo;
 	JButton p2pBtn;
+	JButton clearBtn;
 	
 	
 	JLabel nodeNum;
@@ -85,15 +86,13 @@ public class MainView extends JPanel {
 	    p2pBtn.setBackground(btnColor);
 	    p2pBtn.setFont(btnFont);
 	    p2pBtn.addActionListener(listener);
-	    
-	    
-	    
+	    	    
 	    camView = new JButton("Get Camera Footage");
 	    camView.setBackground(btnColor);
 	    camView.setFont(btnFont);
 	    camView.addActionListener(listener);
+	   
 	    
-
 	    //retPanel.setLayout(new GridLayout(4,1));
 	    retPanel.add(startStop);
 	    retPanel.add(mapView);
@@ -115,9 +114,16 @@ public class MainView extends JPanel {
 		nodeInfo.setFont(btnFont);
 	    nodeInfo.addActionListener(listener);
 	    
+	    clearBtn = new JButton("Clear");
+	    clearBtn.setBackground(btnColor);
+	    clearBtn.setFont(btnFont);
+	    clearBtn.addActionListener(listener);
+	    
+	    
 	    //retPanel.setLayout(new BoxLayout(retPanel, BoxLayout.IS));
 	    retPanel.add(nodeNum);
 	    retPanel.add(nodeInfo);
+	    retPanel.add(clearBtn);
 	    
 		return retPanel;
 	}
@@ -139,6 +145,9 @@ public class MainView extends JPanel {
 		textPanel.addMessage(srcNode, destNode, msg);
 	}
 
+	public void clearPanel(){
+		textPanel.clear();
+	}
 
 	
 }

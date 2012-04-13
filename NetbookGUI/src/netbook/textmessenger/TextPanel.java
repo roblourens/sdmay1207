@@ -134,6 +134,10 @@ public class TextPanel extends JPanel implements ActionListener {
 	public void updateNodeNumber(int nodeNumber){
 		nodeNum = nodeNumber;
 	}
+
+	public void clear() {
+		textArea.setText("");
+	}
 	
 	/*
 	public static void main(String... args){
