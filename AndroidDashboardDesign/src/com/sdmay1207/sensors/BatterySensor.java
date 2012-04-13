@@ -31,7 +31,7 @@ public class BatterySensor extends Battery
         int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         float batteryPct = level / (float) scale;
 
-        return new BatteryStatus(batteryPct, isCharging);
+        return new BatteryStatus(batteryPct*100, isCharging);
     }
 
     @Override

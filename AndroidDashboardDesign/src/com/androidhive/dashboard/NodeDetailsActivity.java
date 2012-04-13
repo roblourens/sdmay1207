@@ -15,7 +15,6 @@ import sdmay1207.ais.sensors.Battery.BatteryStatus;
 import sdmay1207.ais.sensors.Compass.CompassReading;
 import sdmay1207.ais.sensors.GPS.Location;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
-import sdmay1207.cc.Point2PointCommander.P2PState;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -39,63 +38,63 @@ public class NodeDetailsActivity extends Activity implements Observer
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.node_details);
-        
+
         nc = ((DashboardApplication) getApplication()).nc;
 
         final int nodeNum = getIntent().getIntExtra(NODE_NUM_KEY, 0);
         displayedNode = nc.getKnownNodes().get(nodeNum);
 
-        
         if (displayedNode.lastHeartbeat != null)
             updateInterfaceWithHeartbeat(displayedNode.lastHeartbeat);
 
         // Set text button listener
         final Context c = this;
-        
-        //check to see if this is the current node(My)
-        if(nodeNum==nc.getMe().nodeNum){
+
+        // check to see if this is the current node(My)
+        if (nodeNum == nc.getMe().nodeNum)
+        {
             ((Button) findViewById(R.id.reqCamButton)).setEnabled(false);
             ((Button) findViewById(R.id.sendCamButton)).setEnabled(false);
             ((Button) findViewById(R.id.sendTextButton)).setEnabled(false);
-            
-        }
-        
-        	((Button) findViewById(R.id.sendTextButton))
-            .setOnClickListener(new OnClickListener()
-            {
-                public void onClick(View v)
-                {
-                    Intent i = new Intent(c, SendTextActivity.class);
-                    i.putExtra(NODE_NUM_KEY, nodeNum);
-                    startActivity(i);
-                }
-            });
 
-	        ((Button) findViewById(R.id.sendCamButton))
-	                .setOnClickListener(new OnClickListener()
-	                {
-	                    public void onClick(View v)
-	                    {
-	                        Intent i = new Intent(c, CameraActivity.class);
-	                        i.putExtra(NODE_NUM_KEY, nodeNum);
-	                        startActivity(i);
-	                    }
-	                });
-	        
-	        ((Button) findViewById(R.id.reqCamButton))
-	        .setOnClickListener(new OnClickListener()
-	        {
-	            public void onClick(View v)
-	            {
-	            	String text= "NodeID("+nc.getMe().nodeNum+") request camera feed";
-	            	 nc.sendNetworkMessage(new TextMessage(text), nodeNum);
-	                 
-	                 
-	                 Toast.makeText(c, "Request can feed from this Node", 3).show();
-	                
-	            }
-	        });
-        
+        }
+
+        ((Button) findViewById(R.id.sendTextButton))
+                .setOnClickListener(new OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        Intent i = new Intent(c, SendTextActivity.class);
+                        i.putExtra(NODE_NUM_KEY, nodeNum);
+                        startActivity(i);
+                    }
+                });
+
+        ((Button) findViewById(R.id.sendCamButton))
+                .setOnClickListener(new OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        Intent i = new Intent(c, CameraActivity.class);
+                        i.putExtra(NODE_NUM_KEY, nodeNum);
+                        startActivity(i);
+                    }
+                });
+
+        ((Button) findViewById(R.id.reqCamButton))
+                .setOnClickListener(new OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        String text = "NodeID(" + nc.getMe().nodeNum
+                                + ") request camera feed";
+                        nc.sendNetworkMessage(new TextMessage(text), nodeNum);
+
+                        Toast.makeText(c, "Request cam feed from this Node", 3)
+                                .show();
+
+                    }
+                });
 
     }
 
@@ -131,7 +130,8 @@ public class NodeDetailsActivity extends Activity implements Observer
                             .get(SensorType.Battery);
 
                     String batteryStr = batterySensorStr == null ? "No battery"
-                            : new BatteryStatus(batterySensorStr).toString();
+                            : new BatteryStatus(batterySensorStr).toString()
+                                    + "%";
 
                     ((TextView) findViewById(R.id.battery)).setText("Battery: "
                             + batteryStr);
