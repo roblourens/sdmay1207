@@ -133,10 +133,16 @@ public class Point2PointNodeWrangler
         // Add the exact start/end points if they are not too close to the first
         // actual graph nodes
         if (!ln1.withinDeltaOf(p1))
+        {
             positions.add(0, p1);
+            System.out.println("Start node is not close to a graph node");
+        }
 
         if (!ln2.withinDeltaOf(p2))
+        {
             positions.add(p2);
+            System.out.println("End node is not close to a graph node");
+        }
 
         return positions;
     }

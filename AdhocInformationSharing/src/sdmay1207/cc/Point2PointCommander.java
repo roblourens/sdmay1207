@@ -62,12 +62,17 @@ public class Point2PointCommander implements CommandHandler
         this.nodeController = nodeController;
         this.mapPath = mapPath;
 
-        nodeController.registerForCommand(
-                GoToLocCommand.GO_TO_LOC_COMMAND_TYPE, this);
-        nodeController.registerForCommand(
-                StartStreamCommand.START_STREAM_COMMAND_TYPE, this);
-        nodeController.registerForCommand(
-                StopStreamCommand.STOP_STREAM_COMMAND_TYPE, this);
+        if (nodeController != null)
+        {
+            nodeController.registerForCommand(
+                    GoToLocCommand.GO_TO_LOC_COMMAND_TYPE, this);
+            nodeController.registerForCommand(
+                    StartStreamCommand.START_STREAM_COMMAND_TYPE, this);
+            nodeController.registerForCommand(
+                    StopStreamCommand.STOP_STREAM_COMMAND_TYPE, this);
+        } else
+            System.out
+                    .println("nodeController is null in p2pcommander constructor. You are probably just testing right now so that's ok but I just thought I'd let you know");
     }
 
     public Point2PointCommander(NodeController nodeController)
@@ -278,7 +283,7 @@ public class Point2PointCommander implements CommandHandler
                     } else
                     {
                         if (currentLocation
-                                .withinDeltaOf(curCommand.rallyPoint))
+                                .withinDeltaOf(rallyPoint))
                         {
                             changeState(P2PState.inactive);
                         }
@@ -453,6 +458,7 @@ public class Point2PointCommander implements CommandHandler
         public void stateChanged(P2PState newState);
     }
 
+    @SuppressWarnings("serial")
     public class TooFewNodesException extends Exception
     {
 
@@ -471,15 +477,17 @@ public class Point2PointCommander implements CommandHandler
         // diagonal
         // Location p1 = new Location(42.02882905657832, -93.64539676113856);
         // Location p2 = new Location(42.025526384460676, -93.64968192245325);
-        Location p1 = new Location(42.026104, -93.645089);
-        Location p2 = new Location(42.026096, -93.645122);
+
+        // across east central
+        Location p1 = new Location(42.026726, -93.649563);
+        Location p2 = new Location(42.026917, -93.647149);
 
         Point2PointCommander p2p = new Point2PointCommander(null,
-                "/Users/rob/Documents/ISU/senior design/Sidewalks.osm");
+                "/Users/rob/Dropbox/sdmay1207/AndroidDashboardDesign/assets/Sidewalks.osm");
         p2p.setupIfNeeded();
 
         List<Location> positions = p2p.wrangler.getNodePositionsBetweenPoints(
-                p1, p2, 3, true);
+                p1, p2, 4, true);
         System.out.println();
         for (Location l : positions)
             System.out.println(l.latitude + "\t" + l.longitude);
