@@ -27,22 +27,28 @@ public class Point2PointNodeWrangler
     }
 
     public Map<Node, Location> assignNodesToPositions(
-            Collection<Node> availableNodes, List<Location> positions)
+            Collection<Node> availableNodes, final List<Location> positions)
     {
-        Map<Node, List<Location>> nodePrefs = new HashMap<Node, List<Location>>();
-        Map<Location, List<Node>> locPrefs = new HashMap<Location, List<Node>>();
+        // Integer -> positions index (dup positions)
+        Map<Node, List<Integer>> nodePrefs = new HashMap<Node, List<Integer>>();
+        Map<Integer, List<Node>> locPrefs = new HashMap<Integer, List<Node>>();
 
         // Collect node prefs
         for (final Node node : availableNodes)
         {
-            List<Location> thisNodePrefs = new ArrayList<Location>(positions);
+            List<Integer> thisNodePrefs = new ArrayList<Integer>();
+            for (int i = 0; i < positions.size(); i++)
+                thisNodePrefs.add(i);
 
             // Sort all positions by distance to the node
-            Collections.sort(thisNodePrefs, new Comparator<Location>()
+            Collections.sort(thisNodePrefs, new Comparator<Integer>()
             {
                 @Override
-                public int compare(Location p1, Location p2)
+                public int compare(Integer i1, Integer i2)
                 {
+                    Location p1 = positions.get(i1);
+                    Location p2 = positions.get(i2);
+
                     double d1 = node.lastLocation.distanceTo(p1);
                     double d2 = node.lastLocation.distanceTo(p2);
 
@@ -59,8 +65,9 @@ public class Point2PointNodeWrangler
         }
 
         // Collect position prefs
-        for (final Location position : positions)
+        for (int i = 0; i < positions.size(); i++)
         {
+            final Location position = positions.get(i);
             List<Node> thisPositionPrefs = new ArrayList<Node>(availableNodes);
 
             // Sort all nodes by distance to the position
@@ -81,41 +88,40 @@ public class Point2PointNodeWrangler
                 }
             });
 
-            locPrefs.put(position, thisPositionPrefs);
+            locPrefs.put(i, thisPositionPrefs);
         }
 
-        Map<Location, Node> locationAssignments = new HashMap<Location, Node>();
-        List<Node> freeNodes = new ArrayList<Node>(availableNodes);
-        while (freeNodes.size() > 0)
+        Map<Node, Integer> nodeAssignments = new HashMap<Node, Integer>();
+        List<Integer> freeLocs = new ArrayList<Integer>(locPrefs.keySet());
+        while (freeLocs.size() > 0)
         {
-            Node node = freeNodes.remove(0);
+            Integer i = freeLocs.remove(0);
 
-            for (Location p : nodePrefs.get(node))
+            for (Node n : locPrefs.get(i))
             {
-                if (locationAssignments.get(p) == null)
+                if (nodeAssignments.get(n) == null)
                 {
-                    locationAssignments.put(p, node);
+                    nodeAssignments.put(n, i);
                     break;
                 } else
                 {
-                    Node other = locationAssignments.get(p);
-                    List<Node> thisLocPrefs = locPrefs.get(p);
+                    Integer other = nodeAssignments.get(n);
+                    List<Integer> thisNodePrefs = nodePrefs.get(n);
 
-                    if (thisLocPrefs.indexOf(node) < thisLocPrefs
-                            .indexOf(other))
+                    if (thisNodePrefs.indexOf(i) < thisNodePrefs.indexOf(other))
                     {
-                        freeNodes.add(other);
-                        locationAssignments.put(p, node);
+                        freeLocs.add(other);
+                        nodeAssignments.put(n, i);
                         break;
                     }
                 }
             }
         }
 
-        // Reverse the map and return
+        // Map Integers to Locations and return
         Map<Node, Location> assignments = new HashMap<Node, Location>();
-        for (Location p : locationAssignments.keySet())
-            assignments.put(locationAssignments.get(p), p);
+        for (Node n : nodeAssignments.keySet())
+            assignments.put(n, positions.get(nodeAssignments.get(n)));
 
         return assignments;
     }
