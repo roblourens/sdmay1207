@@ -109,40 +109,7 @@ public class NetworkInterface
             Device.sysCommand("sudo start network-manager");
     }
 
-    // any reason to implement these two? It was in the design doc but I'm not
-    // sure why we would need it
-    /**
-     * Power the networking hardware off
-     * 
-     * @return True if successful
-     */
-    public boolean powerOff()
-    {
-        return false;
-    }
-
-    /**
-     * Power the networking hardware on
-     * 
-     * @return True if successful
-     */
-    public boolean powerOn()
-    {
-        return false;
-    }
-
-    /**
-     * Determine the wireless link quality, out of 70. The teens is the danger
-     * zone
-     * 
-     * @return The wireless link quality
-     */
-    public int getLinkQuality()
-    {
-        return 0;
-    }
-
-    public String getIP()
+    private String getIP()
     {
         return Config.SUBNET + nodeNumber;
     }

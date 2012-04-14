@@ -33,7 +33,7 @@ public class NetworkRejoinMonitor extends TimedRepeater implements Observer
      */
     public NetworkRejoinMonitor(NodeController nc)
     {
-        // routes expire after 3000 atm, this should work for detecting when all
+        // routes expire after 3000ms atm, this should work for detecting when all
         // nodes are lost?
         super(10000);
 
