@@ -229,7 +229,7 @@ public class Point2PointCommander implements CommandHandler
         List<Node> nodes = new ArrayList<Node>();
 
         for (Node n : allNodes)
-            if (n.lastLocation != null && n.lastLocation.latitude - 0 > .1)
+            if (n.lastLocation != null)
                 nodes.add(n);
 
         return nodes;
