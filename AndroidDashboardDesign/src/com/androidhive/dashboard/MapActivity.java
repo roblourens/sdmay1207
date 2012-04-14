@@ -37,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidhive.dashboard.R;
 
+import com.androidhive.dashboard.DashboardApplication.DrawableNotification;
 import com.androidhive.dashboard.DashboardApplication.Notification;
 
 public class MapActivity extends Activity implements Observer
@@ -215,7 +216,7 @@ public class MapActivity extends Activity implements Observer
 
         // now add from notifications
         // add notification map overlays
-        for (Notification n : da.nm.notifications)
+        for (DrawableNotification n : da.nm.notificationsToDraw)
         {
             OverlayItem oi = n.getOverlayItem();
             if (oi != null)

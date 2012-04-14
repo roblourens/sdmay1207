@@ -42,8 +42,9 @@ public class DashboardApplication extends Application
     public NodeController nc = null;
     public NotificationManager nm;
     public GPSSensor gps;
-    public HashMap<Integer,String> text;
-    public HashMap<Integer,Integer> lastChecked;
+    public HashMap<Integer, String> text;
+    public HashMap<Integer, Integer> lastChecked;
+
     @Override
     public void onCreate()
     {
@@ -54,8 +55,8 @@ public class DashboardApplication extends Application
         Random r = new Random();
         int nodeNumber = r.nextInt(245) + 10; // reserve the single-digit
                                               // ones
-        text= new HashMap<Integer,String>();
-        lastChecked= new HashMap<Integer,Integer>();
+        text = new HashMap<Integer, String>();
+        lastChecked = new HashMap<Integer, Integer>();
         String filename = "Sidewalks.osm";
         String dataRoot = getApplicationContext().getFilesDir().getParent();
         File dataDir = new File(dataRoot, "/files");
@@ -110,6 +111,9 @@ public class DashboardApplication extends Application
             NetworkRejoinListener, Point2PointGUI
     {
         public List<Notification> notifications = new ArrayList<Notification>();
+        public List<DrawableNotification> notificationsToDraw = new ArrayList<DrawableNotification>();
+
+        private DrawableNotification curP2PNotification;
 
         private Event[] eventsToBeNotifiedAbout = new Event[] {
                 Event.NodeJoined, Event.NodeLeft,
@@ -126,10 +130,8 @@ public class DashboardApplication extends Application
             NetworkEvent netEvent = (NetworkEvent) obj;
 
             // Everything that is a message (text message, all commands, etc.)
-            // and
-            // left/joined events should be displayed
-            // Once we implement NetworkRejoinListener, maybe we can ditch these
-            // joined/left events
+            // and left/joined events should be displayed
+            // java sucks
             if (Arrays.asList(eventsToBeNotifiedAbout).contains(netEvent.event))
                 addNotification(new NetworkEventNotification(netEvent));
         }
@@ -142,6 +144,12 @@ public class DashboardApplication extends Application
             notifyObservers(n);
         }
 
+        public void addNotification(DrawableNotification dn)
+        {
+            notificationsToDraw.add(dn);
+            addNotification((Notification) dn);
+        }
+
         public void lostSingleNode()
         {
             // ignore
@@ -149,15 +157,10 @@ public class DashboardApplication extends Application
 
         public void networkSplit(final Location p)
         {
-            addNotification(new Notification()
+            addNotification(new DrawableNotification(
+                    "We lost several nodes at once - you should move to " + p
+                            + " to rejoin them.")
             {
-                @Override
-                public String shortDisplayString()
-                {
-                    return "We lost several nodes at once - you should move to "
-                            + p + " to rejoin them.";
-                }
-
                 @Override
                 public OverlayItem getOverlayItem()
                 {
@@ -172,15 +175,10 @@ public class DashboardApplication extends Application
 
         public void lostEntireNetwork(final Location p)
         {
-            addNotification(new Notification()
+            addNotification(new DrawableNotification(
+                    "The entire network has become disconnected - you should move to "
+                            + p + " to rejoin it.")
             {
-                @Override
-                public String shortDisplayString()
-                {
-                    return "The entire network has become disconnected - you should move to "
-                            + p + " to rejoin it.";
-                }
-
                 @Override
                 public OverlayItem getOverlayItem()
                 {
@@ -195,17 +193,18 @@ public class DashboardApplication extends Application
 
         public void p2pInitiated(final GoToLocCommand command)
         {
-            addNotification(new Notification()
+            DrawableNotification p2pNotification = new DrawableNotification(
+                    "Node "
+                            + command.from
+                            + " has initiated a point-to-point task. Go to "
+                            + command.loc
+                            + " to relay video."
+                            + (command.headNodeNum == nc.getMe().nodeNum ? " You are the head node."
+                                    : "")
+                            + (command.tailNodeNum == nc.getMe().nodeNum ? " You are the tail node."
+                                    : ""))
             {
                 private List<Location> pathToDest;
-
-                @Override
-                public String shortDisplayString()
-                {
-                    return "Node " + command.from
-                            + " has initiated a point-to-point task. Go to "
-                            + command.loc + " to relay video.";
-                }
 
                 @Override
                 public OverlayItem getOverlayItem()
@@ -233,7 +232,18 @@ public class DashboardApplication extends Application
 
                     om.add(po);
                 }
-            });
+            };
+
+            // working on one currently? if so, replace it
+            if (curP2PNotification != null)
+            {
+                System.out
+                        .println("Got a p2p notification to replace the current one SO YOU CAN GO AND TELL THAT");
+                notificationsToDraw.remove(curP2PNotification);
+            }
+            curP2PNotification = p2pNotification;
+
+            addNotification(p2pNotification);
         }
 
         public void stateChanged(P2PState newState)
@@ -243,64 +253,27 @@ public class DashboardApplication extends Application
             {
             // enRoute is pretty much covered above
             case searching:
-                addNotification(new Notification()
-                {
-                    @Override
-                    public String shortDisplayString()
-                    {
-                        return "You have reached your assigned area, now try to join up with neighbors";
-                    }
-                });
+                addNotification(new Notification(
+                        "You have reached your assigned area, now try to join up with neighbors"));
                 break;
             case waiting:
-                addNotification(new Notification()
-                {
-                    @Override
-                    public String shortDisplayString()
-                    {
-                        return "You've joined up with neighbors, now wait for the head and tail nodes to join";
-                    }
-                });
+                addNotification(new Notification(
+                        "You've joined up with neighbors, now wait for the head and tail nodes to join"));
                 break;
             case ready:
-                addNotification(new Notification()
-                {
-                    @Override
-                    public String shortDisplayString()
-                    {
-                        return "Tail node is ready - start streaming whenever you want";
-                    }
-                });
+                addNotification(new Notification(
+                        "Tail node is ready - start streaming whenever you want"));
                 break;
             case enRouteToRallyPoint:
-                addNotification(new Notification()
-                {
-                    @Override
-                    public String shortDisplayString()
-                    {
-                        return "Connecting to head and tail timed out - return to rally point";
-                    }
-                });
+                addNotification(new Notification(
+                        "Connecting to head and tail timed out - return to rally point"));
                 break;
             case active:
-                addNotification(new Notification()
-                {
-                    @Override
-                    public String shortDisplayString()
-                    {
-                        return "Now streaming";
-                    }
-                });
+                addNotification(new Notification("Now streaming"));
                 break;
             case inactive:
-                addNotification(new Notification()
-                {
-                    @Override
-                    public String shortDisplayString()
-                    {
-                        return "The point-to-point task has finished";
-                    }
-                });
+                addNotification(new Notification(
+                        "The point-to-point task has finished"));
                 break;
             }
         }
@@ -313,15 +286,38 @@ public class DashboardApplication extends Application
      * overlay icons/colors linked to notification types, whatever, so I figure
      * set up a simple object for now
      */
-    public abstract class Notification
+    public class Notification
     {
-        public abstract String shortDisplayString();
-
         public long timestamp;
+        private String displayStr = "";
 
         public Notification()
         {
             timestamp = System.currentTimeMillis();
+        }
+
+        public Notification(String displayStr)
+        {
+            this();
+            this.displayStr = displayStr;
+        }
+
+        public String shortDisplayString()
+        {
+            return displayStr;
+        }
+
+        public boolean isTextMessage()
+        {
+            return (this instanceof NetworkEventNotification && ((NetworkEventNotification) this).netEvent.event == Event.RecvdTextMessage);
+        }
+    }
+
+    public abstract class DrawableNotification extends Notification
+    {
+        public DrawableNotification(String displayStr)
+        {
+            super(displayStr);
         }
 
         public OverlayItem getOverlayItem()
@@ -332,11 +328,6 @@ public class DashboardApplication extends Application
         public void drawOverlay(OverlayManager om)
         {
 
-        }
-
-        public boolean isTextMessage()
-        {
-            return (this instanceof NetworkEventNotification && ((NetworkEventNotification) this).netEvent.event == Event.RecvdTextMessage);
         }
     }
 
