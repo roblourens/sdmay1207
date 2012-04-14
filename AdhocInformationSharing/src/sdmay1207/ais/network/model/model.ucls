@@ -1,0 +1,107 @@
+<class-diagram version="1.0.7" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true">  
+  <class id="1" corner="BOTTOM_RIGHT" language="java" name="sdmay1207.ais.network.model.ShuttingDownMessage" 
+    project="AdhocInformationSharing" 
+    file="/AdhocInformationSharing/src/sdmay1207/ais/network/model/ShuttingDownMessage.java" binary="false">    
+    <position height="-1" width="-1" x="257" y="267"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="2" corner="BOTTOM_RIGHT" language="java" name="sdmay1207.ais.network.model.Heartbeat" 
+    project="AdhocInformationSharing" file="/AdhocInformationSharing/src/sdmay1207/ais/network/model/Heartbeat.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="1098" y="260"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="3" corner="BOTTOM_RIGHT" language="java" name="sdmay1207.ais.network.model.TextMessage" 
+    project="AdhocInformationSharing" file="/AdhocInformationSharing/src/sdmay1207/ais/network/model/TextMessage.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="551" y="265"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="4" corner="BOTTOM_RIGHT" language="java" name="sdmay1207.ais.network.model.NetworkCommand" 
+    project="AdhocInformationSharing" 
+    file="/AdhocInformationSharing/src/sdmay1207/ais/network/model/NetworkCommand.java" binary="false">    
+    <position height="-1" width="-1" x="816" y="262"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="5" corner="BOTTOM_RIGHT" language="java" name="sdmay1207.ais.network.model.NetworkMessage" 
+    project="AdhocInformationSharing" 
+    file="/AdhocInformationSharing/src/sdmay1207/ais/network/model/NetworkMessage.java" binary="false">    
+    <position height="-1" width="-1" x="734" y="28"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <enumeration id="6" corner="BOTTOM_RIGHT" language="java" 
+    name="sdmay1207.ais.network.model.NetworkMessage.MessageType" project="AdhocInformationSharing" 
+    file="/AdhocInformationSharing/src/sdmay1207/ais/network/model/NetworkMessage.java" binary="false">    
+    <position height="-1" width="-1" x="323" y="16"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </enumeration>  
+  <class id="7" corner="BOTTOM_RIGHT" language="java" name="sdmay1207.ais.network.model.Node" 
+    project="AdhocInformationSharing" file="/AdhocInformationSharing/src/sdmay1207/ais/network/model/Node.java" 
+    binary="false">    
+    <position height="-1" width="-1" x="1062" y="26"/>    
+    <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <generalization id="8">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <generalization id="9">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <generalization id="10">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <association id="11">    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="12" name="messageType"/>      
+      <multiplicity id="13" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="14">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <association id="15">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="16" name="lastHeartbeat"/>      
+      <multiplicity id="17" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="18">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="6"/>  
+  </nesting>  
+  <classifier-display autosize="true" package="true" initial-value="false" signature="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true"/>    
+    <operations public="true" package="true" protected="true" private="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
