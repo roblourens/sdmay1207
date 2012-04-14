@@ -135,8 +135,6 @@ public class NetworkController extends Observable
     public boolean sendHeartbeat(Heartbeat hb)
     {
         byte[] encrypted = encryptedData(hb.toString().getBytes());
-        System.out
-                .println("decrypted: " + new String(decryptedData(encrypted)));
         return networkInterface.broadcastData(encrypted);
     }
 
@@ -242,9 +240,6 @@ public class NetworkController extends Observable
         {
             e.printStackTrace();
         }
-
-        System.out.println("encrypted string: "
-                + Utils.bytesToHexStr(encrypted));
 
         return encrypted;
     }
