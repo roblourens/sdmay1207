@@ -74,6 +74,7 @@ public class NodeController implements Observer
         networkController.addObserver(this);
 
         p2pCmdr = new Point2PointCommander(this);
+        networkRejoinMonitor = new NetworkRejoinMonitor(this);
     }
 
     /**
@@ -95,7 +96,6 @@ public class NodeController implements Observer
         ht = new HeartbeatTask(HEARTBEAT_FREQ);
         ht.start();
 
-        networkRejoinMonitor = new NetworkRejoinMonitor(this);
         networkRejoinMonitor.start();
 
         isRunning = true;
