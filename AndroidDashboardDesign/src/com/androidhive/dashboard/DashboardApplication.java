@@ -122,6 +122,7 @@ public class DashboardApplication extends Application
         public NotificationManager()
         {
             nc.addNetworkObserver(this);
+            nc.networkRejoinMonitor.addListener(this);
         }
 
         // Listen for events from the networkController

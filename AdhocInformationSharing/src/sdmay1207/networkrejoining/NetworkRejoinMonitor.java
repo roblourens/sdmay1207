@@ -59,7 +59,7 @@ public class NetworkRejoinMonitor extends TimedRepeater implements Observer
                 System.out.println("Lost 1 node");
                 for (NetworkRejoinListener l : listeners)
                     l.lostSingleNode();
-            } else if (numTotalNodes == 0)
+            } else if (numTotalNodes == 1)
             {
                 System.out.println("Lost all nodes");
                 Location goTo = nodesCenterOfGravity(lostNodes);

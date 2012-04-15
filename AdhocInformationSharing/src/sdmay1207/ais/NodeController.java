@@ -46,7 +46,7 @@ public class NodeController implements Observer
     public SensorInterface sensorInterface = new SensorInterface();
     private Node me;
     private HeartbeatTask ht;
-    private NetworkRejoinMonitor networkRejoinMonitor;
+    public NetworkRejoinMonitor networkRejoinMonitor;
     public Point2PointCommander p2pCmdr;
 
     private boolean isRunning = false;
