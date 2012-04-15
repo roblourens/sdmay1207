@@ -96,19 +96,32 @@ public class SendTextActivity extends Activity implements Observer
     }
 
 	public void update(Observable arg0, Object arg1) {
-		if(((Notification)arg1).isTextMessage())
-		{
-			NetworkEventNotification notification = (NetworkEventNotification) arg1;
-			// TextMessage tm = (TextMessage) notification.netEvent.data;
-			String msg = notification.netEvent.data.toString();
-			
-			String text= da.text.get(nodeNum);
-    		da.text.remove(nodeNum);
-    		da.text.put(nodeNum, ("Node"+nodeNum+": "+msg.substring(msg.lastIndexOf(';')+1)+"\n"+text));
-			
-			
-			
-		}
+		
+		
+
+        final Notification n = (Notification)arg1;
+        runOnUiThread(new Runnable()
+        {
+            public void run()
+            {
+            	if(n.isTextMessage())
+        		{
+        			NetworkEventNotification notification = (NetworkEventNotification) n;
+        			// TextMessage tm = (TextMessage) notification.netEvent.data;
+        			String msg = notification.netEvent.data.toString();
+        			
+        			String text= da.text.get(nodeNum);
+            		da.text.remove(nodeNum);
+            		da.text.put(nodeNum, ("Node"+nodeNum+": "+msg.substring(msg.lastIndexOf(';')+1)+"\n"+text));
+        			
+            		tx.setText(da.text.get(nodeNum));       
+            		
+        			
+        		}
+            }
+        });
+
+		
 		/*
 		runOnUiThread(new Runnable()
         {
@@ -116,9 +129,8 @@ public class SendTextActivity extends Activity implements Observer
             {
             	 }
         });*/
-		tx.setText(da.text.get(nodeNum));       
 		
         //tx.refreshDrawableState();
-        tx.postInvalidate();//invalidate();
+        //tx.postInvalidate();//invalidate();
 	}
 }
