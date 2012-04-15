@@ -191,7 +191,7 @@ public class MapActivity extends Activity implements Observer
     private void updateMapObjects()
     {
         mapView.getOverlays().clear();
-        Collection<Node> nodes = nc.getNodesInNetwork().values();
+        Collection<Node> nodes = nc.getKnownNodes().values();
         List<OverlayItem> items = new ArrayList<OverlayItem>();
 
         for (Node n : nodes)
@@ -332,8 +332,8 @@ public class MapActivity extends Activity implements Observer
 
         Paint paint = new Paint();
         paint.setStyle(Style.FILL);
-        paint.setColor(Color.BLACK);
-        paint.setTextSize(20);
+        paint.setColor(Color.MAGENTA);
+        paint.setTextSize(18);
 
         Canvas canvas = new Canvas(bm);
         canvas.drawText(text, 0, bm.getHeight() / 2, paint);
