@@ -1,6 +1,9 @@
 package com.androidhive.dashboard;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,10 +19,6 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.OverlayManager;
 import org.osmdroid.views.overlay.PathOverlay;
-
-import com.sdmay1207.sensors.BatterySensor;
-import com.sdmay1207.sensors.CompassSensor;
-import com.sdmay1207.sensors.GPSSensor;
 
 import sdmay1207.ais.Device;
 import sdmay1207.ais.NodeController;
@@ -37,6 +36,10 @@ import android.graphics.Color;
 import android.util.Log;
 import androidhive.dashboard.R;
 
+import com.sdmay1207.sensors.BatterySensor;
+import com.sdmay1207.sensors.CompassSensor;
+import com.sdmay1207.sensors.GPSSensor;
+
 public class DashboardApplication extends Application
 {
     public NodeController nc = null;
@@ -52,9 +55,6 @@ public class DashboardApplication extends Application
 
         Log.d("application", "app onCreate");
 
-        Random r = new Random();
-        int nodeNumber = r.nextInt(245) + 10; // reserve the single-digit
-                                              // ones
         text = new HashMap<Integer, String>();
         lastChecked = new HashMap<Integer, Integer>();
         String filename = "Sidewalks.osm";
@@ -80,6 +80,35 @@ public class DashboardApplication extends Application
             System.err.println("Couldn't copy a file to the data dir!");
         }
         // }
+
+        // Find node number
+        File nodeNumFile = new File(dataDir, "nodenum");
+        int nodeNumber = -1;
+        if (nodeNumFile.exists())
+        {
+            BufferedReader br;
+            try
+            {
+                br = new BufferedReader(new FileReader(nodeNumFile));
+                nodeNumber = Integer.parseInt(br.readLine());
+            } catch (FileNotFoundException e)
+            {
+                // this will never happen (famous last words)
+                e.printStackTrace();
+            } catch (NumberFormatException e)
+            {
+                e.printStackTrace();
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        if (nodeNumber == -1)
+        {
+            System.out.println("No nodenum file, picking randomly");
+            nodeNumber = new Random().nextInt(89) + 10;
+        }
 
         nc = new NodeController(nodeNumber, dataDir.toString());
         nc.addSensor(new BatterySensor(this));
