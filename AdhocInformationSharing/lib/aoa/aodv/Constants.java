@@ -35,7 +35,7 @@ public interface Constants {
 	public static final byte HELLO_PDU = 6; 
 	
 	//alive time for a route 
-	public static final int ROUTE_ALIVETIME = 6000;
+	public static final int ROUTE_ALIVETIME = 4000;
 	
 	//the time to wait between each hello message sent
 	public static final int BROADCAST_INTERVAL = 1000;

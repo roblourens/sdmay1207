@@ -7,6 +7,8 @@ public class NetworkMessage
 {
     // ms
     public long timestamp;
+    
+    public long rcvdTime;
 
     public int from;
 
@@ -48,6 +50,7 @@ public class NetworkMessage
                     + strMessage);
         }
 
+        message.rcvdTime = System.currentTimeMillis();
         return message;
     }
 
@@ -95,6 +98,7 @@ public class NetworkMessage
     public NetworkMessage()
     {
         timestamp = System.currentTimeMillis();
+        rcvdTime = timestamp;
         from = nodeNumMe;
     }
     

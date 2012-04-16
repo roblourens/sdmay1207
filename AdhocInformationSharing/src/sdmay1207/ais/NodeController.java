@@ -55,7 +55,7 @@ public class NodeController implements Observer
     private int nodeNumber;
 
     // static config
-    private static final long HEARTBEAT_FREQ = 5000; // ms
+    private static final long HEARTBEAT_FREQ = 2000; // ms
     private static final String DEFAULT_DATA_DIR = "/usr/sdmay1207";
 
     public NodeController(int nodeNumber, String dataDir)

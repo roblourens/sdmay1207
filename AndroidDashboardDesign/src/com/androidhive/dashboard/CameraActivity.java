@@ -1,7 +1,5 @@
 package com.androidhive.dashboard;
 
-import java.io.IOException;
-
 import sdmay1207.ais.network.NetworkController;
 import android.app.Activity;
 import android.content.Context;
@@ -14,6 +12,7 @@ import android.view.SurfaceView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidhive.dashboard.R;
 
 import com.CameraStreamer.control.ButtonListener;
@@ -122,9 +121,10 @@ public class CameraActivity extends Activity
             NetworkController netController = ((DashboardApplication) getApplication()).nc.networkController;
             streamer.setup(camera.getHolder(), destNodeNum, resX, resY, fps,
                     netController);
-        } catch (IOException e)
+        } catch (Exception e)
         {
             log(e.getMessage());
+            Toast.makeText(this, "Could not setup the camera", 3).show();
             return;
         }
 

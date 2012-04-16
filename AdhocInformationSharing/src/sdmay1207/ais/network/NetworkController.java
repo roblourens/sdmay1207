@@ -21,6 +21,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import sdmay1207.ais.etc.Repeater;
+import sdmay1207.ais.etc.Repeater.TimedRepeater;
 import sdmay1207.ais.etc.Utils;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Heartbeat;
@@ -41,6 +42,8 @@ public class NetworkController extends Observable
     private Cipher encryptCipher;
     private Cipher decryptCipher;
     private String keyHex = "8a8492e4a036b29809fb8968d591cea0";
+    private NodeConnectivityMonitor ncm;
+    private int nodeNumber;
 
     // Note: node objects between knownNodes/connectedNodes are the same
     // A map of all nodes which have been seen so far - at this point, may or
@@ -87,6 +90,10 @@ public class NetworkController extends Observable
 
             decryptCipher = Cipher.getInstance("AES");
             decryptCipher.init(Cipher.DECRYPT_MODE, skeySpec);
+
+            r = new Receiver();
+            networkInterface = new NetworkInterface(r);
+            ncm = new NodeConnectivityMonitor(r);
         } catch (NoSuchAlgorithmException e)
         {
             e.printStackTrace();
@@ -104,13 +111,16 @@ public class NetworkController extends Observable
      */
     public boolean start(int nodeNumber, RoutingAlg routingAlg)
     {
-        r = new Receiver();
-        r.start();
-
-        networkInterface = new NetworkInterface(r);
-
+        this.nodeNumber = nodeNumber;
         isRunning = networkInterface.startNetwork(nodeNumber)
                 && networkInterface.startRouting(routingAlg);
+
+        if (isRunning)
+        {
+            r.start();
+            ncm.start();
+        } else
+            System.err.println("NetworkInterface did not start up properly");
 
         return isRunning;
     }
@@ -213,17 +223,28 @@ public class NetworkController extends Observable
 
     /**
      * Update the map of known nodes with the info from the given Heartbeat
-     * object
+     * object. Returns true if the node was not previously in connectedNodes or
+     * knownNodes.
      */
-    private void updateKnownNodes(Heartbeat hb)
+    private boolean updateKnownNodes(Heartbeat hb)
     {
+        boolean nodeIsNew = false;
+
         if (knownNodes.get(hb.from) == null)
+        {
             knownNodes.put(hb.from, new Node(hb.from));
+            nodeIsNew = true;
+        }
 
         knownNodes.get(hb.from).update(hb);
 
         if (!connectedNodes.containsKey(hb.from))
+        {
             connectedNodes.put(hb.from, knownNodes.get(hb.from));
+            nodeIsNew = true;
+        }
+
+        return nodeIsNew;
     }
 
     private byte[] encryptedData(byte[] data)
@@ -345,7 +366,8 @@ public class NetworkController extends Observable
                 break;
             case Heartbeat:
                 event = new NetworkEvent(Event.RecvdHeartbeat, msg);
-                updateKnownNodes((Heartbeat) msg);
+                if (updateKnownNodes((Heartbeat) msg))
+                    nodeJoined(msg.from);
                 break;
             case TextMessage:
                 event = new NetworkEvent(Event.RecvdTextMessage, msg);
@@ -394,6 +416,33 @@ public class NetworkController extends Observable
             {
                 e.printStackTrace();
                 System.err.println("Problem sending camera data");
+            }
+        }
+    }
+
+    private class NodeConnectivityMonitor extends TimedRepeater
+    {
+        private Receiver r;
+
+        public NodeConnectivityMonitor(Receiver r)
+        {
+            super(6000); // 3*heartbeat rate, ms
+            this.r = r;
+        }
+
+        @Override
+        protected void runOnce()
+        {
+            for (Node n : getNodesInNetwork().values())
+            {
+                if (n.lastHeartbeat.rcvdTime < System.currentTimeMillis() - 6000
+                        && n.nodeNum != nodeNumber)
+                {
+                    System.out.println("Lost node " + n.nodeNum + " at "
+                            + System.currentTimeMillis() + " last hb at "
+                            + n.lastHeartbeat.rcvdTime);
+                    r.nodeLeft(n.nodeNum);
+                }
             }
         }
     }

@@ -113,12 +113,14 @@ public class AODV implements RoutingImpl, Observer
                         + "\tMessage Type: " + value.getMessageType());
                 break;
             case 4:
-                int newNodeNum = (Integer) value.getContainedData();
-                receiver.nodeJoined(newNodeNum);
+                // Ignore what AODV thinks about nodes joining or leaving
+                // because it often wrong!
+                // int newNodeNum = (Integer) value.getContainedData();
+                // receiver.nodeJoined(newNodeNum);
                 break;
             case 3:
-                int lostNodeNum = (Integer) value.getContainedData();
-                receiver.nodeLeft(lostNodeNum);
+                // int lostNodeNum = (Integer) value.getContainedData();
+                // receiver.nodeLeft(lostNodeNum);
                 break;
             case 2:
                 System.out.println("ACK Received");
