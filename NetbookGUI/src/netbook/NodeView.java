@@ -48,7 +48,7 @@ public class NodeView extends JSplitPane {
                 if (e.getClickCount() == 1) {
                 	System.out.println("Node Clicked:"+nodeList.getSelectedValue());
                 	String val = (String) nodeList.getSelectedValue();
-                	int nodeNum = Integer.parseInt(val.split(" ")[1]);
+                	int nodeNum = Integer.parseInt(val.split(" ")[2]);
                 	openNode(nodeNum);
                 }
             }
@@ -102,8 +102,8 @@ public class NodeView extends JSplitPane {
         	}
         	
         	tabs.add(nodePanels[nodeNum], index);
-        	tabs.setTitleAt(index, "Node "+nodeNum);
-        	tabs.setSelectedIndex(tabs.indexOfTab("Node "+nodeNum));
+        	tabs.setTitleAt(index, "Node ID "+nodeNum);
+        	tabs.setSelectedIndex(tabs.indexOfTab("Node ID "+nodeNum));
         }
 	}
 	

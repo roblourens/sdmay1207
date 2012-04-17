@@ -51,9 +51,9 @@ public class MapView extends JPanel implements TextMessengerListener, MouseMotio
 	Map<Integer, HoverPanel> hoverMapper;
 	GeoPosition home;
 	
-	String meIcon = "dataDir/meIcon.png"; 
-	String connectedIcon = "dataDir/connectedIcon.png"; 
-	String disconnectedIcon = "dataDir/disconnectedIcon.png"; 
+	String meIcon = "dataDir/icons/my_person.png"; 
+	String connectedIcon = "dataDir/icons/other_person.png"; 
+	String disconnectedIcon = "dataDir/icons/disappear_person.png"; 
 			
 
 	
@@ -119,7 +119,7 @@ public class MapView extends JPanel implements TextMessengerListener, MouseMotio
 			        Point2D gp_pt = map.getTileFactory().geoToPixel(wp.getLocation(), map.getZoom());
 			        Point gpPoint = new Point((int)gp_pt.getX()-rect.x, (int)gp_pt.getY()-rect.y);
 					icon.paintIcon(map, g, gpPoint.x-icon.getIconWidth()/2, gpPoint.y-icon.getIconHeight());		
-					System.out.println("Painting Icon["+node.getNodeNumber()+" ("+wp.getLocation().toString()+") at "+gpPoint.x+" "+gpPoint.y);
+					//System.out.println("Painting Icon["+node.getNodeNumber()+" ("+wp.getLocation().toString()+") at "+gpPoint.x+" "+gpPoint.y);
 				}
 			}
 		};

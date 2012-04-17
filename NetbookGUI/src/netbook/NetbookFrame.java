@@ -12,7 +12,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import netbook.node.Node;
@@ -25,9 +24,10 @@ import sdmay1207.ais.network.model.TextMessage;
 import sdmay1207.ais.sensors.GPS.Location;
 import sdmay1207.ais.sensors.NetbookGPS;
 import sdmay1207.cc.Point2PointCommander;
+import sdmay1207.networkrejoining.NetworkRejoinMonitor.NetworkRejoinListener;
 
 public class NetbookFrame extends JFrame implements ActionListener, Runnable,
-		Observer {
+		Observer, NetworkRejoinListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -42,8 +42,9 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 	MapView mapView;
 	P2PView p2pView;
 	JPanel views;
-	JLabel status;
-
+	//JLabel status;
+	StatusPanel status;
+	
 	final String NODEVIEW = "Node View";
 	final String MAINVIEW = "Main View";
 	final String MAPVIEW = "Map View";
@@ -62,7 +63,8 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 
 		networkRunning = false;
 		
-		status = new JLabel("> Welcome");
+		//status = new JLabel("> Welcome");
+		status = new StatusPanel();
 
 		// Create the GUI Frame
 		mainView = new MainView(this, nodeNum);
@@ -86,7 +88,7 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 		panel.add(status, BorderLayout.SOUTH);
 
 		this.getContentPane().add(panel);
-		this.setSize(800, 500);
+		this.setSize(800, 525);
 
 		addWindowListener(new java.awt.event.WindowAdapter() {
 			public void windowClosing(WindowEvent winEvt) {
@@ -105,6 +107,8 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 		nc = new NodeController(nodeNum, DATADIR);
 		nc.p2pCmdr.setGUI(p2pView);
 		nc.addNetworkObserver(this);
+		nc.networkRejoinMonitor.addListener(this);
+	
 		nodes = getNodes();
 
 		
@@ -175,7 +179,7 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 			nodeView.openNode(nodeNum);
 			System.out.println("Node Info Clicked");
 			
-		} else if (action.getSource() == mainView.nodeInfo) { // Node Info
+		} else if (action.getSource() == mainView.clearBtn) { // Clear Button
 			mainView.clearPanel();
 			System.out.println("Clear Button Clicked");
 
@@ -259,6 +263,27 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 		}
 	}
 
+	// NetworkRejoinListenerMethods
+    public void lostSingleNode()
+    {
+        // ignore
+    }
+
+    public void networkSplit(final Location p){
+    	System.out.println("Network Split received, moving to "+p+" to rejoin");
+        String message = "We lost several nodes at once - you should move to "+p+" to rejoin them.";
+        p2pView.setLocation(message, p);
+        changeView(P2PVIEW, nodeNum);
+    }
+
+    public void lostEntireNetwork(final Location p){
+    	System.out.println("Received \"lostEntireNetwork\" move to "+p+" to rejoin");
+        String message = "The entire network has become disconnected - you should move to "+p+" to rejoin it.";
+        p2pView.setLocation(message, p);
+        changeView(P2PVIEW, nodeNum);
+    }
+
+
 	
 	
 	
@@ -290,7 +315,7 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 			System.out.println("Changed view to map view");
 		}
 	}
-
+	
 	public int getThisNodeNumber() {
 		return nodeNum;
 	}
@@ -309,7 +334,7 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 	}
 
 	public void setStatus(String message) {
-		status.setText("> " + message);
+		status.addStatus("> " + message);
 	}
 
 	

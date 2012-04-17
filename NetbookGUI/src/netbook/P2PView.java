@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -55,15 +56,16 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 	private Location[] selectedLocations;
 	
 
-	String fromIcon = "dataDir/meIcon.png"; 
-	String toIcon = "dataDir/connectedIcon.png"; 
-	String rallyIcon = "dataDir/disconnectedIcon.png";
-	String destIcon = "dataDir/meIcon.png";
+	String fromIcon = "dataDir/icons/meIcon.png"; 
+	String toIcon = "dataDir/icons/connectedIcon.png"; 
+	String rallyIcon = "dataDir/icons/disconnectedIcon.png";
+	String destIcon = "dataDir/icons/flag.png";
 
 	JButton backBtn;
 	private JButton undoBtn;
 	private JButton startBtn;
 	private JButton msgBtn;
+	private JButton clearBtn;
 			
 
 	public P2PView(NetbookFrame parent){
@@ -79,7 +81,7 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 		home = new GeoPosition(42.029850, -93.651237);
 
 	    
-	    JPanel buttons = new JPanel();
+
 	    		
 	    backBtn = new JButton("Back to Main View");
 		backBtn.addActionListener(parent);
@@ -94,16 +96,29 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 		msgBtn.addActionListener(this);
 		msgBtn.setBackground(new Color(16, 150, 70));
 
-
 	    startBtn = new JButton("Start");
 	    startBtn.addActionListener(this);
 	    startBtn.setBackground(new Color(16, 150, 70));
-		
 
-		buttons.add(backBtn);
-	    buttons.add(startBtn);
-		buttons.add(undoBtn);
-		buttons.add(msgBtn);
+	    clearBtn = new JButton("Clear");
+	    clearBtn.addActionListener(this);
+	    clearBtn.setBackground(new Color(16, 150, 70));
+
+
+		JPanel ctrlbuttons = new JPanel();
+	    ctrlbuttons.add(startBtn);
+	    ctrlbuttons.add(clearBtn);
+	    ctrlbuttons.add(undoBtn);
+		
+	    JPanel viewbuttons = new JPanel();
+		viewbuttons.add(backBtn);
+		viewbuttons.add(msgBtn);
+		
+	    JPanel buttons = new JPanel();
+		buttons.setLayout(new GridLayout(0,1));
+		buttons.add(ctrlbuttons);
+		buttons.add(viewbuttons);
+
 		
 		this.add(buttons, BorderLayout.SOUTH);
 		
@@ -145,26 +160,21 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 						Waypoint wp = waypoints[i];
 				        Point2D gp_pt = map.getTileFactory().geoToPixel(wp.getPosition(), map.getZoom());
 				        Point gpPoint = new Point((int)gp_pt.getX()-rect.x, (int)gp_pt.getY()-rect.y);
-			        	icon.paintIcon(map, g, gpPoint.x-icon.getIconWidth()/2, gpPoint.y-icon.getIconHeight());		
-						System.out.println("Painting Icon("+wp.getPosition().toString()+") at "+gpPoint.x+" "+gpPoint.y);
+			        	if(i!=3) icon.paintIcon(map, g, gpPoint.x-icon.getIconWidth()/2, gpPoint.y-icon.getIconHeight());
+			        	else	icon.paintIcon(map, g, gpPoint.x-icon.getIconWidth(), gpPoint.y-icon.getIconHeight());
+						
+			        	//System.out.println("Painting Icon("+wp.getPosition().toString()+") at "+gpPoint.x+" "+gpPoint.y);
 					}
 				}
 		        
 		        g.setColor(Color.RED);
 		        g.setFont(new Font("Serif", Font.BOLD, 16));
-		        /*int strLength = 30;
-		        if(status.length()>strLength){
-		        	int j=0;
-		        	while(j*30<status.length()){
-		        		if(j*strLength+strLength<status.length()){
-		        			g.drawString(status.substring(j*strLength,j*strLength+strLength), 30, 60+j*30);
-		        		} else {
-		        			g.drawString(status.substring(j*strLength), 30, 60+j*30);
-		        		}
-		        		j+=1;
-		        	}
-		        }*/
-		        g.drawString(status, 30, 60);
+		        String[] lines = status.split("\n");
+		        int row = 60;
+		        for(String s : lines){ 
+		        	g.drawString(s, 30, row);
+		        	row+=30;
+		        }
 			}
 		};
 		kit.getMainMap().setOverlayPainter(painter);
@@ -172,6 +182,7 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 		kit.getMainMap().addMouseListener(this);
 	}
 
+	
 	public void startP2P(){
 		if((this.p2pCmdr = parent.getP2PCommander()) != null){
 			p2pModeOn = true;
@@ -185,10 +196,9 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 	}
 	public void stopP2P(){
 		p2pModeOn = false;
-		for(Waypoint wp : waypoints) wp = null;
-		
+		waypoints = new Waypoint[4];
+		//for(Waypoint wp : waypoints) wp = null;	
 	}
-	
 	
 	public boolean inP2Pmode() {
 		return p2pModeOn;
@@ -213,13 +223,15 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 				p2pCmdr.initiateP2PTask(selectedLocations[0],
 						selectedLocations[1], selectedLocations[2], 1000000);
 				setStatus("p2p initiated, finishing");
+				parent.setStatus("p2p initiated, finishing");
 			} catch (TooFewNodesException tfne) {
 				setStatus("Sorry, there are not enough nodes in the network to connect those two points.");
 				System.out.println("p2p too few nodes");
+				startBtn.setText("Start");
 				return;
 			}
 
-			setStatus("Initializing point-to-point task! Sending commands to all nodes in the network.");
+			setStatus("Initializing point-to-point task!\nSending commands to all nodes in the network.");
 			System.out.println(Arrays.toString(selectedLocations));
 		
 		} else {
@@ -253,16 +265,27 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 			setupForPoint(settingPoint);
 		}
 	}
-
+	private void clearMap(){
+		waypoints = new Waypoint[4];
+		setStatus("");
+		kit.getMainMap().repaint();
+	}
+	
 	// Point2Point GUI Methods
 	@Override
 	public void p2pInitiated(GoToLocCommand command) {
 		p2pModeOn = true;
 		this.command = command;
-		String message = "Node "+command.from+" has initiated a point-to-point task.\nGo to "
-                		+command.loc+" to relay video.";
-		setDirections(command.loc);
-		setStatus(message);
+		String message = ("Node "
+                         + command.from
+                         + " has initiated a point-to-point task.\nGo to "
+                         + command.loc
+                         + " to relay video.\n"
+                         + (command.headNodeNum == parent.getThisNodeNumber() ? " You are the head node."
+                                 : "")
+                         + (command.tailNodeNum == parent.getThisNodeNumber() ? " You are the tail node."
+                                 : ""));
+		setLocation(message, command.loc);
 		parent.changeView(parent.P2PVIEW, parent.getThisNodeNumber());
 	}
 	@Override
@@ -294,9 +317,15 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
             break;
         }
         setStatus(response);
+        parent.setStatus("Entered " + newState.name() + " state");
     }
 
 	
+	public void setLocation(String msg, Location loc){
+		setDirections(command.loc);
+		setStatus(msg);
+		parent.setStatus(msg);
+	}
 	
 	
 	public void setStatus(String message){
@@ -304,9 +333,7 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 		kit.getMainMap().repaint();
 	}
 	public void setDirections(Location loc){
-		//Point start = convertLocationToPoint(parent.getThisNodeLocation());
-		//Point end = convertLocationToPoint(loc);
-		//kit.getMainMap().getGraphics().drawLine(start.x, start.y, end.x, end.y);
+		clearMap();
 		waypoints[3] = new Waypoint(new GeoPosition((double)loc.latitude, (double) loc.longitude));
 	}
 	public void setDirectionsFull(Location loc){
@@ -351,12 +378,23 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 	@Override
 	public void actionPerformed(ActionEvent action) {
 		if (action.getSource() == undoBtn) {
-			undoP2P();
+			if(p2pModeOn) undoP2P();
 			
 		} else if (action.getSource() == startBtn) {
-			startP2P();
+			clearMap();
+			if(p2pModeOn){
+				stopP2P();
+				startBtn.setText("Start");
+			} else {
+				startP2P();
+				startBtn.setText("Stop");
+			}
+			
 		} else if (action.getSource() == msgBtn){
 			openTextMessenger(0);
+			
+		} else if (action.getSource() == clearBtn){
+			if(!p2pModeOn) clearMap();
 		}
 		
 	}
