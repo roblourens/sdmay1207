@@ -3,7 +3,7 @@
   <class id="1" corner="BOTTOM_RIGHT" language="java" name="sdmay1207.ais.network.model.ShuttingDownMessage" 
     project="AdhocInformationSharing" 
     file="/AdhocInformationSharing/src/sdmay1207/ais/network/model/ShuttingDownMessage.java" binary="false">    
-    <position height="-1" width="-1" x="257" y="267"/>    
+    <position height="-1" width="-1" x="675" y="409"/>    
     <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -12,7 +12,7 @@
   <class id="2" corner="BOTTOM_RIGHT" language="java" name="sdmay1207.ais.network.model.Heartbeat" 
     project="AdhocInformationSharing" file="/AdhocInformationSharing/src/sdmay1207/ais/network/model/Heartbeat.java" 
     binary="false">    
-    <position height="-1" width="-1" x="1098" y="260"/>    
+    <position height="-1" width="-1" x="995" y="412"/>    
     <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -48,7 +48,7 @@
   <enumeration id="6" corner="BOTTOM_RIGHT" language="java" 
     name="sdmay1207.ais.network.model.NetworkMessage.MessageType" project="AdhocInformationSharing" 
     file="/AdhocInformationSharing/src/sdmay1207/ais/network/model/NetworkMessage.java" binary="false">    
-    <position height="-1" width="-1" x="323" y="16"/>    
+    <position height="-1" width="-1" x="446" y="112"/>    
     <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -57,48 +57,58 @@
   <class id="7" corner="BOTTOM_RIGHT" language="java" name="sdmay1207.ais.network.model.Node" 
     project="AdhocInformationSharing" file="/AdhocInformationSharing/src/sdmay1207/ais/network/model/Node.java" 
     binary="false">    
-    <position height="-1" width="-1" x="1062" y="26"/>    
+    <position height="-1" width="-1" x="1024" y="25"/>    
     <display autosize="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
     </display>  
   </class>  
   <generalization id="8">    
-    <end type="SOURCE" refId="3"/>    
-    <end type="TARGET" refId="5"/>  
-  </generalization>  
-  <generalization id="9">    
-    <end type="SOURCE" refId="4"/>    
-    <end type="TARGET" refId="5"/>  
-  </generalization>  
-  <generalization id="10">    
+    <bendpoint x="944" y="175"/>    
     <end type="SOURCE" refId="2"/>    
     <end type="TARGET" refId="5"/>  
   </generalization>  
-  <association id="11">    
+  <generalization id="9">    
+    <bendpoint x="680" y="182"/>    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <association id="10">    
     <end type="SOURCE" refId="5" navigable="false">      
-      <attribute id="12" name="messageType"/>      
-      <multiplicity id="13" minimum="0" maximum="1"/>    
+      <attribute id="11" name="messageType">        
+        <position height="15" width="84" x="468" y="26"/>      
+      </attribute>      
+      <multiplicity id="12" minimum="0" maximum="1">        
+        <position height="15" width="28" x="555" y="27"/>      
+      </multiplicity>    
     </end>    
     <end type="TARGET" refId="6" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <generalization id="14">    
-    <end type="SOURCE" refId="1"/>    
-    <end type="TARGET" refId="5"/>  
-  </generalization>  
-  <association id="15">    
+  <association id="13">    
     <end type="SOURCE" refId="7" navigable="false">      
-      <attribute id="16" name="lastHeartbeat"/>      
-      <multiplicity id="17" minimum="0" maximum="1"/>    
+      <attribute id="14" name="lastHeartbeat">        
+        <position height="15" width="98" x="1013" y="320"/>      
+      </attribute>      
+      <multiplicity id="15" minimum="0" maximum="1">        
+        <position height="15" width="28" x="1117" y="320"/>      
+      </multiplicity>    
     </end>    
     <end type="TARGET" refId="2" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <nesting id="18">    
+  <generalization id="16">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
+  <nesting id="17">    
     <end type="SOURCE" refId="5"/>    
     <end type="TARGET" refId="6"/>  
   </nesting>  
+  <generalization id="18">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="5"/>  
+  </generalization>  
   <classifier-display autosize="true" package="true" initial-value="false" signature="true" visibility="true">    
     <attributes public="true" package="true" protected="true" private="true"/>    
     <operations public="true" package="true" protected="true" private="true"/>  

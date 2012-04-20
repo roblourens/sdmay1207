@@ -213,15 +213,23 @@ public class Point2PointCommander implements CommandHandler
     // should only be called by head node when streaming will start
     public void streamingStarted()
     {
-        StartStreamCommand command = new StartStreamCommand();
-        nodeController.broadcastNetworkMessage(command);
+        if (curState == P2PState.ready && curCommand != null
+                && curCommand.headNodeNum == nodeController.getMe().nodeNum)
+        {
+            StartStreamCommand command = new StartStreamCommand();
+            nodeController.broadcastNetworkMessage(command);
+        }
     }
 
     // should only be called by head node when streaming will stop
     public void streamingStopped()
     {
-        StopStreamCommand command = new StopStreamCommand();
-        nodeController.broadcastNetworkMessage(command);
+        if (curState == P2PState.active && curCommand != null
+                && curCommand.headNodeNum == nodeController.getMe().nodeNum)
+        {
+            StopStreamCommand command = new StopStreamCommand();
+            nodeController.broadcastNetworkMessage(command);
+        }
     }
 
     private Collection<Node> nodesWithLocations(Collection<Node> allNodes)
@@ -282,8 +290,7 @@ public class Point2PointCommander implements CommandHandler
                         }
                     } else
                     {
-                        if (currentLocation
-                                .withinDeltaOf(rallyPoint))
+                        if (currentLocation.withinDeltaOf(rallyPoint))
                         {
                             changeState(P2PState.inactive);
                         }

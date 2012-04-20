@@ -1,6 +1,7 @@
 package com.androidhive.dashboard;
 
 import sdmay1207.ais.network.NetworkController;
+import sdmay1207.cc.Point2PointCommander;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -93,16 +94,22 @@ public class CameraActivity extends Activity
     public void toggleStreaming()
     {
         Log.d(LOG_TAG, "Toggling");
+        Point2PointCommander p2pCmdr = ((DashboardApplication) getApplication()).nc.p2pCmdr;
         if (streamer.isStreaming())
+        {
             stopStreaming();
+            p2pCmdr.streamingStopped();
+        }
         else
+        {
             startStreaming();
+            p2pCmdr.streamingStarted();
+        }
     }
 
     // Called when streaming starts
     private void startStreaming()
     {
-
         // Video resolution
         resX = 176;
         resY = 144;
