@@ -19,7 +19,6 @@ public class AODV implements RoutingImpl, Observer
     private String subnet;
 
     private static final int TRANSMIT_PKT_ID = 0;
-    private static final int BCAST_PKT_ID = 1;
 
     public AODV(Receiver receiver)
     {
@@ -40,13 +39,17 @@ public class AODV implements RoutingImpl, Observer
 
     public boolean broadcastData(String data)
     {
-        nodeAODV.sendData(BCAST_PKT_ID, BROADCAST_ID, data.getBytes());
+        this.broadcastData(data.getBytes());
         return true;
     }
 
     public boolean broadcastData(byte[] data)
     {
-        nodeAODV.sendData(BCAST_PKT_ID, BROADCAST_ID, data);
+        for (int i=2; i<=8; i++)
+        {
+            nodeAODV.sendData(TRANSMIT_PKT_ID, i, data);
+        }
+        
         return true;
     }
 

@@ -3,7 +3,7 @@ package sdmay1207.ais.etc;
 public abstract class Repeater implements Runnable
 {
     // http://stackoverflow.com/questions/106591/do-you-ever-use-the-volatile-keyword-in-java
-    volatile boolean keepRunning = true;
+    volatile boolean keepRunning = false;
 
     @Override
     public void run()
@@ -16,6 +16,7 @@ public abstract class Repeater implements Runnable
     
     public void start()
     {
+        keepRunning = true;
         new Thread(this).start();
     }
 

@@ -63,8 +63,6 @@ public class Device
             return result;
         }
 
-        System.out.println(command);
-        //System.out.println("Result: " + result);
         return result;
     }
 

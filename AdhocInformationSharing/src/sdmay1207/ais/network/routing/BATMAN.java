@@ -11,7 +11,6 @@ import java.util.Set;
 
 import sdmay1207.ais.Device;
 import sdmay1207.ais.etc.Repeater;
-import sdmay1207.ais.etc.Repeater.TimedRepeater;
 import sdmay1207.ais.etc.Utils;
 import sdmay1207.ais.network.NetworkController.Receiver;
 
@@ -27,7 +26,6 @@ public class BATMAN implements RoutingImpl
     private String subnet;
 
     private UDPReceiver udpReceiver;
-    private ConnectedNodeMonitor connectedNodeMonitor;
 
     public BATMAN(Receiver receiver, String dataDir, String interfaceName)
     {
@@ -41,6 +39,9 @@ public class BATMAN implements RoutingImpl
     {
         this.subnet = subnet;
         
+        killTheBatman();
+        Utils.sleep(2000); // need to wait for batmand to die
+
         try
         {
             sendSock = new DatagramSocket(SEND_PORT);
@@ -53,14 +54,11 @@ public class BATMAN implements RoutingImpl
 
         if (Device.isAndroidSystem())
         {
-            /*
-             * String result = Device.sysCommand("su -c \"" +
-             * Device.getDataDir() + "/lib/batmand " + interfaceName + "\"");
-             */
-            String result = Device
-                    .sysCommand("su -c \"/data/data/adhoc/batmand "
-                            + interfaceName + "\"");
-            System.out.println("batmand: " + result);
+            String startBatmandCommand = "su -c \"/data/data/adhoc/batmand "
+                    + interfaceName + "\"";
+            String result = Device.sysCommand(startBatmandCommand);
+            System.out.println("executing " + startBatmandCommand);
+            System.out.println("result: " + result);
         } else
         {
             String result = Device.sysCommand("sudo batmand " + interfaceName);
@@ -81,9 +79,6 @@ public class BATMAN implements RoutingImpl
         udpReceiver = new UDPReceiver(nodeNumber);
         udpReceiver.start();
 
-        connectedNodeMonitor = new ConnectedNodeMonitor();
-        // connectedNodeMonitor.start();
-
         return true;
     }
 
@@ -92,8 +87,7 @@ public class BATMAN implements RoutingImpl
     {
         try
         {
-            InetAddress ipAddress = InetAddress
-                    .getByName(subnet + nodeNumber);
+            InetAddress ipAddress = InetAddress.getByName(subnet + nodeNumber);
             DatagramPacket sendPacket;
             sendSock.setBroadcast(nodeNumber == 255);
             sendPacket = new DatagramPacket(data, data.length, ipAddress,
@@ -113,7 +107,7 @@ public class BATMAN implements RoutingImpl
             return false;
         } catch (NullPointerException e)
         {
-            // usually thrown on 
+            // usually thrown on
             stop();
             throw e;
         }
@@ -143,13 +137,20 @@ public class BATMAN implements RoutingImpl
     public boolean stop()
     {
         System.out.println("BATMAN stopping");
-        Device.sysCommand("su -c \"killall batmand\"");
-
+        killTheBatman();
+        
         sendSock.close();
         udpReceiver.stop();
-        connectedNodeMonitor.stop();
 
         return true;
+    }
+    
+    private void killTheBatman()
+    {
+        if (Device.isAndroidSystem())
+            Device.sysCommand("su -c \"killall batmand\"");
+        else
+            Device.sysCommand("sudo killall batmand");
     }
 
     /**
@@ -178,73 +179,6 @@ public class BATMAN implements RoutingImpl
         return neighbors;
     }
 
-    public Set<Integer> getConnectedNodes()
-    {
-        Set<Integer> neighbors = new HashSet<Integer>();
-
-        String output;
-        if (Device.isAndroidSystem())
-            output = Device
-                    .sysCommand("su -c \"/data/data/adhoc/batmand -c -b -d 1\"");
-        else
-            output = Device.sysCommand("sudo batmand -c -b -d 1");
-
-        String[] lines = output.split("\n");
-
-        // First line is the header
-        for (int i = 1; i < lines.length; i++)
-        {
-            String line = lines[i];
-
-            // Extract (ip)whitespace(ip)something
-            line.trim();
-            if (!line.startsWith("No batman nodes in range"))
-            {
-                String[] lineValues = line.split("\\s*");
-                neighbors.add(Utils.getNodeNumberFromIP(lineValues[0]));
-            }
-        }
-
-        return neighbors;
-    }
-
-    private class ConnectedNodeMonitor extends TimedRepeater
-    {
-        private Set<Integer> connectedNodes = null;
-
-        private static final int CHECK_INTERVAL = 5000; // ms
-
-        public ConnectedNodeMonitor()
-        {
-            super(CHECK_INTERVAL);
-        }
-
-        @Override
-        public void runOnce()
-        {
-            Set<Integer> newConnectedNodes = getConnectedNodes();
-
-            if (connectedNodes != null)
-            {
-                // Find new nodes
-                for (Integer nodeNum : newConnectedNodes)
-                    if (!connectedNodes.contains(nodeNum))
-                        receiver.nodeJoined(nodeNum);
-
-                // Find lost nodes
-                for (Integer nodeNum : connectedNodes)
-                    if (!newConnectedNodes.contains(nodeNum))
-                        receiver.nodeLeft(nodeNum);
-            }
-
-            connectedNodes = newConnectedNodes;
-
-            if (connectedNodes.size() != 0)
-                System.out.println("BATMAN has " + connectedNodes.size()
-                        + " neighbors");
-        }
-    }
-
     private class UDPReceiver extends Repeater
     {
         private DatagramSocket dgramSock;
@@ -257,6 +191,11 @@ public class BATMAN implements RoutingImpl
         public UDPReceiver(int exclude)
         {
             this.exclude = exclude;
+        }
+
+        @Override
+        public void start()
+        {
             try
             {
                 dgramSock = new DatagramSocket(RECV_PORT);
@@ -266,6 +205,8 @@ public class BATMAN implements RoutingImpl
                 throw new RuntimeException(
                         "Could not set up the receiver socket: network problems");
             }
+
+            super.start();
         }
 
         @Override
@@ -290,11 +231,12 @@ public class BATMAN implements RoutingImpl
                     System.arraycopy(buffer, 0, sized, 0, sized.length);
                     receiver.addMessageData(fromIP, sized);
                 }
-            } catch (IOException e)
+            } catch (Exception e)
             {
                 e.printStackTrace();
                 System.err
-                        .println("Bad things happened in BATMAN message receiver thread");
+                        .println("Exception in BATMAN message receiver thread");
+                stop();
             }
         }
 

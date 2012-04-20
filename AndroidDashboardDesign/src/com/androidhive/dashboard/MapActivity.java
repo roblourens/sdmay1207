@@ -190,6 +190,17 @@ public class MapActivity extends Activity implements Observer
             }
         });
     }
+    
+    @Override
+    protected void onDestroy()
+    {
+        System.out.println("MapActivity.onDestroy");
+        
+        // clean up when we're being killed without stopping
+        da.stop();
+        
+        super.onDestroy();
+    }
 
     @Override
     protected void onResume()

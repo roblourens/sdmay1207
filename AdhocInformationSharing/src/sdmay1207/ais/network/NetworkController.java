@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -112,6 +113,10 @@ public class NetworkController extends Observable
     public boolean start(int nodeNumber, RoutingAlg routingAlg)
     {
         this.nodeNumber = nodeNumber;
+        
+        knownNodes = new ConcurrentHashMap<Integer, Node>();
+        connectedNodes = new ConcurrentHashMap<Integer, Node>();
+        
         isRunning = networkInterface.startNetwork(nodeNumber)
                 && networkInterface.startRouting(routingAlg);
 
@@ -133,8 +138,8 @@ public class NetworkController extends Observable
         if (networkInterface != null)
             networkInterface.stop();
 
-        if (r != null)
-            r.stop();
+        r.stop();
+        ncm.stop();
 
         isRunning = false;
     }
@@ -299,17 +304,42 @@ public class NetworkController extends Observable
 
         public Receiver()
         {
-            receivedEvents = new ConcurrentLinkedQueue<NetworkEvent>();
             try
             {
                 CAM_STREAM_ADDR = InetAddress.getByName("127.0.0.1");
-                localSock = new DatagramSocket();
             } catch (Exception e)
             {
                 e.printStackTrace();
                 throw new RuntimeException(
-                        "Could not set up camera stream socket");
+                        "Could not set up camera stream InetAddress");
             }
+        }
+
+        @Override
+        public void start()
+        {
+            System.out.println("Receiver starting");
+            receivedEvents = new ConcurrentLinkedQueue<NetworkEvent>();
+            try
+            {
+                localSock = new DatagramSocket();
+            } catch (SocketException e)
+            {
+                e.printStackTrace();
+                throw new RuntimeException(
+                        "Could not set up local camera socket");
+            }
+
+            super.start();
+        }
+
+        @Override
+        public void stop()
+        {
+            System.out.println("Receiver stopping");
+            localSock.close();
+
+            super.stop();
         }
 
         @Override
@@ -343,7 +373,7 @@ public class NetworkController extends Observable
                 return;
             }
 
-            //data = decryptedData(data);
+            // data = decryptedData(data);
             if (data.length == 0)
             {
                 System.err
@@ -379,7 +409,7 @@ public class NetworkController extends Observable
 
             addEvent(event);
         }
-        
+
         public void ackReceived(Object o)
         {
             addEvent(new NetworkEvent(Event.ACK, o.toString()));
@@ -440,7 +470,8 @@ public class NetworkController extends Observable
         {
             for (Node n : getNodesInNetwork().values())
             {
-                if (n.lastHeartbeat.rcvdTime < System.currentTimeMillis() - 6000 // 3*heartbeat rate, ms
+                // 3*heartbeat rate, ms
+                if (n.lastHeartbeat.rcvdTime < System.currentTimeMillis() - 6000
                         && n.nodeNum != nodeNumber)
                 {
                     System.out.println("Lost node " + n.nodeNum + " at "
