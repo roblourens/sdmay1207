@@ -17,6 +17,7 @@ import org.osmdroid.views.overlay.OverlayItem;
 import sdmay1207.ais.NodeController;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.model.Node;
+import sdmay1207.ais.network.model.TextMessage;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -75,41 +76,39 @@ public class MapActivity extends Activity implements Observer
 
         // Set button listeners
         ((Button) findViewById(R.id.startStopButton))
-        .setOnClickListener(new OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                if (!isStarted)
+                .setOnClickListener(new OnClickListener()
                 {
-                    ((Button) findViewById(R.id.startStopButton))
-                            .setText("Starting...");
-                    ((Button) findViewById(R.id.startStopButton))
-                            .setEnabled(false);
-                    new StartupTask().execute();
-                    
-                    isStarted = true;
-                    
-                } else
-                {
-                    da.stop();
-                    isStarted = false;
+                    public void onClick(View v)
+                    {
+                        if (!isStarted)
+                        {
+                            ((Button) findViewById(R.id.startStopButton))
+                                    .setText("Starting...");
+                            ((Button) findViewById(R.id.startStopButton))
+                                    .setEnabled(false);
+                            new StartupTask().execute();
 
-                    ((Button) findViewById(R.id.startStopButton))
-                            .setText("Start");
-                    //Disable network buttons
-                    ((Button) findViewById(R.id.showNodeListButton))
-                    .setEnabled(false);
-                    ((Button) findViewById(R.id.initP2PButton))
-                    .setEnabled(false);
-                    ((Button) findViewById(R.id.directNeighborsButton))
-                    .setEnabled(false);
-                   
-                    
-                }
-            }
-        });
-        
-                	
+                            isStarted = true;
+
+                        } else
+                        {
+                            da.stop();
+                            isStarted = false;
+
+                            ((Button) findViewById(R.id.startStopButton))
+                                    .setText("Start");
+                            // Disable network buttons
+                            ((Button) findViewById(R.id.showNodeListButton))
+                                    .setEnabled(false);
+                            ((Button) findViewById(R.id.initP2PButton))
+                                    .setEnabled(false);
+                            ((Button) findViewById(R.id.directNeighborsButton))
+                                    .setEnabled(false);
+
+                        }
+                    }
+                });
+
         ((Button) findViewById(R.id.showNodeListButton))
                 .setOnClickListener(new OnClickListener()
                 {
@@ -149,6 +148,36 @@ public class MapActivity extends Activity implements Observer
                         i.putExtra(NodeListActivity.DIRECT_NEIGHBORS_ONLY_KEY,
                                 true);
                         startActivity(i);
+                    }
+                });
+
+        ((Button) findViewById(R.id.n5))
+                .setOnClickListener(new OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        MapActivity.this.nc.sendNetworkMessage(new TextMessage(
+                                "ping"), 5);
+                    }
+                });
+
+        ((Button) findViewById(R.id.n7))
+                .setOnClickListener(new OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        MapActivity.this.nc.sendNetworkMessage(new TextMessage(
+                                "ping"), 7);
+                    }
+                });
+
+        ((Button) findViewById(R.id.n4))
+                .setOnClickListener(new OnClickListener()
+                {
+                    public void onClick(View v)
+                    {
+                        MapActivity.this.nc.sendNetworkMessage(new TextMessage(
+                                "ping"), 4);
                     }
                 });
 
@@ -202,14 +231,14 @@ public class MapActivity extends Activity implements Observer
                         "desc", new GeoPoint(n.lastLocation.latitude,
                                 n.lastLocation.longitude));
                 if (n.nodeNum == nc.getMe().nodeNum)
-                	o1.setMarker(writeOnDrawable(R.drawable.my_person,
+                    o1.setMarker(writeOnDrawable(R.drawable.my_person,
                             ("" + n.nodeNum)));
                 else if (!(nc.getNodesInNetwork().containsKey(n.nodeNum)))
-                	o1.setMarker(writeOnDrawable(R.drawable.disappear_person,
+                    o1.setMarker(writeOnDrawable(R.drawable.disappear_person,
                             ("" + n.nodeNum)));
                 else
-                	o1.setMarker(writeOnDrawable(R.drawable.other_person,
-                        ("" + n.nodeNum)));
+                    o1.setMarker(writeOnDrawable(R.drawable.other_person,
+                            ("" + n.nodeNum)));
                 items.add(o1);
             }
         }
@@ -221,7 +250,7 @@ public class MapActivity extends Activity implements Observer
             OverlayItem oi = n.getOverlayItem();
             if (oi != null)
                 items.add(oi);
-            
+
             n.drawOverlay(mapView.getOverlayManager());
         }
 
@@ -362,12 +391,13 @@ public class MapActivity extends Activity implements Observer
         {
             super.onPostExecute(result);
             ((Button) findViewById(R.id.startStopButton)).setText("Stop");
-            //Enable buttons on screen
+            // Enable buttons on screen
             ((Button) findViewById(R.id.startStopButton)).setEnabled(true);
             ((Button) findViewById(R.id.showNodeListButton)).setEnabled(true);
             ((Button) findViewById(R.id.initP2PButton)).setEnabled(true);
-            ((Button) findViewById(R.id.directNeighborsButton)).setEnabled(true);
-            
+            ((Button) findViewById(R.id.directNeighborsButton))
+                    .setEnabled(true);
+
             isStarted = true;
         }
     }

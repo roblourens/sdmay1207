@@ -27,9 +27,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
+            android:enabled="false"
             android:text="+"
-            android:textSize="15dp"
-            android:enabled="false" />
+            android:textSize="15dp" />
 
         <Button
             android:id="@+id/directNeighborsButton"
@@ -37,9 +37,36 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@id/showNodeListButton"
+            android:enabled="false"
             android:text="Neighbors"
-            android:textSize="15dp"
-            android:enabled="false" />
+            android:textSize="15dp" />
+
+        <Button
+            android:id="@+id/n5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@id/directNeighborsButton"
+            android:text="n5"
+            android:textSize="15dp" />
+
+        <Button
+            android:id="@+id/n7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@id/n5"
+            android:text="n7"
+            android:textSize="15dp" />
+
+        <Button
+            android:id="@+id/n4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@id/n7"
+            android:text="n4"
+            android:textSize="15dp" />
 
         <Button
             android:id="@+id/initP2PButton"
@@ -47,9 +74,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
+            android:enabled="false"
             android:text="p2p"
-            android:textSize="15dp"
-            android:enabled="false" />
+            android:textSize="15dp" />
 
         <Button
             android:id="@+id/startStopButton"
