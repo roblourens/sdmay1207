@@ -47,18 +47,18 @@ public class Node
      * @param hb
      *            the most recently received heartbeat from this node
      */
-    public void update(Heartbeat hb)
+    public boolean update(Heartbeat hb)
     {
         // basic sanity checks
         if (hb.from != nodeNum)
         {
             System.err.println("Wrong nodeNum");
-            return;
+            return false;
         } else if (lastHeartbeat != null
-                && lastHeartbeat.timestamp > hb.timestamp)
+                && lastHeartbeat.timestamp >= hb.timestamp)
         {
             System.err.println("Can't update with older heartbeat");
-            return;
+            return false;
         }
 
         lastHeartbeat = hb;
@@ -67,6 +67,8 @@ public class Node
         String locationStr = hb.sensorOutput.get(SensorType.GPS);
         if (locationStr != null)
             lastLocation = new Location(locationStr);
+        
+        return true;
     }
 
     public String toString()

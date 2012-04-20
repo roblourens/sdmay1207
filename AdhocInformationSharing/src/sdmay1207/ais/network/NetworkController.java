@@ -231,7 +231,7 @@ public class NetworkController extends Observable
      * object. Returns true if the node was not previously in connectedNodes or
      * knownNodes.
      */
-    private boolean updateKnownNodes(Heartbeat hb)
+    private boolean handleHeartbeat(Heartbeat hb)
     {
         boolean nodeIsNew = false;
 
@@ -241,7 +241,8 @@ public class NetworkController extends Observable
             nodeIsNew = true;
         }
 
-        knownNodes.get(hb.from).update(hb);
+        if (knownNodes.get(hb.from).update(hb))
+            sendHeartbeat(hb);
 
         if (!connectedNodes.containsKey(hb.from))
         {
@@ -396,7 +397,7 @@ public class NetworkController extends Observable
                 break;
             case Heartbeat:
                 event = new NetworkEvent(Event.RecvdHeartbeat, msg);
-                if (updateKnownNodes((Heartbeat) msg))
+                if (handleHeartbeat((Heartbeat) msg))
                     nodeJoined(msg.from);
                 break;
             case TextMessage:
