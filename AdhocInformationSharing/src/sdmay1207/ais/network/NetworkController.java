@@ -56,7 +56,7 @@ public class NetworkController extends Observable
     public enum Event
     {
         NodeJoined, NodeLeft, RecvdHeartbeat, RecvdData, RecvdCommand,
-        RecvdTextMessage, RecvdShuttingDownMessage, SentHeartbeat
+        RecvdTextMessage, RecvdShuttingDownMessage, SentHeartbeat, ACK
     }
 
     /**
@@ -262,7 +262,7 @@ public class NetworkController extends Observable
             e.printStackTrace();
         }
 
-        return encrypted;
+        return data;
     }
 
     private byte[] decryptedData(byte[] data)
@@ -343,7 +343,7 @@ public class NetworkController extends Observable
                 return;
             }
 
-            data = decryptedData(data);
+            //data = decryptedData(data);
             if (data.length == 0)
             {
                 System.err
@@ -378,6 +378,11 @@ public class NetworkController extends Observable
             }
 
             addEvent(event);
+        }
+        
+        public void ackReceived(Object o)
+        {
+            addEvent(new NetworkEvent(Event.ACK, o.toString()));
         }
 
         public void nodeLeft(int nodeNumber)
@@ -426,7 +431,7 @@ public class NetworkController extends Observable
 
         public NodeConnectivityMonitor(Receiver r)
         {
-            super(6000); // 3*heartbeat rate, ms
+            super(1000);
             this.r = r;
         }
 
@@ -435,7 +440,7 @@ public class NetworkController extends Observable
         {
             for (Node n : getNodesInNetwork().values())
             {
-                if (n.lastHeartbeat.rcvdTime < System.currentTimeMillis() - 6000
+                if (n.lastHeartbeat.rcvdTime < System.currentTimeMillis() - 6000 // 3*heartbeat rate, ms
                         && n.nodeNum != nodeNumber)
                 {
                     System.out.println("Lost node " + n.nodeNum + " at "

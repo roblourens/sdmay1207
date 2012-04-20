@@ -26,6 +26,7 @@ import sdmay1207.ais.network.NetworkController.Event;
 import sdmay1207.ais.network.NetworkController.NetworkEvent;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.NetworkMessage;
+import sdmay1207.ais.network.model.TextMessage;
 import sdmay1207.ais.sensors.GPS.Location;
 import sdmay1207.cc.Point2PointCommander.GoToLocCommand;
 import sdmay1207.cc.Point2PointCommander.P2PState;
@@ -126,7 +127,7 @@ public class DashboardApplication extends Application
     public void start()
     {
         Device.doAndroidHardStop();
-        nc.start(RoutingAlg.AODV);
+        nc.start(RoutingAlg.BATMAN);
     }
 
     public void stop()
@@ -146,7 +147,8 @@ public class DashboardApplication extends Application
 
         private Event[] eventsToBeNotifiedAbout = new Event[] {
                 Event.NodeJoined, Event.NodeLeft,
-                Event.RecvdShuttingDownMessage, Event.RecvdTextMessage };
+                Event.RecvdShuttingDownMessage, Event.RecvdTextMessage,
+                Event.ACK };
 
         public NotificationManager()
         {
@@ -163,7 +165,20 @@ public class DashboardApplication extends Application
             // and left/joined events should be displayed
             // java sucks
             if (Arrays.asList(eventsToBeNotifiedAbout).contains(netEvent.event))
-                addNotification(new NetworkEventNotification(netEvent));
+            {
+                if (netEvent.event != Event.ACK
+                        || !netEvent.data.toString().equals("1"))
+                    addNotification(new NetworkEventNotification(netEvent));
+            }
+
+            if (netEvent.event == Event.RecvdTextMessage)
+            {
+                TextMessage tm = (TextMessage) netEvent.data;
+                if (tm.message.equals("ping"))
+                    nc.sendNetworkMessage(
+                            new TextMessage("pong "
+                                    + System.currentTimeMillis() % 10), tm.from);
+            }
         }
 
         public void addNotification(Notification n)
@@ -365,6 +380,8 @@ public class DashboardApplication extends Application
     {
         public NetworkEvent netEvent;
 
+        private long t = System.currentTimeMillis() % 10;
+
         public NetworkEventNotification(NetworkEvent netEvent)
         {
             this.netEvent = netEvent;
@@ -381,6 +398,8 @@ public class DashboardApplication extends Application
                 return "Node " + netEvent.data + " joined the network";
             case NodeLeft:
                 return "Node " + netEvent.data + " left the network";
+            case ACK:
+                return "ACK! " + t;
             }
 
             return "wat";

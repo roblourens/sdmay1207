@@ -124,6 +124,7 @@ public class AODV implements RoutingImpl, Observer
                 break;
             case 2:
                 System.out.println("ACK Received");
+                receiver.ackReceived(value.getContainedData());
                 break;
             default:
                 System.out.println("Value Response: "

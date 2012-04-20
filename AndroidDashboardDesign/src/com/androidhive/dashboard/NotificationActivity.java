@@ -28,8 +28,8 @@ public class NotificationActivity extends ListActivity implements Observer
         super.onCreate(savedInstanceState);
         da = ((DashboardApplication) getApplication());
 
-        for (Notification n : da.nm.notifications)
-            addNotificationToList(n);
+        for (int i=0; i<da.nm.notifications.size(); i++)
+            addNotificationToList(da.nm.notifications.get(i));
 
         String[] from = { "displayStr", "timestamp" };
         int[] to = { android.R.id.text1, android.R.id.text2 };

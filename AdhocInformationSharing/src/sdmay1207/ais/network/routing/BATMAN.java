@@ -33,16 +33,6 @@ public class BATMAN implements RoutingImpl
     {
         this.receiver = receiver;
         this.interfaceName = interfaceName;
-
-        try
-        {
-            sendSock = new DatagramSocket(SEND_PORT);
-        } catch (SocketException e)
-        {
-            System.out.println("BATMAN could not create a socket");
-            e.printStackTrace();
-        }
-
         // for now, assume BATMAN is installed
     }
 
@@ -50,12 +40,27 @@ public class BATMAN implements RoutingImpl
     public boolean start(String subnet, int nodeNumber)
     {
         this.subnet = subnet;
+        
+        try
+        {
+            sendSock = new DatagramSocket(SEND_PORT);
+        } catch (Exception e)
+        {
+            System.out.println("BATMAN could not create a socket");
+            e.printStackTrace();
+            return false;
+        }
 
         if (Device.isAndroidSystem())
         {
-            /*String result = Device.sysCommand("su -c \"" + Device.getDataDir()
-                    + "/lib/batmand " + interfaceName + "\"");*/
-            Device.sysCommand("su -c \"/data/data/adhoc/batmand " + interfaceName + "\"");
+            /*
+             * String result = Device.sysCommand("su -c \"" +
+             * Device.getDataDir() + "/lib/batmand " + interfaceName + "\"");
+             */
+            String result = Device
+                    .sysCommand("su -c \"/data/data/adhoc/batmand "
+                            + interfaceName + "\"");
+            System.out.println("batmand: " + result);
         } else
         {
             String result = Device.sysCommand("sudo batmand " + interfaceName);
@@ -77,7 +82,7 @@ public class BATMAN implements RoutingImpl
         udpReceiver.start();
 
         connectedNodeMonitor = new ConnectedNodeMonitor();
-        connectedNodeMonitor.start();
+        // connectedNodeMonitor.start();
 
         return true;
     }
@@ -85,27 +90,14 @@ public class BATMAN implements RoutingImpl
     @Override
     public boolean transmitData(int nodeNumber, byte[] data)
     {
-        return false;
-    }
-
-    @Override
-    public boolean transmitData(int nodeNumber, String data)
-    {
-        return false;
-    }
-
-    @Override
-    public boolean broadcastData(String data)
-    {
-        InetAddress IPAddress;
         try
         {
-            IPAddress = InetAddress.getByName(subnet + BROADCAST_ID);
+            InetAddress ipAddress = InetAddress
+                    .getByName(subnet + nodeNumber);
             DatagramPacket sendPacket;
-            sendSock.setBroadcast(true);
-            byte[] dataBytes = data.getBytes();
-            sendPacket = new DatagramPacket(dataBytes, dataBytes.length,
-                    IPAddress, RECV_PORT);
+            sendSock.setBroadcast(nodeNumber == 255);
+            sendPacket = new DatagramPacket(data, data.length, ipAddress,
+                    RECV_PORT);
             sendSock.send(sendPacket);
         } catch (UnknownHostException e)
         {
@@ -119,16 +111,39 @@ public class BATMAN implements RoutingImpl
         {
             e.printStackTrace();
             return false;
+        } catch (NullPointerException e)
+        {
+            // usually thrown on 
+            stop();
+            throw e;
         }
 
         return true;
     }
 
     @Override
+    public boolean transmitData(int nodeNumber, String data)
+    {
+        return transmitData(nodeNumber, data.getBytes());
+    }
+
+    @Override
+    public boolean broadcastData(String data)
+    {
+        return broadcastData(data.getBytes());
+    }
+
+    @Override
+    public boolean broadcastData(byte[] data)
+    {
+        return transmitData(255, data);
+    }
+
+    @Override
     public boolean stop()
     {
-        // TODO Android? Detect failure?
-        Device.sysCommand("sudo killall batmand");
+        System.out.println("BATMAN stopping");
+        Device.sysCommand("su -c \"killall batmand\"");
 
         sendSock.close();
         udpReceiver.stop();
@@ -169,10 +184,11 @@ public class BATMAN implements RoutingImpl
 
         String output;
         if (Device.isAndroidSystem())
-            output = Device.sysCommand("su -c \"/data/data/adhoc/batmand -c -b -d 1\"");
+            output = Device
+                    .sysCommand("su -c \"/data/data/adhoc/batmand -c -b -d 1\"");
         else
             output = Device.sysCommand("sudo batmand -c -b -d 1");
-        
+
         String[] lines = output.split("\n");
 
         // First line is the header
@@ -197,7 +213,7 @@ public class BATMAN implements RoutingImpl
         private Set<Integer> connectedNodes = null;
 
         private static final int CHECK_INTERVAL = 5000; // ms
-        
+
         public ConnectedNodeMonitor()
         {
             super(CHECK_INTERVAL);
@@ -269,7 +285,11 @@ public class BATMAN implements RoutingImpl
                 // toString returns hostname / ip
                 String fromIP = fromAddress.split("/")[1];
                 if (exclude != Utils.getNodeNumberFromIP(fromIP))
-                    receiver.addMessageData(fromIP, receivedPacket.getData());
+                {
+                    byte[] sized = new byte[receivedPacket.getLength()];
+                    System.arraycopy(buffer, 0, sized, 0, sized.length);
+                    receiver.addMessageData(fromIP, sized);
+                }
             } catch (IOException e)
             {
                 e.printStackTrace();
@@ -277,12 +297,12 @@ public class BATMAN implements RoutingImpl
                         .println("Bad things happened in BATMAN message receiver thread");
             }
         }
-    }
 
-    @Override
-    public boolean broadcastData(byte[] data)
-    {
-        // TODO Auto-generated method stub
-        return false;
+        @Override
+        public void stop()
+        {
+            dgramSock.close();
+            super.stop();
+        };
     }
 }

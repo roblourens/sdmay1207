@@ -212,7 +212,7 @@ public class P2PSetupActivity extends Activity
             try
             {
                 nc.p2pCmdr.initiateP2PTask(selectedLocations[0],
-                        selectedLocations[1], selectedLocations[2], 1000000);
+                        selectedLocations[1], selectedLocations[2], 100000);
             } catch (TooFewNodesException e)
             {
                 e.printStackTrace();
