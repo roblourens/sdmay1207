@@ -5,14 +5,19 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import sdmay1207.ais.Device;
 import sdmay1207.ais.sensors.SensorInterface.SensorType;
 import sdmay1207.cc.Point2PointCommander.P2PState;
 
 public class Heartbeat extends NetworkMessage
 {
     public Map<SensorType, String> sensorOutput = new HashMap<SensorType, String>();
-    
+
     public P2PState taskState;
+
+    public boolean canSendVideo;
+
+    public boolean canReceiveVideo;
 
     /**
      * Constructor to build a Heartbeat model object from received data
@@ -26,17 +31,21 @@ public class Heartbeat extends NetworkMessage
     {
         super(fromIP, heartbeatArgs);
         messageType = MessageType.Heartbeat;
-        
+
         for (String s : data)
         {
             char code = s.charAt(0);
             if (code == 't')
                 taskState = P2PState.values()[Integer.parseInt(s.substring(1))];
+            else if (code == 's')
+                canSendVideo = Integer.parseInt(s.substring(1)) == 1;
+            else if (code == 'r')
+                canReceiveVideo = Integer.parseInt(s.substring(1)) == 1;
             else
             {
                 SensorType st = SensorType.values()[code - '0'];
                 String sensorReading = s.substring(1);
-    
+
                 sensorOutput.put(st, sensorReading);
             }
         }
@@ -49,6 +58,8 @@ public class Heartbeat extends NetworkMessage
     {
         super();
         messageType = MessageType.Heartbeat;
+        canSendVideo = Device.isAndroidSystem();
+        canReceiveVideo = !Device.isAndroidSystem();
     }
 
     // format like <1 digit sensortype><sensor output>;...
@@ -73,9 +84,12 @@ public class Heartbeat extends NetworkMessage
 
         if (!sensorOutputStr.equals(""))
             result += ";" + sensorOutputStr;
-        
+
         if (taskState != null)
-            result += ";" + "t" + taskState.ordinal();
+            result += ";t" + taskState.ordinal();
+
+        result += ";s" + (canSendVideo ? 1 : 0);
+        result += ";r" + (canReceiveVideo ? 1 : 0);
 
         return result;
     }

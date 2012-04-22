@@ -52,6 +52,21 @@ public class Point2PointNodeWrangler
                     double d1 = node.lastLocation.distanceTo(p1);
                     double d2 = node.lastLocation.distanceTo(p2);
 
+                    if (!node.lastHeartbeat.canSendVideo)
+                    {
+                        if (i1 == 0)
+                            return 1;
+                        if (i2 == 0)
+                            return -1;
+                    }
+                    if (!node.lastHeartbeat.canReceiveVideo)
+                    {
+                        if (i1 == positions.size() - 1)
+                            return 1;
+                        if (i2 == positions.size() - 1)
+                            return -1;
+                    }
+
                     if (d1 < d2)
                         return -1;
                     else if (d2 < d1)
