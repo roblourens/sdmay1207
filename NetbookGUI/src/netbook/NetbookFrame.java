@@ -119,7 +119,8 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 	}
 
 	public void startNetwork() {
-		nc.start(RoutingAlg.BATMAN);
+		//nc.start(RoutingAlg.BATMAN);
+		nc.start(RoutingAlg.AODV);
 		networkRunning = true;
 		mainView.startStop.setText("Stop");
 	}

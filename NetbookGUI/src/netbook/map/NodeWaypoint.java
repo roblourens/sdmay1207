@@ -23,6 +23,7 @@ public class NodeWaypoint extends Waypoint {
 		this.node = node;
 		panel = new HoverPanel(node, parent);
 		map.add(panel);
+		panel.setVisible(false);
 	}
 	
 	public GeoPosition getLocation(){

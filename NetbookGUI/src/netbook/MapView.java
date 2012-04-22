@@ -179,11 +179,10 @@ public class MapView extends JPanel implements TextMessengerListener, MouseMotio
 	        			&& point.getX() < gpPoint.getX()+hoverPanel.getWidth() 
 	        			&& point.getY() > gpPoint.getY()
 	        			&& point.getY() < gpPoint.getY()+hoverPanel.getHeight()){
-	        		
+	        		System.out.println("Mouse is still on panel");
 	      	
 	        	} else if(gpPoint.distance(point) < 10) {
-	        		//map.add(hoverPanel);
-	        	    hoverPanel.setLocation(gpPoint);
+	        		hoverPanel.setLocation(gpPoint);
 	        		//hoverPanel.setLocation(200,200);
 		            System.out.println(" Setting Visible");
 		            hoverPanel.setVisible(true);

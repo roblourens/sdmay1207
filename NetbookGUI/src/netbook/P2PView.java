@@ -52,6 +52,7 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 	String status;
 	
 	boolean p2pModeOn;
+	boolean p2pOperating;
 	int settingPoint;
 	private Location[] selectedLocations;
 	
@@ -274,7 +275,8 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 	// Point2Point GUI Methods
 	@Override
 	public void p2pInitiated(GoToLocCommand command) {
-		p2pModeOn = true;
+		//p2pModeOn = true;
+		this.p2pOperating = true;
 		this.command = command;
 		String message = ("Node "
                          + command.from
@@ -286,6 +288,7 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
                          + (command.tailNodeNum == parent.getThisNodeNumber() ? " You are the tail node."
                                  : ""));
 		setLocation(message, command.loc);
+
 		parent.changeView(parent.P2PVIEW, parent.getThisNodeNumber());
 	}
 	@Override
@@ -320,7 +323,6 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
         parent.setStatus("Entered " + newState.name() + " state");
     }
 
-	
 	public void setLocation(String msg, Location loc){
 		setDirections(loc);
 		setStatus(msg);
@@ -381,6 +383,7 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 			if(p2pModeOn) undoP2P();
 			
 		} else if (action.getSource() == startBtn) {
+			if(p2pOperating) return;
 			clearMap();
 			if(p2pModeOn){
 				stopP2P();
