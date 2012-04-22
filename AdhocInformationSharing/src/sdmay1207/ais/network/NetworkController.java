@@ -113,10 +113,10 @@ public class NetworkController extends Observable
     public boolean start(int nodeNumber, RoutingAlg routingAlg)
     {
         this.nodeNumber = nodeNumber;
-        
+
         knownNodes = new ConcurrentHashMap<Integer, Node>();
         connectedNodes = new ConcurrentHashMap<Integer, Node>();
-        
+
         isRunning = networkInterface.startNetwork(nodeNumber)
                 && networkInterface.startRouting(routingAlg);
 
@@ -231,9 +231,10 @@ public class NetworkController extends Observable
      * object. Returns true if the node was not previously in connectedNodes or
      * knownNodes.
      */
-    private boolean handleHeartbeat(Heartbeat hb)
+    private boolean[] handleHeartbeat(Heartbeat hb)
     {
         boolean nodeIsNew = false;
+        boolean hbIsNew = false;
 
         if (knownNodes.get(hb.from) == null)
         {
@@ -245,6 +246,7 @@ public class NetworkController extends Observable
         {
             System.out.println("Rebroadcasting from " + hb.from);
             sendHeartbeat(hb);
+            hbIsNew = true;
         }
 
         if (!connectedNodes.containsKey(hb.from))
@@ -253,7 +255,7 @@ public class NetworkController extends Observable
             nodeIsNew = true;
         }
 
-        return nodeIsNew;
+        return new boolean[] { nodeIsNew, hbIsNew };
     }
 
     private byte[] encryptedData(byte[] data)
@@ -400,8 +402,11 @@ public class NetworkController extends Observable
                 break;
             case Heartbeat:
                 event = new NetworkEvent(Event.RecvdHeartbeat, msg);
-                if (handleHeartbeat((Heartbeat) msg))
+                boolean[] hbHandleResult = handleHeartbeat((Heartbeat) msg);
+                if (hbHandleResult[0])
                     nodeJoined(msg.from);
+                else if (!hbHandleResult[1])
+                    return;
                 break;
             case TextMessage:
                 event = new NetworkEvent(Event.RecvdTextMessage, msg);

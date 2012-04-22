@@ -333,7 +333,7 @@ public class MapActivity extends Activity implements Observer
         switch (netEvent.event)
         {
         case RecvdHeartbeat:
-            updateMapObjects();
+            //updateMapObjects();
             break;
         case NodeJoined:
             updateMapObjects();
