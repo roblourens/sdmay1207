@@ -101,7 +101,7 @@ public class Point2PointCommander implements CommandHandler
 
             curDest = locCommand.loc;
             rallyPoint = locCommand.rallyPoint;
-            enRouteTimeoutTime = locCommand.timeout;
+            enRouteTimeoutTime = System.currentTimeMillis() + locCommand.timeoutLength;
 
             // Tell the GUI to go to the location
             gui.p2pInitiated(locCommand);
@@ -197,7 +197,7 @@ public class Point2PointCommander implements CommandHandler
         int tailNodeNum = ((Node) Utils.reverseMapLookup(assignments,
                 positions.get(positions.size() - 1))).nodeNum;
 
-        long timeoutTime = System.currentTimeMillis() + timeoutMS;
+        long timeoutTime = timeoutMS;
         // send position assignments
         // this will also send a command to this node, putting it into the
         // command received loop like all the others
@@ -359,7 +359,7 @@ public class Point2PointCommander implements CommandHandler
         public Location rallyPoint;
         public int headNodeNum;
         public int tailNodeNum;
-        public long timeout;
+        public long timeoutLength;
 
         public GoToLocCommand(Location loc, Location rallyPoint,
                 int headNodeNum, int tailNodeNum, long timeout)
@@ -369,7 +369,7 @@ public class Point2PointCommander implements CommandHandler
             this.rallyPoint = rallyPoint;
             this.headNodeNum = headNodeNum;
             this.tailNodeNum = tailNodeNum;
-            this.timeout = timeout;
+            this.timeoutLength = timeout;
 
             // ahhhh
             this.commandData = new String[] { loc.toString(),
@@ -386,7 +386,7 @@ public class Point2PointCommander implements CommandHandler
             this.rallyPoint = new Location(args[1]);
             this.headNodeNum = Integer.parseInt(args[2]);
             this.tailNodeNum = Integer.parseInt(args[3]);
-            this.timeout = Long.parseLong(args[4]);
+            this.timeoutLength = Long.parseLong(args[4]);
         }
 
         @Override
@@ -399,7 +399,7 @@ public class Point2PointCommander implements CommandHandler
         {
             return Utils.join(";", super.toString(), loc.toString(),
                     rallyPoint.toString(), headNodeNum + "", tailNodeNum + "",
-                    timeout + "");
+                    timeoutLength + "");
         }
     }
 
