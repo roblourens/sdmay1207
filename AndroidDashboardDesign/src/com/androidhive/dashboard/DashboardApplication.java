@@ -127,7 +127,7 @@ public class DashboardApplication extends Application
     public void start()
     {
         Device.doAndroidHardStop();
-        nc.start(RoutingAlg.BATMAN);
+        nc.start(RoutingAlg.AODV);
     }
 
     public void stop()
@@ -147,8 +147,7 @@ public class DashboardApplication extends Application
 
         private Event[] eventsToBeNotifiedAbout = new Event[] {
                 Event.NodeJoined, Event.NodeLeft,
-                Event.RecvdShuttingDownMessage, Event.RecvdTextMessage,
-                Event.ACK };
+                Event.RecvdShuttingDownMessage, Event.RecvdTextMessage};
 
         public NotificationManager()
         {

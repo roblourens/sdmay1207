@@ -45,10 +45,7 @@ public class AODV implements RoutingImpl, Observer
 
     public boolean broadcastData(byte[] data)
     {
-        for (int i=2; i<=8; i++)
-        {
-            nodeAODV.sendData(TRANSMIT_PKT_ID, i, data);
-        }
+        nodeAODV.sendData(TRANSMIT_PKT_ID, BROADCAST_ID, data);
         
         return true;
     }

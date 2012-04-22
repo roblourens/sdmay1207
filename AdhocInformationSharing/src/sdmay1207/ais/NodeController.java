@@ -199,7 +199,7 @@ public class NodeController implements Observer
 
         return nodes;
     }
-    
+
     /**
      * Returns a map of nodes which are direct neighbors of this node
      */
@@ -291,8 +291,9 @@ public class NodeController implements Observer
                     .get(command.commandType);
 
             // Alert them
-            for (CommandHandler handler : typeHandlers)
-                handler.commandReceived(command);
+            if (typeHandlers != null)
+                for (CommandHandler handler : typeHandlers)
+                    handler.commandReceived(command);
 
             System.out.println("Received command: " + netEvent.data);
             break;

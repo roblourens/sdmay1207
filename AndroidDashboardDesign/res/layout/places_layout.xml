@@ -60,12 +60,12 @@
             android:textSize="15dp" />
 
         <Button
-            android:id="@+id/n4"
+            android:id="@+id/n6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@id/n7"
-            android:text="n4"
+            android:text="n6"
             android:textSize="15dp" />
 
         <Button

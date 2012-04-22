@@ -3,7 +3,7 @@ package aoa.etc;
 import java.io.PrintStream;
 
 public class Debug {
-	static private PrintStream debugStream = null;
+	static private PrintStream debugStream = System.out;
 	
 	static public void setDebugStream( PrintStream printstream){
 		debugStream = printstream;

@@ -242,7 +242,10 @@ public class NetworkController extends Observable
         }
 
         if (knownNodes.get(hb.from).update(hb))
+        {
+            System.out.println("Rebroadcasting from " + hb.from);
             sendHeartbeat(hb);
+        }
 
         if (!connectedNodes.containsKey(hb.from))
         {

@@ -171,13 +171,13 @@ public class MapActivity extends Activity implements Observer
                     }
                 });
 
-        ((Button) findViewById(R.id.n4))
+        ((Button) findViewById(R.id.n6))
                 .setOnClickListener(new OnClickListener()
                 {
                     public void onClick(View v)
                     {
                         MapActivity.this.nc.sendNetworkMessage(new TextMessage(
-                                "ping"), 4);
+                                "ping"), 6);
                     }
                 });
 
