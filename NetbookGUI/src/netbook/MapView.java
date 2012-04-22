@@ -48,7 +48,7 @@ public class MapView extends JPanel implements TextMessengerListener, MouseMotio
 	JXMapKit kit;
 	
 	Map<Integer, NodeWaypoint> waypointMapper;
-	Map<Integer, HoverPanel> hoverMapper;
+	//Map<Integer, HoverPanel> hoverMapper;
 	GeoPosition home;
 	
 	String meIcon = "dataDir/icons/my_person.png"; 
@@ -63,7 +63,7 @@ public class MapView extends JPanel implements TextMessengerListener, MouseMotio
 		this.parent = parent;
 		this.setLayout(new BorderLayout());
 		
-		hoverMapper = new HashMap<Integer, HoverPanel>();
+		//hoverMapper = new HashMap<Integer, HoverPanel>();
 		waypointMapper = new HashMap<Integer, NodeWaypoint>();
 
 		home = new GeoPosition(42.029850, -93.651237);
@@ -130,8 +130,10 @@ public class MapView extends JPanel implements TextMessengerListener, MouseMotio
 	
 	
 	public boolean addNode(Node node){
-		if(waypointMapper.get(node.getNodeNumber())==null){
-			waypointMapper.put(node.getNodeNumber(), new NodeWaypoint(this, node));
+		int number = node.getNodeNumber();
+		if(waypointMapper.get(number)==null){
+			waypointMapper.put(number, new NodeWaypoint(this, kit.getMainMap(), node));
+			//hoverMapper.put(number, new HoverPanel(node, this));
 			System.out.println("Adding node to map");
 			return true;
 		} else {
@@ -159,15 +161,19 @@ public class MapView extends JPanel implements TextMessengerListener, MouseMotio
         
         for(int num : waypointMapper.keySet()){
         	//System.out.print("Checking HoverPanel "+num);
-        	GeoPosition gp = waypointMapper.get(num).getPosition();
+        	NodeWaypoint waypoint = waypointMapper.get(num);
+        	GeoPosition gp = waypoint.getPosition();
 	        Point2D gp_pt = map.getTileFactory().geoToPixel(gp, map.getZoom());
 	        Point gpPoint = new Point((int)gp_pt.getX()-rect.x, (int)gp_pt.getY()-rect.y);
 	        
-	        HoverPanel hoverPanel = hoverMapper.get(num);
+	        //HoverPanel hoverPanel = hoverMapper.get(num);
+	        HoverPanel hoverPanel = waypoint.getPanel();
+	        //HoverPanel hoverPanel = waypoint.panel;
+	        
 	        if(hoverPanel!=null){    
         		//int x = hoverPanel.getX();
         		//int y = hoverPanel.getY();
-	        	//System.out.print("X: "+hoverPanel.getX()+" Y:"+hoverPanel.getY()+" W:"+hoverPanel.getWidth()+" H:"+hoverPanel.getHeight()+"\t");
+	        	System.out.print("X: "+hoverPanel.getX()+" Y:"+hoverPanel.getY()+" W:"+hoverPanel.getWidth()+" H:"+hoverPanel.getHeight()+"\t");
 	        	if(hoverPanel.isVisible() 
 	        			&& point.getX() > gpPoint.getX() 
 	        			&& point.getX() < gpPoint.getX()+hoverPanel.getWidth() 
@@ -176,17 +182,20 @@ public class MapView extends JPanel implements TextMessengerListener, MouseMotio
 	        		
 	      	
 	        	} else if(gpPoint.distance(point) < 10) {
+	        		//map.add(hoverPanel);
 	        	    hoverPanel.setLocation(gpPoint);
-		            //System.out.println(" Setting Visible");
+	        		//hoverPanel.setLocation(200,200);
+		            System.out.println(" Setting Visible");
 		            hoverPanel.setVisible(true);
 		            currentNode = hoverPanel;
 		            break;
 		        } else {
+		        	//map.remove(hoverPanel);
 		            hoverPanel.setVisible(false);
 		            currentNode = null;
-		            //System.out.println(" Setting Invisible");
+		            System.out.println(" Setting Invisible");
 		        }
-	        }
+	        } 
         }
 	}
 	

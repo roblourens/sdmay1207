@@ -151,22 +151,21 @@ public class NodeView extends JSplitPane {
 
 
 	
-	public void sendMessage(int number, String message) {
+	public void sendMessage(int number, String message, int node) {
 		parent.sendMessage(number, message);
-		this.closeTextMessenger();
+		this.closeTextMessenger(node);
 	}
 
-	public void sendMessageToAll(String message) {
+	public void sendMessageToAll(String message, int node) {
 		parent.sendMessageToAll(message);
-		this.closeTextMessenger();
+		this.closeTextMessenger(node);
 	}
 	
 	public void openMap(int nodeNum){
 		parent.changeView(parent.MAPVIEW, nodeNum);
 	}
-	public void closeTextMessenger() {
-		textPanel.setVisible(false);
-		textPanel = null;
+	public void closeTextMessenger(int node) {
+		nodePanels[node].closeTextMessenger();
 		
 	}
 

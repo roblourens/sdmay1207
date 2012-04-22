@@ -4,6 +4,7 @@ import netbook.MapView;
 import netbook.node.HoverPanel;
 import netbook.node.Node;
 
+import org.jdesktop.swingx.JXMapViewer;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
 import org.jdesktop.swingx.mapviewer.Waypoint;
 
@@ -12,14 +13,16 @@ import org.jdesktop.swingx.mapviewer.Waypoint;
 public class NodeWaypoint extends Waypoint {
 
 	MapView parent;
+	JXMapViewer  map;
 	Node node;
-	HoverPanel panel;
+	public HoverPanel panel;
 	
 	
-	public NodeWaypoint(MapView parent, Node node) {
+	public NodeWaypoint(MapView parent, JXMapViewer map, Node node) {
 		this.parent = parent;
 		this.node = node;
 		panel = new HoverPanel(node, parent);
+		map.add(panel);
 	}
 	
 	public GeoPosition getLocation(){
@@ -28,6 +31,10 @@ public class NodeWaypoint extends Waypoint {
 	
 	public Node getNode(){
 		return node;
+	}
+	
+	public HoverPanel getPanel(){
+		return panel;
 	}
 		
 	

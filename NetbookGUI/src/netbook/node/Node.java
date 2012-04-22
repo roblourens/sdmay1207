@@ -82,7 +82,10 @@ public class Node extends Observable{
 	}
 	
 	public void setConnection(boolean connected){
+		//System.out.println("Set Connection status to "+connected);
 		this.connected = connected;
+		this.setChanged();
+		this.notifyObservers(this.connected);
 	}
 	
 	

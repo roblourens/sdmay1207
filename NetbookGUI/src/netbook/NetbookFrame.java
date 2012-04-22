@@ -119,7 +119,7 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 	}
 
 	public void startNetwork() {
-		nc.start(RoutingAlg.AODV);
+		nc.start(RoutingAlg.BATMAN);
 		networkRunning = true;
 		mainView.startStop.setText("Stop");
 	}
@@ -263,6 +263,8 @@ public class NetbookFrame extends JFrame implements ActionListener, Runnable,
 		}
 	}
 
+	
+	
 	// NetworkRejoinListenerMethods
     public void lostSingleNode()
     {

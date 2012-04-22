@@ -322,7 +322,7 @@ public class P2PView extends JPanel implements ActionListener, MouseListener, Po
 
 	
 	public void setLocation(String msg, Location loc){
-		setDirections(command.loc);
+		setDirections(loc);
 		setStatus(msg);
 		parent.setStatus(msg);
 	}

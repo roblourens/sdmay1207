@@ -180,7 +180,7 @@ public class NodePanel extends JPanel implements ActionListener, Observer, TextM
 	
 	@Override
 	public void sendMessage(int number, String message) {
-		parent.sendMessage(number, message);
+		parent.sendMessage(number, message, node.getNodeNumber());
 	}
 
 
@@ -188,7 +188,7 @@ public class NodePanel extends JPanel implements ActionListener, Observer, TextM
 	
 	@Override
 	public void sendMessageToAll(String message) {
-		parent.sendMessageToAll(message);	
+		parent.sendMessageToAll(message, node.getNodeNumber());	
 	}
 
 
