@@ -225,8 +225,8 @@ public class Point2PointCommander implements CommandHandler
                 {
                     System.out.println("Fixing tail with node " + n.nodeNum);
                     Location l = assignments.get(n);
-                    assignments.put(n, assignments.get(headNode));
-                    assignments.put(headNode, l);
+                    assignments.put(n, assignments.get(tailNode));
+                    assignments.put(tailNode, l);
                     tailNode = n;
                     break;
                 }
