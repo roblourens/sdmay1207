@@ -144,10 +144,11 @@ public class DashboardApplication extends Application
         public List<DrawableNotification> notificationsToDraw = new ArrayList<DrawableNotification>();
 
         private DrawableNotification curP2PNotification;
+        private GoToLocCommand curCommand;
 
         private Event[] eventsToBeNotifiedAbout = new Event[] {
                 Event.NodeJoined, Event.NodeLeft,
-                Event.RecvdShuttingDownMessage, Event.RecvdTextMessage};
+                Event.RecvdShuttingDownMessage, Event.RecvdTextMessage };
 
         public NotificationManager()
         {
@@ -237,6 +238,7 @@ public class DashboardApplication extends Application
 
         public void p2pInitiated(final GoToLocCommand command)
         {
+            curCommand = command;
             DrawableNotification p2pNotification = new DrawableNotification(
                     "Node "
                             + command.from
@@ -309,8 +311,44 @@ public class DashboardApplication extends Application
                         "Tail node is ready - start streaming whenever you want"));
                 break;
             case enRouteToRallyPoint:
-                addNotification(new Notification(
-                        "Connecting to head and tail timed out - return to rally point"));
+                DrawableNotification dn = new DrawableNotification(
+                        "Connecting to head and tail timed out - return to rally point")
+                {
+                    private List<Location> pathToDest;
+
+                    @Override
+                    public OverlayItem getOverlayItem()
+                    {
+                        OverlayItem oi = new OverlayItem("notification",
+                                "title", "desc", new GeoPoint(
+                                        curCommand.rallyPoint.latitude,
+                                        curCommand.rallyPoint.longitude));
+                        oi.setMarker(getResources()
+                                .getDrawable(R.drawable.flag));
+                        return oi;
+                    }
+
+                    @Override
+                    public void drawOverlay(OverlayManager om)
+                    {
+                        PathOverlay po = new PathOverlay(Color.RED,
+                                DashboardApplication.this);
+
+                        Location here = nc.getMe().lastLocation;
+                        if (pathToDest == null)
+                            pathToDest = nc.p2pCmdr.getWrangler()
+                                    .getPathBetweenPoints(here,
+                                            curCommand.rallyPoint);
+
+                        for (Location loc : pathToDest)
+                            po.addPoint(new GeoPoint(loc.latitude,
+                                    loc.longitude));
+
+                        om.add(po);
+                    }
+                };
+                curP2PNotification = dn;
+                addNotification(dn);
                 break;
             case active:
                 addNotification(new Notification("Now streaming"));

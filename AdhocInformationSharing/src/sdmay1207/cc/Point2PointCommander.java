@@ -115,10 +115,14 @@ public class Point2PointCommander implements CommandHandler
         {
             // don't care what state we're in now, go to start streaming state
             changeState(P2PState.active);
+            
+            System.out.println("Got stream start command");
         } else if (command.commandType
                 .equals(StopStreamCommand.STOP_STREAM_COMMAND_TYPE))
         {
             changeState(P2PState.enRouteToRallyPoint);
+            
+            System.out.println("Got stream stop command");
         }
     }
 
@@ -189,13 +193,44 @@ public class Point2PointCommander implements CommandHandler
         // assign nodes to positions
         Map<Node, Location> assignments = wrangler.assignNodesToPositions(
                 useableNodes, positions);
-
+        
         // Figure out the node nums assigned to head (with video) and tail
         // (receiving)
-        int headNodeNum = ((Node) Utils.reverseMapLookup(assignments,
-                positions.get(0))).nodeNum;
-        int tailNodeNum = ((Node) Utils.reverseMapLookup(assignments,
-                positions.get(positions.size() - 1))).nodeNum;
+        Node headNode = ((Node) Utils.reverseMapLookup(assignments,
+                positions.get(0)));
+        Node tailNode = ((Node) Utils.reverseMapLookup(assignments,
+                positions.get(positions.size() - 1)));
+        
+        // fix! just swap with the first good node found
+        if (!headNode.lastHeartbeat.canSendVideo)
+        {
+            System.out.println("Must fix head");
+            for (Node n : assignments.keySet())
+                if (n.lastHeartbeat.canSendVideo)
+                {
+                    System.out.println("Fixing head to node " + n.nodeNum);
+                    Location l = assignments.get(n);
+                    assignments.put(n, assignments.get(headNode));
+                    assignments.put(headNode, l);
+                    headNode = n;
+                    break;
+                }
+        }
+        
+        if (!tailNode.lastHeartbeat.canReceiveVideo)
+        {
+            System.out.println("Must fix tail");
+            for (Node n : assignments.keySet())
+                if (n.lastHeartbeat.canReceiveVideo)
+                {
+                    System.out.println("Fixing tail with node " + n.nodeNum);
+                    Location l = assignments.get(n);
+                    assignments.put(n, assignments.get(headNode));
+                    assignments.put(headNode, l);
+                    tailNode = n;
+                    break;
+                }
+        }
 
         long timeoutTime = timeoutMS;
         // send position assignments
@@ -205,7 +240,7 @@ public class Point2PointCommander implements CommandHandler
         {
             Location loc = assignments.get(n);
             GoToLocCommand command = new GoToLocCommand(loc, rallyPoint,
-                    headNodeNum, tailNodeNum, timeoutTime);
+                    headNode.nodeNum, tailNode.nodeNum, timeoutTime);
             nodeController.sendNetworkMessage(command, n.nodeNum);
         }
     }
@@ -262,6 +297,12 @@ public class Point2PointCommander implements CommandHandler
         {
             Map<Integer, Node> nodes = nodeController.getNodesInNetwork();
 
+            if (!nodeController.isRunning())
+            {
+                stop();
+                return;
+            }
+            
             if (curState == P2PState.inactive)
                 stop();
             if (System.currentTimeMillis() >= enRouteTimeoutTime
