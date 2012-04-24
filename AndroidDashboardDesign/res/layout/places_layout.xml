@@ -48,6 +48,7 @@
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@id/directNeighborsButton"
             android:text="n5"
+            android:visibility="gone"
             android:textSize="15dp" />
 
         <Button
@@ -56,6 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@id/n5"
+            android:visibility="gone"
             android:text="n7"
             android:textSize="15dp" />
 
@@ -65,6 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@id/n7"
+            android:visibility="gone"
             android:text="n6"
             android:textSize="15dp" />
 
