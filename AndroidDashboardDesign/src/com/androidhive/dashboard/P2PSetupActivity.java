@@ -50,8 +50,14 @@ public class P2PSetupActivity extends Activity
         mapView = (MapView) findViewById(R.id.setupMap);
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setMultiTouchControls(true);
-        mapView.getController().setZoom(15);
-        mapView.getController().setCenter(new GeoPoint(42.024443, -93.656141));
+        
+        // get center from intent args
+        int lat = getIntent().getIntExtra("lat", 42024443);
+        int lon = getIntent().getIntExtra("lon", -93656141);
+        int zoom = getIntent().getIntExtra("zoom", 16);
+        
+        mapView.getController().setZoom(zoom);
+        mapView.getController().setCenter(new GeoPoint(lat, lon));
 
         nc = ((DashboardApplication) getApplication()).nc;
 

@@ -66,8 +66,8 @@ public class MapActivity extends Activity implements Observer
         mapView.setKeepScreenOn(true);
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
-        mapView.getController().setZoom(15);
-        mapView.getController().setCenter(new GeoPoint(42.024443, -93.656141));
+        mapView.getController().setZoom(16);
+        mapView.getController().setCenter(new GeoPoint(42.02656, -93.64921));
 
         da = ((DashboardApplication) getApplication());
         nc = da.nc;
@@ -128,9 +128,16 @@ public class MapActivity extends Activity implements Observer
                     public void onClick(View v)
                     {
                         if (isStarted)
-                            startActivity(new Intent(MapActivity.this,
-                                    P2PSetupActivity.class));
-                        else
+                        {
+                            Intent intent = new Intent(MapActivity.this,
+                                    P2PSetupActivity.class);
+                            intent.putExtra("lat", mapView.getMapCenter()
+                                    .getLatitudeE6());
+                            intent.putExtra("lon", mapView.getMapCenter()
+                                    .getLongitudeE6());
+                            intent.putExtra("zoom", mapView.getZoomLevel());
+                            startActivity(intent);
+                        } else
                             Toast.makeText(
                                     MapActivity.this,
                                     "You need to join the network before issuing a Point-to-Point command",
@@ -190,15 +197,15 @@ public class MapActivity extends Activity implements Observer
             }
         });
     }
-    
+
     @Override
     protected void onDestroy()
     {
         System.out.println("MapActivity.onDestroy");
-        
+
         // clean up when we're being killed without stopping
         da.stop();
-        
+
         super.onDestroy();
     }
 
@@ -256,13 +263,14 @@ public class MapActivity extends Activity implements Observer
 
         // now add from notifications
         // add notification map overlays
-        for (DrawableNotification n : da.nm.notificationsToDraw)
+        DrawableNotification dn = da.nm.curDrawableNotification;
+        if (dn != null)
         {
-            OverlayItem oi = n.getOverlayItem();
+            OverlayItem oi = dn.getOverlayItem();
             if (oi != null)
                 items.add(oi);
-
-            n.drawOverlay(mapView.getOverlayManager());
+    
+            dn.drawOverlay(mapView.getOverlayManager());
         }
 
         ItemizedOverlay<OverlayItem> overlay = new ItemizedIconOverlay<OverlayItem>(
@@ -333,7 +341,7 @@ public class MapActivity extends Activity implements Observer
         switch (netEvent.event)
         {
         case RecvdHeartbeat:
-            //updateMapObjects();
+            // updateMapObjects();
             break;
         case NodeJoined:
             updateMapObjects();

@@ -141,9 +141,8 @@ public class DashboardApplication extends Application
             NetworkRejoinListener, Point2PointGUI
     {
         public List<Notification> notifications = new ArrayList<Notification>();
-        public List<DrawableNotification> notificationsToDraw = new ArrayList<DrawableNotification>();
 
-        private DrawableNotification curP2PNotification;
+        public DrawableNotification curDrawableNotification;
         private GoToLocCommand curCommand;
 
         private Event[] eventsToBeNotifiedAbout = new Event[] {
@@ -191,7 +190,7 @@ public class DashboardApplication extends Application
 
         public void addNotification(DrawableNotification dn)
         {
-            notificationsToDraw.add(dn);
+            curDrawableNotification = dn;
             addNotification((Notification) dn);
         }
 
@@ -280,15 +279,7 @@ public class DashboardApplication extends Application
                 }
             };
 
-            // working on one currently? if so, replace it
-            if (curP2PNotification != null)
-            {
-                System.out
-                        .println("Got a p2p notification to replace the current one SO YOU CAN GO AND TELL THAT");
-                notificationsToDraw.remove(curP2PNotification);
-            }
-            curP2PNotification = p2pNotification;
-
+            curDrawableNotification = p2pNotification;
             addNotification(p2pNotification);
         }
 
@@ -347,7 +338,8 @@ public class DashboardApplication extends Application
                         om.add(po);
                     }
                 };
-                curP2PNotification = dn;
+
+                curDrawableNotification = dn;
                 addNotification(dn);
                 break;
             case active:
@@ -363,10 +355,10 @@ public class DashboardApplication extends Application
 
     /*
      * complicated - this whole system could almost be replaced with a list of
-     * asdfasdf Strings but we might want to add some extra behavior for a
-     * notification later - String of extra details, timestamps, locations,
-     * overlay icons/colors linked to notification types, whatever, so I figure
-     * set up a simple object for now
+     * Strings but we might want to add some extra behavior for a notification
+     * later - String of extra details, timestamps, locations, overlay
+     * icons/colors linked to notification types, whatever, so I figure set up a
+     * simple object for now
      */
     public class Notification
     {
