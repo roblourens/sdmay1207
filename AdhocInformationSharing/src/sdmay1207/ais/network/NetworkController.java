@@ -7,7 +7,9 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Queue;
@@ -27,6 +29,7 @@ import sdmay1207.ais.etc.Utils;
 import sdmay1207.ais.network.NetworkInterface.RoutingAlg;
 import sdmay1207.ais.network.model.Heartbeat;
 import sdmay1207.ais.network.model.NetworkMessage;
+import sdmay1207.ais.network.model.NetworkMessage.MessageType;
 import sdmay1207.ais.network.model.Node;
 
 /**
@@ -308,6 +311,8 @@ public class NetworkController extends Observable
         private final int CAM_STREAM_PORT = 7476;
         private final InetAddress CAM_STREAM_ADDR;
 
+        private List<NetworkMessage> broadcastedCommands;
+
         public Receiver()
         {
             try
@@ -326,6 +331,8 @@ public class NetworkController extends Observable
         {
             System.out.println("Receiver starting");
             receivedEvents = new ConcurrentLinkedQueue<NetworkEvent>();
+            broadcastedCommands = new ArrayList<NetworkMessage>();
+
             try
             {
                 localSock = new DatagramSocket();
@@ -388,6 +395,16 @@ public class NetworkController extends Observable
             }
 
             NetworkMessage msg = NetworkMessage.getMessage(fromIP, data);
+
+            if (msg.messageType == MessageType.Command
+                    && Utils.getNodeNumberFromIP(fromIP) == 255
+                    && !broadcastedCommands.contains(msg))
+            {
+                System.out.println("Rebroadcasting command: " + msg.toString());
+                broadcastNetworkMessage(msg);
+                broadcastedCommands.add(msg);
+            }
+
             addMessage(msg);
         }
 
@@ -403,7 +420,7 @@ public class NetworkController extends Observable
             case Heartbeat:
                 event = new NetworkEvent(Event.RecvdHeartbeat, msg);
                 boolean[] hbHandleResult = handleHeartbeat((Heartbeat) msg);
-                if (hbHandleResult[0])
+                if (hbHandleResult[0] && msg.from != nodeNumber)
                     nodeJoined(msg.from);
                 else if (!hbHandleResult[1])
                     return;

@@ -158,36 +158,6 @@ public class MapActivity extends Activity implements Observer
                     }
                 });
 
-        ((Button) findViewById(R.id.n5))
-                .setOnClickListener(new OnClickListener()
-                {
-                    public void onClick(View v)
-                    {
-                        MapActivity.this.nc.sendNetworkMessage(new TextMessage(
-                                "ping"), 5);
-                    }
-                });
-
-        ((Button) findViewById(R.id.n7))
-                .setOnClickListener(new OnClickListener()
-                {
-                    public void onClick(View v)
-                    {
-                        MapActivity.this.nc.sendNetworkMessage(new TextMessage(
-                                "ping"), 7);
-                    }
-                });
-
-        ((Button) findViewById(R.id.n6))
-                .setOnClickListener(new OnClickListener()
-                {
-                    public void onClick(View v)
-                    {
-                        MapActivity.this.nc.sendNetworkMessage(new TextMessage(
-                                "ping"), 6);
-                    }
-                });
-
         notificationView.setOnClickListener(new OnClickListener()
         {
             public void onClick(View v)
